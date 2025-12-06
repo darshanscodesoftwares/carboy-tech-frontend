@@ -1,0 +1,79 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-bg);
+}
+
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  background-color: var(--color-accent);
+}
+
+.brandName {
+  font-weight: 600;
+  font-size: var(--font-md);
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.userInfo {
+  text-align: right;
+}
+
+.userName {
+  font-size: var(--font-sm);
+  font-weight: 500;
+}
+
+.userRole {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+}
+
+.logoutButton {
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.logoutButton:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-muted);
+}

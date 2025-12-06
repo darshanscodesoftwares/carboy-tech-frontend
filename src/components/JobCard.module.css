@@ -1,0 +1,107 @@
+.card {
+  background-color: var(--color-box-bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.serviceType {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 999px;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.statusBadge {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.customer {
+  margin-bottom: var(--space-md);
+}
+
+.customerName {
+  font-weight: 600;
+  font-size: var(--font-lg);
+  margin-bottom: var(--space-xs);
+}
+
+.customerPhone {
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+}
+
+.vehicle {
+  margin-bottom: var(--space-md);
+}
+
+.vehicleModel {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-xs);
+}
+
+.vehicleYear {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+}
+
+.schedule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.scheduleDate {
+  font-size: var(--font-sm);
+}
+
+.scheduleSlot {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.locationIcon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+.locationAddress {
+  font-size: var(--font-xs);
+  color: var(--color-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

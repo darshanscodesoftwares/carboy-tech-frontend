@@ -1,0 +1,80 @@
+.container {
+  width: 100%;
+  padding: var(--space-md) var(--space-sm);
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.connector {
+  position: absolute;
+  top: 16px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  z-index: 0;
+}
+
+.connector.completed {
+  background-color: var(--color-accent);
+}
+
+.connector.pending {
+  background-color: var(--color-border);
+}
+
+.circle {
+  position: relative;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-xs);
+  font-weight: 500;
+}
+
+.circle.completed,
+.circle.current {
+  background-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.circle.pending {
+  background-color: var(--color-border);
+  color: var(--color-muted);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.label {
+  margin-top: var(--space-sm);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  text-align: center;
+}
+
+.label.completed,
+.label.current {
+  color: var(--color-accent);
+}
+
+.label.pending {
+  color: var(--color-muted);
+}
