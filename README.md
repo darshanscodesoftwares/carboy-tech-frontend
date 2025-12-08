@@ -1,4 +1,4 @@
-Role:
+<!-- Role:
 You are a Senior Frontend Architect with expertise in high-quality production UI.
 Your task is to fully remove TailwindCSS from this project and replace it with modular CSS and a professional UI design system, without changing any functional logic.
 
@@ -299,4 +299,4 @@ Polish design
 Do not modify any TypeScript/JS logic
 Do not change API calls
 Do not delete functional parts
-Only change styling
+Only change styling -->
