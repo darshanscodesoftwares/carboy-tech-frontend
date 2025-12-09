@@ -1,0 +1,241 @@
+.container {
+  max-width: var(--container-width-md);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.title {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--space-2xl);
+}
+
+.progressBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-2xl);
+  position: relative;
+}
+
+.stepContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.stepWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.stepCircle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.stepCircle.completed {
+  background-color: var(--color-accent);
+  color: white;
+  border: 3px solid var(--color-accent);
+}
+
+.stepCircle.current {
+  background-color: var(--color-accent);
+  color: white;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 0 0 6px rgba(52, 123, 101, 0.2);
+}
+
+.stepCircle.upcoming {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  border: 3px solid #e5e7eb;
+}
+
+.currentIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upcomingIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connectingLine {
+  position: absolute;
+  top: 28px;
+  left: calc(50% + 28px);
+  right: calc(-50% + 28px);
+  height: 3px;
+  background-color: #e5e7eb;
+  z-index: 1;
+}
+
+.connectingLine.lineCompleted {
+  background-color: var(--color-accent);
+}
+
+.stepLabel {
+  margin-top: var(--space-md);
+  font-size: var(--font-sm);
+  color: var(--color-muted);
+  text-align: center;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.stepLabel.labelCurrent {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.mapContainer {
+  margin-bottom: var(--space-xl);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.mapPlaceholder {
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 50%, #b2dfdb 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapOverlay {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  max-width: 500px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.viewMapButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background-color: var(--color-accent);
+  border: none;
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  margin-bottom: var(--space-md);
+}
+
+.viewMapButton:hover {
+  opacity: 0.9;
+}
+
+.mapText {
+  font-size: var(--font-sm);
+  color: var(--color-text);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.actionButton {
+  width: 100%;
+  max-width: 400px;
+  display: block;
+  margin: 0 auto;
+  padding: var(--space-md);
+  background-color: var(--color-accent);
+  border: none;
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: var(--font-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.actionButton:hover {
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .stepCircle {
+    width: 48px;
+    height: 48px;
+  }
+
+  .connectingLine {
+    top: 24px;
+    left: calc(50% + 24px);
+    right: calc(-50% + 24px);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .title {
+    font-size: var(--font-xl);
+  }
+
+  .progressBar {
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+  }
+
+  .stepContainer {
+    flex-basis: calc(50% - var(--space-sm));
+    margin-bottom: var(--space-lg);
+  }
+
+  .stepCircle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stepCircle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stepLabel {
+    font-size: var(--font-xs);
+  }
+
+  .connectingLine {
+    display: none;
+  }
+
+  .mapPlaceholder {
+    height: 300px;
+  }
+
+  .mapOverlay {
+    padding: var(--space-lg);
+  }
+}

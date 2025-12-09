@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useJobFlow, { JOB_STATUSES, getStepIndex } from '../hooks/useJobFlow';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import JobDetailsView from '../components/JobDetailsView';
+import TravelProgressView from '../components/TravelProgressView';
 import ProgressBar from '../components/ProgressBar';
 import ChecklistItem from '../components/ChecklistItem';
 import Loading from '../components/Loading';
@@ -56,52 +59,88 @@ const JobFlow = () => {
     );
   };
 
-  if (loading && !job) return <div className={styles.container}><Navbar /><main className={styles.main} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loading message="Loading job..." /></main></div>;
-  if (!job && error) return <div className={styles.container}><Navbar /><main className={styles.main}><div className={styles.error}><p>{error}</p><button onClick={() => navigate('/dashboard')} className={styles.primaryButton} style={{ marginTop: 'var(--space-md)' }}>Back to Dashboard</button></div></main></div>;
+  if (loading && !job) return <div className={styles.container}><Navbar /><main className={styles.main} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Loading message="Loading job..." /></main><Footer /></div>;
+  if (!job && error) return <div className={styles.container}><Navbar /><main className={styles.main}><div className={styles.error}><p>{error}</p><button onClick={() => navigate('/dashboard')} className={styles.primaryButton} style={{ marginTop: 'var(--space-md)' }}>Back to Dashboard</button></div></main><Footer /></div>;
+
+  const renderContent = () => {
+    // Flow 3: Travel Progress View (when traveling)
+    if (job?.status === JOB_STATUSES.TRAVELING) {
+      return (
+        <TravelProgressView
+          currentStep={1}
+          onReachedLocation={() => handleAction(() => reachedLocation(jobId))}
+        />
+      );
+    }
+
+    // Flow 2: Job Details View (when accepted, not yet traveling)
+    if (job?.status === JOB_STATUSES.ACCEPTED) {
+      return (
+        <JobDetailsView
+          job={job}
+          onStartTravel={() => handleAction(() => startTravel(jobId))}
+        />
+      );
+    }
+
+    // Completed Summary View
+    if (job?.status === JOB_STATUSES.COMPLETED || summary) {
+      return renderSummary();
+    }
+
+    // Default view for other statuses (pending, reached, in_inspection)
+    return (
+      <>
+        {error && <div className={styles.error}>{error}</div>}
+        {job?.status !== JOB_STATUSES.COMPLETED && job?.status !== JOB_STATUSES.PENDING && (
+          <div className={styles.progressCard}><ProgressBar currentStep={getStepIndex(job?.status)} /></div>
+        )}
+
+        <div className={styles.jobCard}>
+          <div className={styles.jobHeader}><span className={styles.serviceType}>{job?.serviceType}</span><span className={styles.statusBadge}>{job?.status?.replace('_', ' ')}</span></div>
+          <div className={styles.section}><h3 className={styles.sectionTitle}>Customer</h3><p className={styles.sectionContent}>{job?.customerSnapshot?.name}</p><p className={styles.sectionText}>{job?.customerSnapshot?.phone}</p></div>
+          <div className={styles.section}><h3 className={styles.sectionTitle}>Vehicle</h3><p className={styles.sectionContent}>{job?.vehicleSnapshot?.brand} {job?.vehicleSnapshot?.model}</p><p className={styles.sectionText}>{job?.vehicleSnapshot?.year}</p></div>
+          <div className={styles.section}><h3 className={styles.sectionTitle}>Location</h3><p className={styles.sectionText}>{job?.location?.address}</p></div>
+          <div className={styles.schedule}><span className={styles.scheduleDate}>{job?.schedule?.date}</span><span className={styles.scheduleSlot}>{job?.schedule?.slot}</span></div>
+        </div>
+
+        {job?.status === JOB_STATUSES.IN_INSPECTION && (
+          <div className={styles.checklistSection}>
+            <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
+            {loading && !checklist ? <Loading message="Loading checklist..." /> : checklist?.items ? (
+              <>
+                {checklist.items.map((item) => <ChecklistItem key={item.key} item={item} onSubmit={handleCheckpointSubmit} isSubmitting={checkpointLoading} existingAnswer={getExistingAnswer(item.key)} />)}
+                {allCheckpointsCompleted() && (
+                  <div style={{ marginTop: 'var(--space-lg)' }}>
+                    {!showReportForm ? <button onClick={() => setShowReportForm(true)} className={styles.primaryButton}>Proceed to Submit Report</button> : (
+                      <div className={styles.reportForm}>
+                        <h3 className={styles.formTitle}>Final Report</h3>
+                        <div className={styles.formField}><label className={styles.formLabel}>Summary *</label><textarea value={reportForm.summary} onChange={(e) => setReportForm((p) => ({ ...p, summary: e.target.value }))} placeholder="Overall inspection summary..." className={styles.textarea} rows={3} /></div>
+                        <div className={styles.formField}><label className={styles.formLabel}>Overall Status</label><div className={styles.statusButtons}>{['PASS', 'ATTENTION', 'FAIL'].map((s) => <button key={s} type="button" onClick={() => setReportForm((p) => ({ ...p, overallStatus: s }))} className={`${styles.statusButton} ${styles[s.toLowerCase()]} ${reportForm.overallStatus === s ? styles.selected : ''}`}>{s}</button>)}</div></div>
+                        <div className={styles.formField}><label className={styles.formLabel}>Recommendations</label>{reportForm.recommendations.length > 0 && <div className={styles.recommendationsList}>{reportForm.recommendations.map((r, i) => <div key={i} className={styles.recommendation}><span className={`${styles.severityBadge} ${styles[r.severity]}`}>{r.severity}</span><span className={styles.recommendationText}>{r.text}</span><button onClick={() => handleRemoveRec(i)} className={styles.removeButton}>X</button></div>)}</div>}<div className={styles.addRecommendation}><input value={newRec.text} onChange={(e) => setNewRec((p) => ({ ...p, text: e.target.value }))} placeholder="Add recommendation..." className={styles.input} /><select value={newRec.severity} onChange={(e) => setNewRec((p) => ({ ...p, severity: e.target.value }))} className={styles.select}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><button onClick={handleAddRec} className={styles.addButton}>+</button></div></div>
+                        <button onClick={handleSubmitReport} disabled={actionLoading || !reportForm.summary.trim()} className={styles.primaryButton}>{actionLoading ? <><div className={styles.spinner} />Submitting...</> : 'Complete Inspection'}</button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : <p className={styles.emptyChecklist}>No checklist available</p>}
+          </div>
+        )}
+
+        {job?.status !== JOB_STATUSES.IN_INSPECTION && renderActionButton()}
+        <button onClick={() => navigate('/dashboard')} className={styles.secondaryButton}>Back to Dashboard</button>
+      </>
+    );
+  };
 
   return (
     <div className={styles.container}>
       <Navbar />
       <main className={styles.main}>
-        {job?.status !== JOB_STATUSES.COMPLETED && <div className={styles.progressCard}><ProgressBar currentStep={getStepIndex(job?.status)} /></div>}
-        {(job?.status === JOB_STATUSES.COMPLETED || summary) ? renderSummary() : (
-          <>
-            {error && <div className={styles.error}>{error}</div>}
-            <div className={styles.jobCard}>
-              <div className={styles.jobHeader}><span className={styles.serviceType}>{job?.serviceType}</span><span className={styles.statusBadge}>{job?.status?.replace('_', ' ')}</span></div>
-              <div className={styles.section}><h3 className={styles.sectionTitle}>Customer</h3><p className={styles.sectionContent}>{job?.customerSnapshot?.name}</p><p className={styles.sectionText}>{job?.customerSnapshot?.phone}</p></div>
-              <div className={styles.section}><h3 className={styles.sectionTitle}>Vehicle</h3><p className={styles.sectionContent}>{job?.vehicleSnapshot?.brand} {job?.vehicleSnapshot?.model}</p><p className={styles.sectionText}>{job?.vehicleSnapshot?.year}</p></div>
-              <div className={styles.section}><h3 className={styles.sectionTitle}>Location</h3><p className={styles.sectionText}>{job?.location?.address}</p></div>
-              <div className={styles.schedule}><span className={styles.scheduleDate}>{job?.schedule?.date}</span><span className={styles.scheduleSlot}>{job?.schedule?.slot}</span></div>
-            </div>
-            {job?.status === JOB_STATUSES.IN_INSPECTION && (
-              <div className={styles.checklistSection}>
-                <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
-                {loading && !checklist ? <Loading message="Loading checklist..." /> : checklist?.items ? (
-                  <>
-                    {checklist.items.map((item) => <ChecklistItem key={item.key} item={item} onSubmit={handleCheckpointSubmit} isSubmitting={checkpointLoading} existingAnswer={getExistingAnswer(item.key)} />)}
-                    {allCheckpointsCompleted() && (
-                      <div style={{ marginTop: 'var(--space-lg)' }}>
-                        {!showReportForm ? <button onClick={() => setShowReportForm(true)} className={styles.primaryButton}>Proceed to Submit Report</button> : (
-                          <div className={styles.reportForm}>
-                            <h3 className={styles.formTitle}>Final Report</h3>
-                            <div className={styles.formField}><label className={styles.formLabel}>Summary *</label><textarea value={reportForm.summary} onChange={(e) => setReportForm((p) => ({ ...p, summary: e.target.value }))} placeholder="Overall inspection summary..." className={styles.textarea} rows={3} /></div>
-                            <div className={styles.formField}><label className={styles.formLabel}>Overall Status</label><div className={styles.statusButtons}>{['PASS', 'ATTENTION', 'FAIL'].map((s) => <button key={s} type="button" onClick={() => setReportForm((p) => ({ ...p, overallStatus: s }))} className={`${styles.statusButton} ${styles[s.toLowerCase()]} ${reportForm.overallStatus === s ? styles.selected : ''}`}>{s}</button>)}</div></div>
-                            <div className={styles.formField}><label className={styles.formLabel}>Recommendations</label>{reportForm.recommendations.length > 0 && <div className={styles.recommendationsList}>{reportForm.recommendations.map((r, i) => <div key={i} className={styles.recommendation}><span className={`${styles.severityBadge} ${styles[r.severity]}`}>{r.severity}</span><span className={styles.recommendationText}>{r.text}</span><button onClick={() => handleRemoveRec(i)} className={styles.removeButton}>X</button></div>)}</div>}<div className={styles.addRecommendation}><input value={newRec.text} onChange={(e) => setNewRec((p) => ({ ...p, text: e.target.value }))} placeholder="Add recommendation..." className={styles.input} /><select value={newRec.severity} onChange={(e) => setNewRec((p) => ({ ...p, severity: e.target.value }))} className={styles.select}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><button onClick={handleAddRec} className={styles.addButton}>+</button></div></div>
-                            <button onClick={handleSubmitReport} disabled={actionLoading || !reportForm.summary.trim()} className={styles.primaryButton}>{actionLoading ? <><div className={styles.spinner} />Submitting...</> : 'Complete Inspection'}</button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                ) : <p className={styles.emptyChecklist}>No checklist available</p>}
-              </div>
-            )}
-            {job?.status !== JOB_STATUSES.IN_INSPECTION && renderActionButton()}
-            <button onClick={() => navigate('/dashboard')} className={styles.secondaryButton}>Back to Dashboard</button>
-          </>
-        )}
+        {renderContent()}
       </main>
+      <Footer />
     </div>
   );
 };

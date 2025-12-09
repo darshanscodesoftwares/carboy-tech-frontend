@@ -2,9 +2,9 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: var(--space-md);
-  box-shadow: var(--shadow-sm);
+  padding: var(--space-md) var(--space-lg);
   background-color: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .container {
@@ -16,64 +16,122 @@
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
   cursor: pointer;
 }
 
-.logo {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.brandName {
   font-weight: 700;
-  color: white;
-  background-color: var(--color-accent);
+  font-size: var(--font-lg);
+  color: var(--color-accent);
+  letter-spacing: 0.5px;
 }
 
-.brandName {
-  font-weight: 600;
+.navCenter {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.navLink {
   font-size: var(--font-md);
+  color: var(--color-text);
+  font-weight: 500;
+  padding-bottom: 2px;
+  cursor: pointer;
+}
+
+.navLinkActive {
+  font-size: var(--font-md);
+  color: var(--color-accent);
+  font-weight: 600;
+  padding-bottom: 2px;
+  border-bottom: 2px solid var(--color-accent);
+  cursor: pointer;
+}
+
+.notificationBadge {
+  background-color: #ff4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 999px;
+  position: absolute;
+  top: -8px;
+  right: -18px;
 }
 
 .userSection {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #B2E8DD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-accent);
+}
+
+.avatarText {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--color-accent);
 }
 
 .userInfo {
-  text-align: right;
+  text-align: left;
 }
 
 .userName {
   font-size: var(--font-sm);
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
 }
 
-.userRole {
+.userId {
   font-size: var(--font-xs);
   color: var(--color-muted);
+  margin: 0;
 }
 
-.logoutButton {
-  padding: var(--space-sm);
-  border-radius: var(--radius-sm);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: var(--space-md);
+  }
 
-.logoutButton:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
+  .brandName {
+    font-size: var(--font-md);
+  }
 
-.icon {
-  width: 20px;
-  height: 20px;
-  color: var(--color-muted);
+  .navCenter {
+    display: none;
+  }
+
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .userName {
+    font-size: var(--font-xs);
+  }
+
+  .userId {
+    display: none;
+  }
 }
