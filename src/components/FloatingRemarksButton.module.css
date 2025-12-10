@@ -4,46 +4,40 @@
   bottom: var(--space-xl);
   z-index: 1000;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-md);
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
   background-color: var(--color-accent);
   color: white;
   border: none;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(52, 123, 101, 0.3);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .floatingButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(52, 123, 101, 0.4);
 }
 
 .floatingButton:active {
   transform: translateY(0);
 }
 
-.iconContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .indicator {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 10px;
-  height: 10px;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
   background-color: #fbbf24;
   border: 2px solid white;
   border-radius: 50%;
@@ -59,22 +53,17 @@
   }
 }
 
-.label {
-  font-size: var(--font-xs);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .floatingButton {
     right: var(--space-md);
     bottom: var(--space-lg);
-    padding: var(--space-sm) var(--space-md);
+    width: 52px;
+    height: 52px;
   }
 
-  .label {
-    font-size: 0.75rem;
+  .icon {
+    width: 24px;
+    height: 24px;
   }
 }
