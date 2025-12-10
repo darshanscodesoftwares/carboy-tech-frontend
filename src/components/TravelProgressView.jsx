@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import ProgressBar from './ProgressBar';
 import styles from './TravelProgressView.module.css';
 
 const TravelProgressView = ({ currentStep, onReachedLocation }) => {
@@ -14,13 +13,10 @@ const TravelProgressView = ({ currentStep, onReachedLocation }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.progressCard}>
-        <ProgressBar currentStep={currentStep} />
-      </div>
       <h2 className={styles.title}>Job Progress</h2>
 
-      {/* Old Progress Bar - keeping for reference, can be removed */}
-      <div className={styles.progressBar} style={{ display: 'none' }}>
+      {/* Progress Bar */}
+      <div className={styles.progressBar}>
         {steps.map((step, index) => {
           const isCompleted = index < currentStep;
           const isCurrent = index === currentStep;

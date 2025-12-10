@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import ProgressBar from './ProgressBar';
 import styles from './InspectionSummary.module.css';
 
 const InspectionSummary = ({ job }) => {
@@ -75,9 +74,6 @@ const InspectionSummary = ({ job }) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.progressCard}>
-        <ProgressBar currentStep={5} />
-      </div>
       <div className={styles.successBanner}>
         <div className={styles.successIconContainer}>
           <svg className={styles.successIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
