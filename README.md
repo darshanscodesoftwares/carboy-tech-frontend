@@ -1,3 +1,35 @@
+## 🔄 Restore/Revert Instructions
+
+If any UI or logic changes do not match the required instructions or break the expected flow, you must revert the most recent commit and restore the previous working version.
+
+### Revert Rules
+- Do NOT rewrite files manually from memory.
+- Do NOT keep partial changes.
+- Revert must use the exact previous code state.
+
+### Required Behavior
+When a revert is requested:
+1. Identify the exact commit where the incorrect changes were introduced.
+2. Restore the previous working code from the commit immediately before the broken one.
+3. Confirm that all files are restored to their previous stable state.
+4. Verify that the application builds and runs normally after the revert.
+5. Do not reintroduce past incorrect changes.
+
+### Scope
+- Only the last change needs to be reverted.
+- Do not revert earlier work (Technician flow, API integration, logic, Zustand, etc.).
+- Only undo the most recent UI changes that do not match the client-approved design.
+
+### Important
+When reverting:
+- Preserve all API logic and flow.
+- Preserve the working Technician flow.
+- Preserve routing structure.
+- Preserve global state logic.
+- Restore only the UI code that was changed recently.
+
+After revert is completed, wait for new instructions before making additional UI changes.
+
 Note: You must also read and follow all previous Phase 1 and Phase 2 instructions in this README, including logic, routing, file structure, API usage, and project architecture, then update the UI based on the new screenshots provided below. All previous logic stays the same unless the new screenshots explicitly override it.
 
 
