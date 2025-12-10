@@ -1,226 +1,477 @@
-🟢 Claude Instructions (Frontend UI Rebuild)
+Note: You must also read and follow all previous Phase 1 and Phase 2 instructions in this README, including logic, routing, file structure, API usage, and project architecture, then update the UI based on the new screenshots provided below. All previous logic stays the same unless the new screenshots explicitly override it.
 
-Project Goal
-Redesign the Technician Frontend UI to match the provided client-approved screenshots exactly. Use the images and the flow descriptions below as the source of truth for design, layout, spacing, and UI components.
 
-🚫 Important Rules
+🧭 Final Requirements You Requested
 
-Do NOT modify the backend repo (carboy-tech-backend) in any way.
-If any API structure changes are needed, work on carboy-tech-backend in a new branch, and document reasons.
+Before writing prompts, I’ll summarize what you want Claude to do:
 
-Do all UI and logic work in carboy-tech-frontend repo only.
+🎯 4th Page (Inspection Started View) — Required Changes
 
-Preserve all API calls and lifecycle logic from:
+Keep the same new design style (Flow 1–3 UI)
 
-Login
+Implement floating remarks button
 
-/technician/me
+Side-right floating button follows scroll
 
-Job listing
+On click → opens modal/popup: “Add Remark”
 
-Travel flow
+Technician can enter remarks anytime
 
-Checklist
+Submit remarks → Save to state & close
 
-Completion
+Modal can re-open later
 
-If refactoring is needed, do it cleanly without breaking functionality.
+Remove the “Good/Bad status bar” at the end
 
-🎨 Design Requirements
-Color Theme
---color-bg: #ffffff
---card-bg: #ecececa0
---color-text: #000000
---color-accent: #347b65
---status-accepted: #B2F3D8
---status-pending: #FFE7A1
+No final status selection
 
-Components to Create or Update
+After completing checkpoints → Submit Inspection Report
 
-Navigation bar
+Image Upload Enhancements
 
-Assigned Jobs table
+On upload:
 
-Status count cards
+show thumbnail preview
 
-Job Detail layout
+allow delete
 
-Progress bar with 5 stages
+upload from camera if on mobile/PWA
 
-Buttons
+Notification
 
-Google Maps preview block
+If a new job is assigned while technician is inspecting
 
-Responsive layout for mobile/tablet
+Show popup (toast or modal)
 
-Technical Standards
+Show notification in Assigned Jobs only (not other pages)
 
-Use normal CSS modules (no Tailwind).
+Just 1 notification at inspection screen
 
-Maintain responsive design:
+No notification count bubble
 
-Desktop (1440px)
+Flow after submit → go to Summary Page (Flow 5)
 
-Tablet (768px)
+🎯 5th Page (Inspection Completed Summary)
 
-Mobile (375px)
+Make page exactly match the approved screenshot
 
-Use CSS variables from src/styles/variables.css
+Include summary cards:
 
-Keep code clean, structured, and component-based.
+Customer
 
-🧭 Flow Requirements
+Vehicle
 
-Use the attached 3 Screenshots and Flow Descriptions as references:
+Service Type
 
-Flow 1: Assigned Jobs Dashboard
-(job table, counts, accept/view buttons)
+Location
 
-Flow 2: Job Details
-(customer info, vehicle info, booking info, Start Travel)
+Date
 
-Flow 3: Travel Progress
-(5-stage progress bar, map section, reached location button)
+Time
 
-Your output should look identical to the reference, including:
+Add "Report Submitted to Admin" block
 
-spacing
+Buttons:
 
-font size
+View/Edit Report (future)
 
-border radius
+Back to Dashboard
 
-color application
+Remove any UI elements not in the screenshot
 
-icon placement
+Use same component style introduced earlier
 
-typography hierarchy
+✍️ Now I Will Create Two Outputs
+1️⃣ README.md Prompt Section
 
-interaction states
+You will put this inside README.md, so Claude reads and understands the rules.
 
-🛠 Execution Plan
+Copy-paste this under a new section:
 
-Analyze the entire repository and locate all components related to the 3 flows.
+📌 Phase 2 — Inspection Page (Flow 4) + Summary Page (Flow 5)
 
-Create a new branch:
+You (Claude) are acting as a Senior Frontend Engineer.
+Your goal is to update the Inspection Page (flow 4) and Summary Page (flow 5) to match the client-approved UI and add the new logic features defined below.
 
-git checkout -b feature/ui-rebuild
+These changes apply only to the Technician frontend, and the UI design from Flow 1–3 is the visual standard for all pages.
 
+Do not modify backend API shape or endpoints.
 
-Update components to match UI exactly.
+🎨 Design Consistency Requirement
 
-Update CSS files with professional layouts similar to the reference designs.
+Keep the same visual style and structure used in Flow 1–3
 
-Add responsive rules.
+Use the approved designs provided in the screenshots for Flow 4 & Flow 5
 
-Test each flow against backend APIs using real token.
+Do not revert back to older designs
 
-Commit code with meaningful messages.
+Use the existing professional UI pattern
 
-Provide a visual diff comparison in output.
+🟢 Flow 4 — Inspection In Progress Page (Changes Required)
+1. Floating Technician Remarks
 
-🧑‍💻 Output Expectations
+Add a floating remarks interface:
 
-Claude should:
+Add a floating button on the right side, which:
 
-Update JSX/CSS to match reference UI
+Stays visible while scrolling
 
-Adjust component structure if needed
+Opens a modal when clicked
 
-Add missing UI logic (button states, loading, disabled states)
+Modal content:
 
-Add map placeholder images until integrated
+Title: “Add Remark”
 
-Keep mobile design clean and usable
+Subtitle: “Inspection Expert (IE) Remarks (optional)”
 
-Clean up unused code from Tailwind era
+Textarea to enter remark
 
-Ensure no design inconsistencies
+Submit button
 
-When work is completed, Claude should provide:
+Logic:
 
-Summary of what changed
+Submitting saves remark locally in state
+
+Modal closes on submit
+
+Technician can open and edit remark anytime before submit
+
+Final remark must be included in the inspection report submitted to admin
+
+In the future admin may modify report based on this remark
+
+2. Notification Logic
+
+If a new job is assigned while technician is inspecting:
+
+Show one popup toast only on:
+
+Inspection Page
+
+Summary Page
+
+The toast informed text is in screenshot:
+“A new service job has been assigned to you. Please review the details in your dashboard.”
+
+No notification bubble counts
+
+No notification icon elsewhere
+
+Notification should not appear on other pages
+
+3. Image Upload Enhancements
+
+For each checkpoint:
+
+Allow image upload
+
+Show:
+
+Thumbnail preview
+
+Delete icon to remove photo
+
+If technician uses mobile or PWA:
+
+capture="camera" should open camera directly
+
+Photo should attach to correct checkpoint
+
+4. Remove Final Condition Status Bar
+
+Remove the “Good/Bad” or final condition selection UI.
+
+After all checkpoints:
+
+Show Submit Inspection Report button only
+
+Direct path:
+Inspection → Submit → Summary Page
+
+🟢 Flow 5 — Inspection Completed Summary Page
+
+Match the design pixel-perfect to screenshot.
+
+Structure
+
+Green banner at top
+
+Icon + Title “Inspection Completed”
+
+Short description sentence below
+
+Summary Card Layout:
+
+Customer
+
+Vehicle
+
+Location
+
+Service Type
+
+Completion Date
+
+Completion Time
+
+Block:
+
+“Report Submitted to Admin”
+
+Short paragraph
+
+Buttons:
+
+“View/Edit Report” (placeholder)
+
+“Back to Dashboard”
+
+Footer text: “Thank you for your thorough inspection work!”
+
+Responsive
+
+Make UI mobile responsive
+
+Stack cards vertically on mobile
+
+Buttons full-width on mobile
+
+🧭 Logic Notes
+
+Status progression remains the same:
+
+pending → accepted → traveling → reached_location → inspection_started → completed
+
+Submitting inspection triggers backend job complete
+
+After submit, redirect to summary page
+
+When loading summary, show previously saved remark if exists
+
+Everything must use existing zustand store / hooks where appropriate
+
+🛑 Rules (Strict)
+
+Do NOT modify backend
+
+Do NOT break login flow
+
+Do NOT change API responses
+
+Do NOT change UI design from Flow 1–3
+
+Only add UI elements matching existing style
+
+Use CSS modules or existing CSS patterns
+
+No Tailwind
+
+No redesign from scratch
+
+✔️ Final Output Required
+
+When changes are complete, Claude should provide:
+
+Summary of code changes
 
 Files modified
 
-Screenshots comparison (if available)
+Before/After screenshots (if supported)
 
-Next suggested improvements
+How floating remarks are stored
 
-🦶 Footer Requirement (Apply to All Pages)
+How notification logic is implemented
 
-Add a global footer component that appears at the bottom of all pages in the technician frontend.
+How image preview/delete is handled
 
-Footer Design Requirements
+📌 Phase 2 — Technician Inspection Flow (Flow 4 & Flow 5) — With Client Approved UI
 
-Full-width footer with clean, minimal layout
+You (Claude) are acting as a Senior Frontend Engineer and must update the Technician Frontend UI for Flow 4 and Flow 5.
 
-Background color: #ecececa0 (light grey box feel)
+The updated UI must match exactly the client-approved designs which will be pasted below this section as screenshots.
 
-Text color: #000000
+👉 Do not use any old design.
+👉 Analyze and follow the screenshots accurately.
+👉 Ignore previous assumptions.
+👉 The images are the source of truth.
 
-Use accent color #347b65 only for links/icons
+🟢 Important Instruction
+You will receive the screenshots immediately below this README section.
 
-Height: ~80px on desktop, auto on mobile
+Study them carefully.
 
-Rounded top corners: border-radius: 16px 16px 0 0
+Replicate the exact layout, spacing, typography, icons, colors, button states, and interactions.
 
-Apply soft shadow at the top edge: 0 -2px 6px rgba(0,0,0,0.05)
+Use the same progress bar design already implemented in Flow 2 and Flow 3.
 
-Footer Content
+Do not redesign anything beyond what is shown.
 
-Include the following items, centered horizontally:
+🎯 Flow 4 — Inspection In Progress (Page 4)
+UI Requirements (Must follow screenshots)
 
-Company name: CarBoy Tech
+Use the same progress bar style as Flow 2–3
 
-Copyright text: © 2025 CarBoy
+Follow card layout, spacing, background, icons
 
-Links as inline buttons:
+Each checkpoint block must look exactly like screenshot
 
-Privacy Policy
+When an image is uploaded:
 
-Terms
+Show a status chip: “Image Uploaded” (see screenshot)
 
-Help/Support
+Show Preview (opens popup modal)
 
-Small icon row on top (optional if matches design):
+Show Delete icon
 
-Email icon
+No final condition/status section at bottom
+(client design doesn’t include it)
 
-Phone icon
+Action Flow
 
-Location pin icon
+After completing checkpoints → show a Submit Inspection Report button (only)
 
-Placement & Behavior
+On submit → redirect directly to Flow 5 (Summary Page)
 
-Place the footer below the main content, not fixed on screen
+Floating Remarks System
 
-Ensure footer stays at bottom even when content is short (sticky footer layout)
+Add a floating button on the right side, always visible while scrolling
 
-Use layout wrapper for consistent spacing across pages
+Clicking opens a small modal/popup:
 
-Responsive:
+Title: “Add Remark”
 
-On mobile: stack elements vertically
+Subtitle: “Inspection Expert (IE) Remarks (optional)”
 
-On tablet/desktop: inline horizontal layout
+Textarea
 
-Component Structure
+Submit button
 
-Create: src/components/Footer.jsx
+Saving remark closes the modal
 
-Add styles: src/styles/Footer.css
+Technician can reopen and edit
 
-Import Footer inside main layout wrapper (e.g., in App.jsx)
+Store remark in local state, attach to report submission
 
-Do not duplicate code per page — use a single shared component
+New Job Notification Logic
 
-Notes
+If admin assigns a new job while technician is in this page:
 
-Follow the same typography (font sizes, weight) as the rest of the UI
+Show a toast popup (design in screenshot)
 
-Maintain clean spacing (use consistent padding)
+Text from screenshot:
+“A new service job has been assigned to you. Please review the details in your dashboard.”
 
-No Tailwind — use CSS modules or standard CSS
+Do not show notification count
 
-Ensure footer visually matches the style and tone of the 3 reference screens
+Notification only visible:
+
+On Inspection Page
+
+On Summary Page
+
+Nowhere else
+
+Mobile Camera Capture
+
+For image upload input:
+
+Use: <input type="file" accept="image/*" capture="camera" />
+
+This ensures mobile/PWA opens camera
+
+🎯 Flow 5 — Inspection Completed Summary (Page 5)
+
+Use client-approved screenshot exactly.
+
+Layout Breakdown
+
+Large green confirmation banner at top
+
+Icon + “Inspection Completed!”
+
+One sentence below it
+
+Summary cards area with:
+
+Customer
+
+Vehicle
+
+Location
+
+Service Type
+
+Completion Date
+
+Completion Time
+
+“Report Submitted to Admin” block
+
+Follow screenshot text and spacing
+
+Buttons:
+
+View/Edit Report (placeholder)
+
+Back to Dashboard
+
+Footer message:
+“Thank you for your thorough inspection work!”
+
+Responsive
+
+Follow screenshot card layout
+
+Stack vertically in mobile view
+
+Buttons full width on mobile
+
+💾 State, Logic & Rules
+
+Keep all existing job status logic from earlier flows
+
+Submitting inspection → marks job as completed
+
+Store remark in zustand or component state
+
+Do not change backend APIs
+
+No breaking login
+
+No rewriting of global components
+
+Use CSS (not Tailwind) — keep current CSS structure
+
+Follow design as source of truth
+
+🛑 Strict Do Not
+
+Do not use old design for Flow 4 & 5
+
+Do not change backend or API response format
+
+Do not display extra UI elements not shown in screenshot
+
+Do not add notification count indicator
+
+Do not use Tailwind
+
+Do not create new pages unless required by design
+
+🧭 Expected Output From You (Claude)
+
+Before writing code:
+
+Explain which files you will update
+
+Explain how floating remark state is stored
+
+Explain how toast is triggered
+
+Explain the structure of image upload preview
+
+Explain how camera capture works in mobile
+
+After plan approval:
+
+Implement features step-by-step with commits

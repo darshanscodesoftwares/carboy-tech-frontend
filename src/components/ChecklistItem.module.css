@@ -124,9 +124,9 @@
   gap: var(--space-xs);
   font-size: var(--font-md);
   font-weight: 500;
-  color: var(--color-accent);
+  color: #047857;
   padding: var(--space-md);
-  background-color: rgba(52, 123, 101, 0.1);
+  background-color: #d1fae5;
   border-radius: var(--radius-md);
   margin-top: var(--space-sm);
 }
