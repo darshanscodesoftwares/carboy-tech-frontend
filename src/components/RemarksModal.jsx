@@ -81,7 +81,7 @@ const RemarksModal = ({ isOpen, onClose, onSubmit, initialRemark = '' }) => {
             Cancel
           </button>
           <button className={styles.submitButton} onClick={handleSubmit}>
-            Save Remark
+            Submit Remark
           </button>
         </div>
       </div>
