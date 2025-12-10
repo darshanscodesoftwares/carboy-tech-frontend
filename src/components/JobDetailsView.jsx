@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import styles from './JobDetailsView.module.css';
 
 const JobDetailsView = ({ job, onStartTravel }) => {
+  const navigate = useNavigate();
   if (!job) return null;
 
   return (
@@ -122,6 +124,13 @@ const JobDetailsView = ({ job, onStartTravel }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Back to Dashboard Button */}
+      <div className={styles.backButtonContainer}>
+        <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
+          Back to Dashboard
+        </button>
       </div>
     </div>
   );

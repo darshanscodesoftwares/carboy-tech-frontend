@@ -168,6 +168,21 @@
   color: #92400e;
 }
 
+.statusTraveling {
+  background-color: #DBEAFE;
+  color: #1e40af;
+}
+
+.statusReached {
+  background-color: #D1FAE5;
+  color: #065f46;
+}
+
+.statusInspection {
+  background-color: #E0E7FF;
+  color: #4338ca;
+}
+
 .statusCompleted {
   background-color: var(--status-completed);
   color: #065f46;
@@ -236,6 +251,43 @@
 .emptyText {
   font-size: var(--font-sm);
   color: var(--color-muted);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  padding: var(--space-md) 0;
+}
+
+.paginationButton {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  padding: 0 var(--space-md);
 }
 
 /* Responsive */

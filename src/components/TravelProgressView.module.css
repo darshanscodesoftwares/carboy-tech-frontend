@@ -239,3 +239,33 @@
     padding: var(--space-lg);
   }
 }
+
+.backButtonContainer {
+  margin-top: var(--space-xl);
+  display: flex;
+  justify-content: center;
+  padding-bottom: var(--space-lg);
+}
+
+.backButton {
+  background-color: transparent;
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+@media (max-width: 768px) {
+  .backButton {
+    width: 100%;
+  }
+}

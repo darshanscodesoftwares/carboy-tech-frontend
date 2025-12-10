@@ -184,6 +184,30 @@
   opacity: 0.9;
 }
 
+.backButtonContainer {
+  margin-top: var(--space-xl);
+  display: flex;
+  justify-content: center;
+  padding-bottom: var(--space-lg);
+}
+
+.backButton {
+  background-color: transparent;
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  padding: var(--space-sm) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .contentGrid {

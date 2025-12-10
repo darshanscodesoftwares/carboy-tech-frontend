@@ -14,7 +14,7 @@ import styles from './JobFlow.module.css';
 const JobFlow = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { job, checklist, summary, loading, error, setError, fetchJob, acceptJob, startTravel, reachedLocation, startInspection, fetchChecklist, submitCheckpoint, completeJob, fetchSummary } = useJobFlow();
+  const { job, checklist, summary, loading, error, setError, fetchJob, startTravel, reachedLocation, startInspection, fetchChecklist, submitCheckpoint, completeJob, fetchSummary } = useJobFlow();
   const [actionLoading, setActionLoading] = useState(false);
   const [checkpointLoading, setCheckpointLoading] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
@@ -34,7 +34,8 @@ const JobFlow = () => {
 
   const renderActionButton = () => {
     if (!job) return null;
-    const config = { [JOB_STATUSES.PENDING]: { label: 'Accept Job', action: () => acceptJob(jobId) }, [JOB_STATUSES.ACCEPTED]: { label: 'Start Travel', action: () => startTravel(jobId) }, [JOB_STATUSES.TRAVELING]: { label: 'Reached Location', action: () => reachedLocation(jobId) }, [JOB_STATUSES.REACHED]: { label: 'Start Inspection', action: () => startInspection(jobId) } };
+    // Don't show Accept button anymore - accepting happens from Dashboard
+    const config = { [JOB_STATUSES.ACCEPTED]: { label: 'Start Travel', action: () => startTravel(jobId) }, [JOB_STATUSES.REACHED]: { label: 'Start Inspection', action: () => startInspection(jobId) } };
     const btn = config[job.status]; if (!btn) return null;
     return <button onClick={() => handleAction(btn.action)} disabled={actionLoading} className={styles.primaryButton}>{actionLoading ? <><div className={styles.spinner} />Processing...</> : btn.label}</button>;
   };

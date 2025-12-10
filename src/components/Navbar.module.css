@@ -108,6 +108,27 @@
   margin: 0;
 }
 
+.logoutButton {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease;
+}
+
+.logoutButton:hover {
+  background-color: rgba(52, 123, 101, 0.1);
+}
+
+.logoutButton svg {
+  color: var(--color-accent);
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .navbar {

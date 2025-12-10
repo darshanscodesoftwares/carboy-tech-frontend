@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getJobs } from '../api/jobs';
+import { getJobs, acceptJob } from '../api/jobs';
 import { getTechnicianProfile } from '../api/auth';
 import useTechnicianStore from '../store/technician';
 import Navbar from '../components/Navbar';
@@ -15,6 +15,9 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [acceptingJobId, setAcceptingJobId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,9 +35,33 @@ const Dashboard = () => {
   const completedCount = jobs.filter((j) => j.status === 'completed').length;
   const pendingCount = jobs.filter((j) => j.status === 'pending').length;
 
+  // Pagination calculations
+  const totalPages = Math.ceil(jobs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedJobs = jobs.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleAccept = async (jobId, e) => {
     e.stopPropagation();
-    navigate(`/flow/${jobId}`);
+    setAcceptingJobId(jobId);
+    try {
+      await acceptJob(jobId);
+      // Update the job status in the local state
+      setJobs(prevJobs => prevJobs.map(job =>
+        job._id === jobId ? { ...job, status: 'accepted' } : job
+      ));
+      // Redirect to the flow page
+      navigate(`/flow/${jobId}`);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to accept job');
+    } finally {
+      setAcceptingJobId(null);
+    }
   };
 
   const handleViewDetails = (jobId, e) => {
@@ -44,9 +71,10 @@ const Dashboard = () => {
 
   const getStatusInfo = (status) => {
     if (status === 'pending') return { label: 'Pending', className: styles.statusPending };
-    if (status === 'accepted' || status === 'traveling' || status === 'reached' || status === 'in_inspection') {
-      return { label: 'Accepted', className: styles.statusAccepted };
-    }
+    if (status === 'accepted') return { label: 'Accepted', className: styles.statusAccepted };
+    if (status === 'traveling') return { label: 'Traveling', className: styles.statusTraveling };
+    if (status === 'reached') return { label: 'Reached Location', className: styles.statusReached };
+    if (status === 'in_inspection') return { label: 'Inspection Started', className: styles.statusInspection };
     if (status === 'completed') return { label: 'Completed', className: styles.statusCompleted };
     return { label: status, className: styles.statusPending };
   };
@@ -97,26 +125,28 @@ const Dashboard = () => {
               <p className={styles.emptyText}>No jobs assigned yet</p>
             </div>
           ) : (
-            <div className={styles.tableWrapper}>
-              <table className={styles.jobTable}>
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Customer</th>
-                    <th>Service Type</th>
-                    <th>Vehicle</th>
-                    <th>Location</th>
-                    <th>Schedule</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {jobs.map((job, index) => {
-                    const statusInfo = getStatusInfo(job.status);
-                    return (
-                      <tr key={job._id} onClick={() => navigate(`/flow/${job._id}`)} className={styles.tableRow}>
-                        <td>{index + 1}.</td>
+            <>
+              <div className={styles.tableWrapper}>
+                <table className={styles.jobTable}>
+                  <thead>
+                    <tr>
+                      <th>S.No</th>
+                      <th>Customer</th>
+                      <th>Service Type</th>
+                      <th>Vehicle</th>
+                      <th>Location</th>
+                      <th>Schedule</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedJobs.map((job, index) => {
+                      const statusInfo = getStatusInfo(job.status);
+                      const actualIndex = startIndex + index;
+                      return (
+                        <tr key={job._id} onClick={() => navigate(`/flow/${job._id}`)} className={styles.tableRow}>
+                          <td>{actualIndex + 1}.</td>
                         <td>{job.customerSnapshot?.name || 'N/A'}</td>
                         <td>{job.serviceType}</td>
                         <td>{job.vehicleSnapshot?.year} {job.vehicleSnapshot?.brand} {job.vehicleSnapshot?.model}</td>
@@ -141,10 +171,10 @@ const Dashboard = () => {
                         </td>
                         <td>
                           {job.status === 'pending' ? (
-                            <button onClick={(e) => handleAccept(job._id, e)} className={styles.acceptButton}>
-                              Accept
+                            <button onClick={(e) => handleAccept(job._id, e)} disabled={acceptingJobId === job._id} className={styles.acceptButton}>
+                              {acceptingJobId === job._id ? 'Accepting...' : 'Accept'}
                             </button>
-                          ) : job.status === 'accepted' || job.status === 'traveling' || job.status === 'reached' ? (
+                          ) : job.status === 'accepted' || job.status === 'traveling' || job.status === 'reached' || job.status === 'in_inspection' ? (
                             <button onClick={(e) => handleViewDetails(job._id, e)} className={styles.viewDetailsButton}>
                               View details →
                             </button>
@@ -160,12 +190,36 @@ const Dashboard = () => {
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={styles.paginationButton}
+                >
+                  Previous
+                </button>
+                <span className={styles.pageInfo}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={styles.paginationButton}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </main>
+    <Footer />
+  </div>
+);
 };
 
 export default Dashboard;

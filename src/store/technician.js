@@ -37,6 +37,8 @@ const useTechnicianStore = create(
 
         localStorage.removeItem('token');
 
+        localStorage.removeItem('technician');
+
         set({ token: null, technician: null, isAuthenticated: false });
 
       },

@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import styles from './TravelProgressView.module.css';
 
 const TravelProgressView = ({ currentStep, onReachedLocation }) => {
+  const navigate = useNavigate();
   const steps = [
     { label: 'Accepted', key: 'accepted' },
     { label: 'Traveling', key: 'traveling' },
@@ -111,6 +113,13 @@ const TravelProgressView = ({ currentStep, onReachedLocation }) => {
           Reached Location
         </button>
       )}
+
+      {/* Back to Dashboard Button */}
+      <div className={styles.backButtonContainer}>
+        <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
+          Back to Dashboard
+        </button>
+      </div>
     </div>
   );
 };
