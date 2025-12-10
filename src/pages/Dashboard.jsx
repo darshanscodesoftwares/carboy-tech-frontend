@@ -6,6 +6,7 @@ import { getTechnicianProfile } from '../api/auth';
 import useTechnicianStore from '../store/technician';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import ProgressBar from '../components/ProgressBar';
 import Loading from '../components/Loading';
 import styles from './Dashboard.module.css';
 
@@ -83,6 +84,9 @@ const Dashboard = () => {
     <div className={styles.container}>
       <Navbar showNotificationBadge={pendingCount > 0} />
       <main className={styles.main}>
+        <div className={styles.progressCard}>
+          <ProgressBar currentStep={0} />
+        </div>
         <div className={styles.statsSection}>
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{ backgroundColor: '#B2F3D8' }}>

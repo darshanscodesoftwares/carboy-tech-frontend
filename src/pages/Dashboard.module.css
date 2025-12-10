@@ -13,6 +13,14 @@
   padding: var(--space-2xl) var(--space-md);
 }
 
+.progressCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
 .statsSection {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

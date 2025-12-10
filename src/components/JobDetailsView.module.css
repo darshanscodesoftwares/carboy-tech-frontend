@@ -4,6 +4,14 @@
   padding: var(--space-lg);
 }
 
+.progressCard {
+  background-color: var(--card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
 .pageTitle {
   font-size: var(--font-2xl);
   font-weight: 700;

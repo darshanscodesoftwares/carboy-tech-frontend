@@ -23,7 +23,7 @@ const JobFlow = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [checkpointLoading, setCheckpointLoading] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
-  const [reportForm, setReportForm] = useState({ summary: '', overallStatus: 'PASS', recommendations: [] });
+  const [reportForm, setReportForm] = useState({ summary: '', recommendations: [] });
   const [newRec, setNewRec] = useState({ text: '', severity: 'low' });
   const [remarks, setRemarks] = useState('');
   const [showRemarksModal, setShowRemarksModal] = useState(false);
@@ -79,7 +79,7 @@ const JobFlow = () => {
     if (job?.status === JOB_STATUSES.TRAVELING) {
       return (
         <TravelProgressView
-          currentStep={1}
+          currentStep={2}
           onReachedLocation={() => handleAction(() => reachedLocation(jobId))}
         />
       );

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import ProgressBar from './ProgressBar';
 import styles from './JobDetailsView.module.css';
 
 const JobDetailsView = ({ job, onStartTravel }) => {
@@ -7,6 +8,9 @@ const JobDetailsView = ({ job, onStartTravel }) => {
 
   return (
     <div className={styles.container}>
+      <div className={styles.progressCard}>
+        <ProgressBar currentStep={1} />
+      </div>
       <h1 className={styles.pageTitle}>{job.serviceType}</h1>
 
       <div className={styles.contentGrid}>
