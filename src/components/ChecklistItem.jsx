@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import ImageUploadPreview from './ImageUploadPreview';
 import styles from './ChecklistItem.module.css';
 
 const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
@@ -14,9 +15,12 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
     onSubmit({ checkpointKey: item.key, selectedOption, notes, photoUrl: photoUrl || null });
   };
 
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files?.[0];
+  const handlePhotoUpload = (file) => {
     if (file) setPhotoUrl(URL.createObjectURL(file));
+  };
+
+  const handlePhotoDelete = () => {
+    setPhotoUrl('');
   };
 
   return (
@@ -29,7 +33,6 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
           </div>
           <span className={styles.label}>{item.label}</span>
         </div>
-        {item.requiresPhoto && <span className={styles.photoBadge}>Photo required</span>}
         <svg className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -51,13 +54,15 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
             <label className={styles.fieldLabel}>Notes (optional):</label>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} disabled={isCompleted} placeholder="Add any additional notes..." className={styles.textarea} rows={2} />
           </div>
-          {item.requiresPhoto && (
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>Photo:</label>
-              {!isCompleted && <input type="file" accept="image/*" onChange={handlePhotoUpload} className={styles.fileInput} />}
-              {photoUrl && <img src={photoUrl} alt="Checkpoint" className={styles.photo} />}
-            </div>
-          )}
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>Photo (optional):</label>
+            <ImageUploadPreview
+              photoUrl={photoUrl}
+              onUpload={handlePhotoUpload}
+              onDelete={handlePhotoDelete}
+              disabled={isCompleted}
+            />
+          </div>
           {!isCompleted && (
             <button onClick={handleSubmit} disabled={!selectedOption || isSubmitting} className={styles.submitButton}>
               {isSubmitting ? <><div className={styles.spinner} />Saving...</> : 'Save Checkpoint'}
