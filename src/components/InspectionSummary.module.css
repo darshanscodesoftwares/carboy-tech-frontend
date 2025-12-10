@@ -6,67 +6,78 @@
 
 .successBanner {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-lg);
-  padding: var(--space-xl);
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl) var(--space-xl);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-xl);
   box-shadow: var(--shadow-md);
 }
 
 .successIconContainer {
-  flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: white;
   border-radius: 50%;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .successIcon {
-  width: 36px;
-  height: 36px;
-  color: #059669;
-  stroke-width: 2.5;
+  width: 48px;
+  height: 48px;
+  color: #10b981;
 }
 
 .successContent {
-  flex: 1;
+  color: white;
 }
 
 .successTitle {
   margin: 0 0 var(--space-sm) 0;
   font-size: var(--font-2xl);
   font-weight: 700;
-  color: #065f46;
+  color: white;
 }
 
 .successDescription {
   margin: 0;
   font-size: var(--font-md);
-  color: #047857;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.6;
+  max-width: 600px;
+}
+
+.summarySection {
+  margin-bottom: var(--space-xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-lg) 0;
 }
 
 .summaryGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-md);
-  margin-bottom: var(--space-xl);
 }
 
 .summaryCard {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-md);
   padding: var(--space-lg);
   background-color: var(--card-bg);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   transition: all 0.2s ease;
 }
 
@@ -77,13 +88,11 @@
 
 .cardIcon {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
-  border-radius: var(--radius-md);
   color: var(--color-accent);
 }
 
@@ -97,8 +106,6 @@
   font-size: var(--font-sm);
   font-weight: 500;
   color: var(--color-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .cardValue {
@@ -110,17 +117,17 @@
 }
 
 .reportBlock {
-  padding: var(--space-xl);
-  background-color: #fef3c7;
+  padding: var(--space-lg);
+  background-color: #fef9f3;
   border: 1px solid #fcd34d;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   margin-bottom: var(--space-xl);
 }
 
 .reportHeader {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
 }
 
@@ -131,14 +138,14 @@
 
 .reportTitle {
   margin: 0;
-  font-size: var(--font-lg);
+  font-size: var(--font-md);
   font-weight: 600;
   color: #92400e;
 }
 
 .reportText {
   margin: 0;
-  font-size: var(--font-md);
+  font-size: var(--font-sm);
   color: #78350f;
   line-height: 1.7;
 }
@@ -153,7 +160,6 @@
 .secondaryButton {
   flex: 1;
   padding: var(--space-md) var(--space-xl);
-  border: none;
   border-radius: var(--radius-md);
   font-size: var(--font-md);
   font-weight: 600;
@@ -164,6 +170,7 @@
 .primaryButton {
   background-color: var(--color-accent);
   color: white;
+  border: none;
 }
 
 .primaryButton:hover {
@@ -208,10 +215,17 @@
   }
 
   .successBanner {
-    flex-direction: column;
-    padding: var(--space-lg);
-    text-align: center;
-    align-items: center;
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  .successIconContainer {
+    width: 64px;
+    height: 64px;
+  }
+
+  .successIcon {
+    width: 36px;
+    height: 36px;
   }
 
   .successTitle {
@@ -232,17 +246,11 @@
   }
 
   .reportBlock {
-    padding: var(--space-lg);
-  }
-
-  .reportHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-sm);
+    padding: var(--space-md);
   }
 
   .buttonContainer {
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
 
   .primaryButton,
