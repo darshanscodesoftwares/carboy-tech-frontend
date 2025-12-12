@@ -1,0 +1,130 @@
+.container {
+  width: 100%;
+}
+
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: var(--font-sm);
+  color: var(--color-text);
+}
+
+.uploadButton:hover:not(.disabled) {
+  border-color: var(--color-accent);
+  background-color: #f0f9f6;
+}
+
+.uploadButton.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadIcon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.uploadText {
+  font-weight: 500;
+}
+
+.uploadedContainer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.uploadedChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  background-color: #3b82f6;
+  color: white;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-sm);
+  font-weight: 500;
+}
+
+.checkIcon {
+  flex-shrink: 0;
+}
+
+.chipText {
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.previewButton {
+  padding: var(--space-xs) var(--space-md);
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.previewButton:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.deleteIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: white;
+  border: 1px solid #fee;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #c33;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.deleteIcon:hover {
+  background-color: #fee;
+  border-color: #fcc;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .uploadedContainer {
+    width: 100%;
+  }
+
+  .uploadedChip {
+    flex: 1;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .previewButton {
+    flex: 1;
+  }
+}

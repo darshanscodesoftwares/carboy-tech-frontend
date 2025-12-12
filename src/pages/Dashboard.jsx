@@ -1,26 +1,23 @@
 
 import { useState, useEffect } from 'react';
-import { getJobs } from '../api/jobs';
+import { useNavigate } from 'react-router-dom';
+import { getJobs, acceptJob } from '../api/jobs';
 import { getTechnicianProfile } from '../api/auth';
 import useTechnicianStore from '../store/technician';
-import JobCard from '../components/JobCard';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import Loading from '../components/Loading';
 import styles from './Dashboard.module.css';
 
-const TABS = [
-  { key: 'all', label: 'All Jobs' },
-  { key: 'pending', label: 'Pending' },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'completed', label: 'Completed' },
-];
-
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { updateTechnician } = useTechnicianStore();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('all');
+  const [acceptingJobId, setAcceptingJobId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,54 +32,194 @@ const Dashboard = () => {
     fetchData();
   }, [updateTechnician]);
 
-  const filteredJobs = jobs.filter((job) => {
-    if (activeTab === 'all') return true;
-    if (activeTab === 'pending') return job.status === 'pending';
-    if (activeTab === 'in_progress') return ['accepted', 'traveling', 'reached', 'in_inspection'].includes(job.status);
-    if (activeTab === 'completed') return job.status === 'completed';
-    return true;
-  });
+  const completedCount = jobs.filter((j) => j.status === 'completed').length;
+  const pendingCount = jobs.filter((j) => j.status === 'pending').length;
 
-  const counts = {
-    all: jobs.length,
-    pending: jobs.filter((j) => j.status === 'pending').length,
-    in_progress: jobs.filter((j) => ['accepted', 'traveling', 'reached', 'in_inspection'].includes(j.status)).length,
-    completed: jobs.filter((j) => j.status === 'completed').length,
+  // Pagination calculations
+  const totalPages = Math.ceil(jobs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedJobs = jobs.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleAccept = async (jobId, e) => {
+    e.stopPropagation();
+    setAcceptingJobId(jobId);
+    try {
+      await acceptJob(jobId);
+      // Update the job status in the local state
+      setJobs(prevJobs => prevJobs.map(job =>
+        job._id === jobId ? { ...job, status: 'accepted' } : job
+      ));
+      // Redirect to the flow page
+      navigate(`/flow/${jobId}`);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to accept job');
+    } finally {
+      setAcceptingJobId(null);
+    }
+  };
+
+  const handleViewDetails = (jobId, e) => {
+    e.stopPropagation();
+    navigate(`/flow/${jobId}`);
+  };
+
+  const getStatusInfo = (status) => {
+    if (status === 'pending') return { label: 'Pending', className: styles.statusPending };
+    if (status === 'accepted') return { label: 'Accepted', className: styles.statusAccepted };
+    if (status === 'traveling') return { label: 'Traveling', className: styles.statusTraveling };
+    if (status === 'reached') return { label: 'Reached Location', className: styles.statusReached };
+    if (status === 'in_inspection') return { label: 'Inspection Started', className: styles.statusInspection };
+    if (status === 'completed') return { label: 'Completed', className: styles.statusCompleted };
+    return { label: status, className: styles.statusPending };
   };
 
   return (
     <div className={styles.container}>
-      <Navbar />
+      <Navbar showNotificationBadge={pendingCount > 0} />
       <main className={styles.main}>
-        <div className={styles.pageHeader}>
-          <h1 className={styles.title}>My Jobs</h1>
-          <p className={styles.subtitle}>Manage your assigned inspections</p>
-        </div>
-        <div className={styles.tabs}>
-          {TABS.map((tab) => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-              className={`${styles.tab} ${activeTab === tab.key ? styles.active : styles.inactive}`}>
-              {tab.label}
-              <span className={`${styles.badge} ${activeTab === tab.key ? styles.active : styles.inactive}`}>{counts[tab.key]}</span>
-            </button>
-          ))}
-        </div>
-        {loading ? <Loading message="Loading jobs..." /> : error ? (
-          <div className={styles.error}>
-            <p>{error}</p>
-            <button onClick={() => window.location.reload()} className={styles.errorButton}>Try again</button>
+        <div className={styles.statsSection}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: '#B2F3D8' }}>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Completed Jobs</p>
+              <p className={styles.statValue}>{completedCount}</p>
+            </div>
           </div>
-        ) : filteredJobs.length === 0 ? (
-          <div className={styles.empty}>
-            <p className={styles.emptyTitle}>No jobs found</p>
-            <p className={styles.emptyText}>{activeTab === 'all' ? 'No jobs assigned yet' : `No ${activeTab.replace('_', ' ')} jobs`}</p>
+
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: '#FFE7A1' }}>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Pending</p>
+              <p className={styles.statValue}>{pendingCount}</p>
+            </div>
           </div>
-        ) : (
-          <div className={styles.jobList}>{filteredJobs.map((job) => <JobCard key={job._id} job={job} />)}</div>
+        </div>
+
+        <div className={styles.jobsSection}>
+          <h2 className={styles.sectionTitle}>My Assigned Jobs</h2>
+
+          {loading ? (
+            <Loading message="Loading jobs..." />
+          ) : error ? (
+            <div className={styles.error}>
+              <p>{error}</p>
+              <button onClick={() => window.location.reload()} className={styles.errorButton}>Try again</button>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className={styles.empty}>
+              <p className={styles.emptyTitle}>No jobs found</p>
+              <p className={styles.emptyText}>No jobs assigned yet</p>
+            </div>
+          ) : (
+            <>
+              <div className={styles.tableWrapper}>
+                <table className={styles.jobTable}>
+                  <thead>
+                    <tr>
+                      <th>S.No</th>
+                      <th>Customer</th>
+                      <th>Service Type</th>
+                      <th>Vehicle</th>
+                      <th>Location</th>
+                      <th>Schedule</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedJobs.map((job, index) => {
+                      const statusInfo = getStatusInfo(job.status);
+                      const actualIndex = startIndex + index;
+                      return (
+                        <tr key={job._id} onClick={() => navigate(`/flow/${job._id}`)} className={styles.tableRow}>
+                          <td>{actualIndex + 1}.</td>
+                        <td>{job.customerSnapshot?.name || 'N/A'}</td>
+                        <td>{job.serviceType}</td>
+                        <td>{job.vehicleSnapshot?.year} {job.vehicleSnapshot?.brand} {job.vehicleSnapshot?.model}</td>
+                        <td>
+                          <div className={styles.location}>
+                            <svg className={styles.locationIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            </svg>
+                            <span>{job.location?.address || 'N/A'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className={styles.schedule}>
+                            <div>{job.schedule?.date}</div>
+                            <div className={styles.scheduleTime}>{job.schedule?.slot}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${statusInfo.className}`}>
+                            {statusInfo.label}
+                          </span>
+                        </td>
+                        <td>
+                          {job.status === 'pending' ? (
+                            <button onClick={(e) => handleAccept(job._id, e)} disabled={acceptingJobId === job._id} className={styles.acceptButton}>
+                              {acceptingJobId === job._id ? 'Accepting...' : 'Accept'}
+                            </button>
+                          ) : job.status === 'accepted' || job.status === 'traveling' || job.status === 'reached' || job.status === 'in_inspection' ? (
+                            <button onClick={(e) => handleViewDetails(job._id, e)} className={styles.viewDetailsButton}>
+                              View details →
+                            </button>
+                          ) : (
+                            <button onClick={(e) => handleViewDetails(job._id, e)} className={styles.viewDetailsButton}>
+                              View details →
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={styles.paginationButton}
+                >
+                  Previous
+                </button>
+                <span className={styles.pageInfo}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={styles.paginationButton}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
-      </main>
-    </div>
-  );
+      </div>
+    </main>
+    <Footer />
+  </div>
+);
 };
 
 export default Dashboard;

@@ -2,75 +2,222 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-bg);
 }
 
 .main {
   flex: 1;
-  /* max-width: var(--container-width); */
+  max-width: var(--container-width);
   margin: 0 auto;
-  width: 85%;
-  padding: var(--space-lg) var(--space-md);
+  width: 90%;
+  padding: var(--space-2xl) var(--space-md);
 }
 
-.pageHeader {
-  margin-bottom: var(--space-lg);
+.statsSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
 }
 
-.title {
-  font-size: var(--font-xl);
-  font-weight: 700;
-  margin-bottom: var(--space-xs);
-}
-
-.subtitle {
-  font-size: var(--font-sm);
-  color: var(--color-muted);
-}
-
-.tabs {
-  display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-  overflow-x: auto;
-  padding-bottom: var(--space-sm);
-}
-
-.tab {
+.statCard {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: 999px;
-  font-size: var(--font-sm);
-  font-weight: 500;
-  white-space: nowrap;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: var(--space-md);
+  box-shadow: var(--shadow-sm);
 }
 
-.tab.active {
+.statIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statIcon svg {
+  color: var(--color-accent);
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statLabel {
+  font-size: var(--font-md);
+  color: var(--color-text);
+  margin: 0 0 var(--space-xs) 0;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.jobsSection {
+  margin-bottom: var(--space-2xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-lg);
+  color: var(--color-text);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.jobTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-bg);
+}
+
+.jobTable thead {
   background-color: var(--color-accent);
   color: white;
 }
 
-.tab.inactive {
-  background-color: var(--color-box-bg);
+.jobTable thead th {
+  padding: var(--space-md) var(--space-md);
+  text-align: left;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.jobTable thead th:first-child {
+  border-radius: var(--radius-md) 0 0 0;
+}
+
+.jobTable thead th:last-child {
+  border-radius: 0 var(--radius-md) 0 0;
+}
+
+.jobTable tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.tableRow {
+  cursor: pointer;
+}
+
+.tableRow:hover {
+  background-color: #f9f9f9;
+}
+
+.jobTable tbody td {
+  padding: var(--space-md);
+  font-size: var(--font-sm);
   color: var(--color-text);
 }
 
-.badge {
-  padding: 2px var(--space-sm);
-  border-radius: 999px;
+.location {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
+.locationIcon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.schedule {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scheduleTime {
+  color: var(--color-muted);
   font-size: var(--font-xs);
 }
 
-.badge.active {
-  background-color: rgba(255, 255, 255, 0.2);
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: var(--font-xs);
+  font-weight: 500;
+  text-align: center;
 }
 
-.badge.inactive {
-  background-color: var(--color-border);
+.statusAccepted {
+  background-color: var(--status-accepted);
+  color: var(--color-accent);
+}
+
+.statusPending {
+  background-color: var(--status-pending);
+  color: #92400e;
+}
+
+.statusTraveling {
+  background-color: #DBEAFE;
+  color: #1e40af;
+}
+
+.statusReached {
+  background-color: #D1FAE5;
+  color: #065f46;
+}
+
+.statusInspection {
+  background-color: #E0E7FF;
+  color: #4338ca;
+}
+
+.statusCompleted {
+  background-color: var(--status-completed);
+  color: #065f46;
+}
+
+.acceptButton {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.acceptButton:hover {
+  opacity: 0.9;
+}
+
+.viewDetailsButton {
+  background-color: transparent;
+  color: var(--color-accent);
+  border: none;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.viewDetailsButton:hover {
+  background-color: rgba(52, 123, 101, 0.1);
 }
 
 .error {
@@ -106,8 +253,71 @@
   color: var(--color-muted);
 }
 
-.jobList {
+.pagination {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: var(--space-md);
+  margin-top: var(--space-lg);
+  padding: var(--space-md) 0;
+}
+
+.paginationButton {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: var(--font-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  padding: 0 var(--space-md);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .jobTable {
+    font-size: var(--font-xs);
+  }
+
+  .jobTable thead th,
+  .jobTable tbody td {
+    padding: var(--space-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    width: 95%;
+    padding: var(--space-lg) var(--space-sm);
+  }
+
+  .statsSection {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .tableWrapper {
+    overflow-x: scroll;
+  }
+
+  .jobTable {
+    min-width: 900px;
+  }
 }
