@@ -110,42 +110,39 @@
   color: var(--color-muted);
 }
 
-.reportForm {
-  background-color: var(--color-box-bg);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  box-shadow: var(--shadow-sm);
+.completionMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl) var(--space-lg);
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
-.formTitle {
-  font-weight: 600;
-  margin-bottom: var(--space-md);
+.completionIcon {
+  color: #047857;
+  animation: checkBounce 0.6s ease-out;
 }
 
-.formField {
-  margin-bottom: var(--space-md);
+@keyframes checkBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
-.formLabel {
-  display: block;
-  font-size: var(--font-sm);
-  font-weight: 500;
-  margin-bottom: var(--space-sm);
+.completionTitle {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: #065f46;
+  margin: 0;
 }
 
-.textarea {
-  width: 100%;
-  padding: var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+.completionText {
   font-size: var(--font-md);
-  resize: none;
-  font-family: inherit;
-}
-
-.textarea:focus {
-  outline: none;
-  border-color: var(--color-accent);
+  color: #047857;
+  margin: 0;
+  font-weight: 500;
 }
 
 .statusButtons {
@@ -195,91 +192,7 @@
   border-color: #ef4444;
 }
 
-.recommendationsList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-}
-
-.recommendation {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-box-bg);
-}
-
-.severityBadge {
-  padding: 2px var(--space-sm);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-xs);
-}
-
-.severityBadge.high {
-  background-color: #fef2f2;
-  color: #991b1b;
-}
-
-.severityBadge.medium {
-  background-color: #fffbeb;
-  color: #92400e;
-}
-
-.severityBadge.low {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.recommendationText {
-  flex: 1;
-  font-size: var(--font-sm);
-}
-
-.removeButton {
-  background: none;
-  border: none;
-  color: #ef4444;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.addRecommendation {
-  display: flex;
-  gap: var(--space-sm);
-}
-
-.input {
-  flex: 1;
-  padding: var(--space-sm) var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-sm);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--color-accent);
-}
-
-.select {
-  width: 96px;
-  padding: var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-sm);
-}
-
-.addButton {
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-accent);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-}
+/* Removed Final Report styles - no longer needed with auto-submit */
 
 .primaryButton {
   width: 100%;

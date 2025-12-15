@@ -4,6 +4,14 @@
   padding: var(--space-lg);
 }
 
+.progressCard {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .successBanner {
   display: flex;
   flex-direction: column;
@@ -11,10 +19,10 @@
   text-align: center;
   gap: var(--space-md);
   padding: var(--space-2xl) var(--space-xl);
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #347b65 0%, #2d6957 100%);
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-xl);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(52, 123, 101, 0.2);
 }
 
 .successIconContainer {
@@ -31,7 +39,7 @@
 .successIcon {
   width: 48px;
   height: 48px;
-  color: #10b981;
+  color: #347b65;
 }
 
 .successContent {

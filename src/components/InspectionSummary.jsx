@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import ProgressBar from './ProgressBar';
 import styles from './InspectionSummary.module.css';
 
 const InspectionSummary = ({ job }) => {
@@ -74,6 +75,11 @@ const InspectionSummary = ({ job }) => {
 
   return (
     <div className={styles.container}>
+      {/* Progress Bar - Step 5 (Completed) */}
+      <div className={styles.progressCard}>
+        <ProgressBar currentStep={4} />
+      </div>
+
       <div className={styles.successBanner}>
         <div className={styles.successIconContainer}>
           <svg className={styles.successIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,16 +117,16 @@ const InspectionSummary = ({ job }) => {
           <h3 className={styles.reportTitle}>Report Submitted to Admin</h3>
         </div>
         <p className={styles.reportText}>
-          Your detailed inspection report with photos and remarks has been automatically send to the admin team. The will review it and share it with the customer.
+          Your detailed inspection report with photos and remarks has been automatically sent to the admin team. They will review it and share it with the customer.
         </p>
       </div>
 
       <div className={styles.buttonContainer}>
         <button
           className={styles.secondaryButton}
-          onClick={() => alert('View/Edit Report feature coming soon!')}
+          onClick={() => navigate(`/job/${job._id}?edit=true`)}
         >
-          View/Edit Report
+          Edit Report
         </button>
         <button
           className={styles.primaryButton}

@@ -35,6 +35,11 @@
   flex-shrink: 0;
 }
 
+.cameraIcon {
+  color: #347b65;
+  flex-shrink: 0;
+}
+
 .uploadText {
   font-weight: 500;
 }

@@ -1,35 +1,78 @@
-import { useState } from 'react';
-import ImageUploadPreview from './ImageUploadPreview';
+import { useState, useRef } from 'react';
 import ImagePreviewModal from './ImagePreviewModal';
 import styles from './ChecklistItem.module.css';
 
-const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
+const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMode }) => {
   const [selectedOption, setSelectedOption] = useState(existingAnswer?.selectedOption || '');
   const [notes, setNotes] = useState(existingAnswer?.notes || '');
   const [photoUrl, setPhotoUrl] = useState(existingAnswer?.photoUrl || '');
   const [showPreview, setShowPreview] = useState(false);
-  const isCompleted = !!existingAnswer;
+  const uploadInputRef = useRef(null);
+  const captureInputRef = useRef(null);
 
-  const handleSubmit = () => {
-    if (!selectedOption) return;
-    onSubmit({ checkpointKey: item.key, selectedOption, notes, photoUrl: photoUrl || null });
+  // Auto-save when option is selected
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option);
+    // Auto-save immediately
+    onSubmit({
+      checkpointKey: item.key,
+      selectedOption: option,
+      notes,
+      photoUrl: photoUrl || null
+    });
   };
 
   const handlePhotoUpload = (file) => {
-    if (file) setPhotoUrl(URL.createObjectURL(file));
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPhotoUrl(url);
+      // Auto-save if option already selected
+      if (selectedOption) {
+        onSubmit({
+          checkpointKey: item.key,
+          selectedOption,
+          notes,
+          photoUrl: url
+        });
+      }
+    }
   };
 
   const handlePhotoDelete = () => {
     setPhotoUrl('');
+    // Auto-save with photoUrl = null
+    if (selectedOption) {
+      onSubmit({
+        checkpointKey: item.key,
+        selectedOption,
+        notes,
+        photoUrl: null
+      });
+    }
   };
 
   const handlePreview = () => {
     setShowPreview(true);
   };
 
+  const handleUploadClick = () => {
+    uploadInputRef.current?.click();
+  };
+
+  const handleCaptureClick = () => {
+    captureInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handlePhotoUpload(file);
+    }
+  };
+
   return (
     <>
-      <div className={`${styles.card} ${isCompleted ? styles.completed : styles.pending}`}>
+      <div className={`${styles.card} ${existingAnswer ? styles.completed : styles.pending}`}>
         <div className={styles.header}>
           <span className={styles.label}>{item.label}</span>
         </div>
@@ -40,8 +83,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
               <button
                 key={option}
                 type="button"
-                disabled={isCompleted}
-                onClick={() => setSelectedOption(option)}
+                onClick={() => handleOptionSelect(option)}
                 className={`${styles.optionButton} ${selectedOption === option ? styles.selected : ''}`}
               >
                 {option}
@@ -50,32 +92,80 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
           </div>
 
           <div className={styles.uploadSection}>
-            <ImageUploadPreview
-              photoUrl={photoUrl}
-              onUpload={handlePhotoUpload}
-              onDelete={handlePhotoDelete}
-              onPreview={handlePreview}
-              disabled={isCompleted}
-            />
+            {!photoUrl ? (
+              <div className={styles.uploadButtons}>
+                <input
+                  ref={uploadInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className={styles.fileInput}
+                />
+                <input
+                  ref={captureInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileChange}
+                  className={styles.fileInput}
+                />
+                <button
+                  type="button"
+                  onClick={handleUploadClick}
+                  className={styles.uploadButton}
+                >
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCaptureClick}
+                  className={styles.captureButton}
+                >
+                  Capture
+                </button>
+              </div>
+            ) : (
+              <div className={styles.imagePreviewContainer}>
+                <div className={styles.thumbnailWrapper}>
+                  <img
+                    src={photoUrl}
+                    alt="Uploaded"
+                    className={styles.thumbnail}
+                    onClick={handlePreview}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handlePhotoDelete}
+                  className={styles.deleteButton}
+                  aria-label="Delete photo"
+                >
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
 
-          {!isCompleted && (
-            <button
-              onClick={handleSubmit}
-              disabled={!selectedOption || isSubmitting}
-              className={styles.submitButton}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className={styles.spinner} />
-                  Saving...
-                </>
-              ) : (
-                'Save Checkpoint'
-              )}
-            </button>
+          {isSubmitting && (
+            <div className={styles.savingIndicator}>
+              <div className={styles.spinner} />
+              <span>Saving...</span>
+            </div>
           )}
-          {isCompleted && <div className={styles.saved}>✓ Checkpoint saved</div>}
         </div>
       </div>
 

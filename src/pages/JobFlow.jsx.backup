@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useJobFlow, { JOB_STATUSES, getStepIndex } from '../hooks/useJobFlow';
 import useJobNotifications from '../hooks/useJobNotifications';
 import Navbar from '../components/Navbar';
@@ -18,12 +19,12 @@ import styles from './JobFlow.module.css';
 const JobFlow = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const isEditMode = searchParams.get('edit') === 'true';
   const { job, checklist, summary, loading, error, setError, fetchJob, startTravel, reachedLocation, startInspection, fetchChecklist, submitCheckpoint, completeJob, fetchSummary } = useJobFlow();
   const [actionLoading, setActionLoading] = useState(false);
   const [checkpointLoading, setCheckpointLoading] = useState(false);
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportForm, setReportForm] = useState({ summary: '', overallStatus: 'PASS', recommendations: [] });
+  const [newRec, setNewRec] = useState({ text: '', severity: 'low' });
   const [remarks, setRemarks] = useState('');
   const [showRemarksModal, setShowRemarksModal] = useState(false);
 
@@ -36,23 +37,20 @@ const JobFlow = () => {
 
   const handleAction = async (action) => { setActionLoading(true); setError(null); try { await action(); } catch { } finally { setActionLoading(false); } };
   const handleCheckpointSubmit = async (checkpoint) => { setCheckpointLoading(true); try { await submitCheckpoint(jobId, checkpoint); } catch { } finally { setCheckpointLoading(false); } };
-
-  // Manual submit report
+  const handleAddRec = () => { if (!newRec.text.trim()) return; setReportForm((p) => ({ ...p, recommendations: [...p.recommendations, { ...newRec }] })); setNewRec({ text: '', severity: 'low' }); };
+  const handleRemoveRec = (idx) => setReportForm((p) => ({ ...p, recommendations: p.recommendations.filter((_, i) => i !== idx) }));
   const handleSubmitReport = async () => {
+    if (!reportForm.summary.trim()) { setError('Please provide a summary'); return; }
     setActionLoading(true);
     try {
       const reportWithRemarks = {
-        summary: 'Inspection completed successfully',
-        overallStatus: 'PASS',
-        remarks: remarks.trim() || null,
-        recommendations: []
+        ...reportForm,
+        remarks: remarks.trim() || null
       };
       await completeJob(jobId, reportWithRemarks);
       await fetchSummary(jobId);
     } catch { }
-    finally {
-      setActionLoading(false);
-    }
+    finally { setActionLoading(false); }
   };
   const handleSaveRemark = (remark) => {
     setRemarks(remark);
@@ -97,8 +95,8 @@ const JobFlow = () => {
       );
     }
 
-    // Completed Summary View (skip in edit mode)
-    if (!isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary)) {
+    // Completed Summary View
+    if (job?.status === JOB_STATUSES.COMPLETED || summary) {
       return renderSummary();
     }
 
@@ -118,33 +116,28 @@ const JobFlow = () => {
           <div className={styles.schedule}><span className={styles.scheduleDate}>{job?.schedule?.date}</span><span className={styles.scheduleSlot}>{job?.schedule?.slot}</span></div>
         </div>
 
-        {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && (
+        {job?.status === JOB_STATUSES.IN_INSPECTION && (
           <div className={styles.checklistSection}>
             <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
             {loading && !checklist ? <Loading message="Loading checklist..." /> : checklist?.items ? (
               <>
-                {checklist.items.map((item) => <ChecklistItem key={item.key} item={item} onSubmit={handleCheckpointSubmit} isSubmitting={checkpointLoading} existingAnswer={getExistingAnswer(item.key)} isEditMode={isEditMode} />)}
+                {checklist.items.map((item) => <ChecklistItem key={item.key} item={item} onSubmit={handleCheckpointSubmit} isSubmitting={checkpointLoading} existingAnswer={getExistingAnswer(item.key)} />)}
+                {allCheckpointsCompleted() && (
+                  <div style={{ marginTop: 'var(--space-lg)' }}>
+                    {!showReportForm ? <button onClick={() => setShowReportForm(true)} className={styles.primaryButton}>Proceed to Submit Report</button> : (
+                      <div className={styles.reportForm}>
+                        <h3 className={styles.formTitle}>Final Report</h3>
+                        <div className={styles.formField}><label className={styles.formLabel}>Summary *</label><textarea value={reportForm.summary} onChange={(e) => setReportForm((p) => ({ ...p, summary: e.target.value }))} placeholder="Overall inspection summary..." className={styles.textarea} rows={3} /></div>
+                        <div className={styles.formField}><label className={styles.formLabel}>Recommendations</label>{reportForm.recommendations.length > 0 && <div className={styles.recommendationsList}>{reportForm.recommendations.map((r, i) => <div key={i} className={styles.recommendation}><span className={`${styles.severityBadge} ${styles[r.severity]}`}>{r.severity}</span><span className={styles.recommendationText}>{r.text}</span><button onClick={() => handleRemoveRec(i)} className={styles.removeButton}>X</button></div>)}</div>}<div className={styles.addRecommendation}><input value={newRec.text} onChange={(e) => setNewRec((p) => ({ ...p, text: e.target.value }))} placeholder="Add recommendation..." className={styles.input} /><select value={newRec.severity} onChange={(e) => setNewRec((p) => ({ ...p, severity: e.target.value }))} className={styles.select}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select><button onClick={handleAddRec} className={styles.addButton}>+</button></div></div>
+                        <button onClick={handleSubmitReport} disabled={actionLoading || !reportForm.summary.trim()} className={styles.primaryButton}>{actionLoading ? <><div className={styles.spinner} />Submitting...</> : 'Submit Inspection Report'}</button>
+                        <button onClick={() => navigate('/dashboard')} className={styles.secondaryButton} style={{ marginTop: 'var(--space-md)' }}>Back to Dashboard</button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             ) : <p className={styles.emptyChecklist}>No checklist available</p>}
           </div>
-        )}
-
-        {((job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && allCheckpointsCompleted()) && (
-          <button
-            onClick={handleSubmitReport}
-            disabled={actionLoading}
-            className={styles.primaryButton}
-            style={{ marginBottom: 'var(--space-md)' }}
-          >
-            {actionLoading ? (
-              <>
-                <div className={styles.spinner} />
-                Submitting Report...
-              </>
-            ) : (
-              'Submit Report'
-            )}
-          </button>
         )}
 
         {job?.status !== JOB_STATUSES.IN_INSPECTION && renderActionButton()}

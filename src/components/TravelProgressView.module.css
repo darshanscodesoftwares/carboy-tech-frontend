@@ -116,21 +116,37 @@
 .mapPlaceholder {
   width: 100%;
   height: 400px;
-  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc8 50%, #b2dfdb 100%);
   position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.mapPlaceholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/src/assets/gmap.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px);
+  transform: scale(1.05);
+  z-index: 0; /* 👈 FIX */
+}
+
+/* Ensure your overlay content stays visible */
 .mapOverlay {
-  background-color: rgba(255, 255, 255, 0.95);
+  position: relative;
+  z-index: 2; /* 👈 stays above blurred bg */
+  background-color: rgba(255, 255, 255, 0.9);
   padding: var(--space-xl);
   border-radius: var(--radius-lg);
   max-width: 500px;
   text-align: center;
   box-shadow: var(--shadow-lg);
 }
+
 
 .viewMapButton {
   display: inline-flex;
