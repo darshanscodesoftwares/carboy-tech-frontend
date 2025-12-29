@@ -1,9 +1,25 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { reopenJob } from '../api/jobs';
 import ProgressBar from './ProgressBar';
 import styles from './InspectionSummary.module.css';
 
 const InspectionSummary = ({ job }) => {
   const navigate = useNavigate();
+  const [isReopening, setIsReopening] = useState(false);
+
+  const handleEditReport = async () => {
+    try {
+      setIsReopening(true);
+      await reopenJob(job._id);
+      navigate(`/flow/${job._id}?edit=true`);
+    } catch (error) {
+      console.error('Failed to reopen job:', error);
+      alert('Failed to reopen inspection. Please try again.');
+    } finally {
+      setIsReopening(false);
+    }
+  };
 
   if (!job) return null;
 
@@ -124,9 +140,10 @@ const InspectionSummary = ({ job }) => {
       <div className={styles.buttonContainer}>
         <button
           className={styles.secondaryButton}
-          onClick={() => navigate(`/flow/${job._id}?edit=true`)}
+          onClick={handleEditReport}
+          disabled={isReopening}
         >
-          Edit Report
+          {isReopening ? 'Opening...' : 'Edit Report'}
         </button>
         <button
           className={styles.primaryButton}
