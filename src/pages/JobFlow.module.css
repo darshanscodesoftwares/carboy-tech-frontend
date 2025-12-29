@@ -107,6 +107,19 @@
   margin-bottom: var(--space-md);
 }
 
+.sectionGroup {
+  margin-bottom: var(--space-lg);
+}
+
+.sectionHeader {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-accent);
+}
+
 .emptyChecklist {
   text-align: center;
   padding: var(--space-xl) 0;
