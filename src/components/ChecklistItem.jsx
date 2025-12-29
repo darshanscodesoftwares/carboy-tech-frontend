@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ImagePreviewModal from './ImagePreviewModal';
 import styles from './ChecklistItem.module.css';
 import { MdDelete } from "react-icons/md";
@@ -19,6 +19,17 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
   const multiCaptureInputRef = useRef(null);
 
   const inputType = item.inputType || 'radio'; // Default to radio for backward compatibility
+
+  // Update state when existingAnswer changes (e.g., when loading saved data)
+  useEffect(() => {
+    if (existingAnswer) {
+      if (existingAnswer.selectedOption !== undefined) setSelectedOption(existingAnswer.selectedOption);
+      if (existingAnswer.textValue !== undefined) setTextValue(existingAnswer.textValue);
+      if (existingAnswer.notes !== undefined) setNotes(existingAnswer.notes);
+      if (existingAnswer.photoUrl !== undefined) setPhotoUrl(existingAnswer.photoUrl);
+      if (existingAnswer.photoUrls !== undefined) setPhotoUrls(existingAnswer.photoUrls);
+    }
+  }, [existingAnswer]);
 
   // Auto-save helper
   const autoSave = (updates = {}) => {

@@ -32,7 +32,14 @@ const JobFlow = () => {
   const { showNotification, dismissNotification } = useJobNotifications(isInspectionOrSummary);
 
   useEffect(() => { if (jobId) fetchJob(jobId); }, [jobId, fetchJob]);
-  useEffect(() => { if (job?.status === JOB_STATUSES.IN_INSPECTION && !checklist) fetchChecklist(jobId); }, [job?.status, checklist, jobId, fetchChecklist]);
+  useEffect(() => {
+    // Fetch checklist when in inspection mode OR when in edit mode (completed)
+    const shouldFetchChecklist = (job?.status === JOB_STATUSES.IN_INSPECTION) ||
+                                  (isEditMode && job?.status === JOB_STATUSES.COMPLETED);
+    if (shouldFetchChecklist && !checklist) {
+      fetchChecklist(jobId);
+    }
+  }, [job?.status, checklist, jobId, isEditMode, fetchChecklist]);
 
   const handleAction = async (action) => { setActionLoading(true); setError(null); try { await action(); } catch { } finally { setActionLoading(false); } };
   const handleCheckpointSubmit = async (checkpoint) => { setCheckpointLoading(true); try { await submitCheckpoint(jobId, checkpoint); } catch { } finally { setCheckpointLoading(false); } };

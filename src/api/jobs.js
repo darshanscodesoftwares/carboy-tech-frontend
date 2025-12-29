@@ -103,3 +103,13 @@ export const getCompletedSummary = async (jobId) => {
 
 };
 
+
+
+export const reopenJob = async (jobId) => {
+
+  const response = await api.post(`/jobs/${jobId}/reopen`);
+
+  return response.data.data;
+
+};
+
