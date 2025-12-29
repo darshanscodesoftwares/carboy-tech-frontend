@@ -26,10 +26,11 @@
   letter-spacing: 0.5px;
 }
 
-.navCenter {
+.navLeft {
   flex: 1;
   display: flex;
-  justify-content: center;
+  justify-content: left;
+  margin-left: 100px;
 }
 
 .navItem {
@@ -111,7 +112,6 @@
 .logoutButton {
   background: none;
   border: none;
-  color: var(--color-accent);
   cursor: pointer;
   padding: var(--space-xs);
   display: flex;
@@ -122,11 +122,20 @@
 }
 
 .logoutButton:hover {
-  background-color: rgba(52, 123, 101, 0.1);
+  background-color: rgba(52, 123, 100, 0.03);
 }
 
-.logoutButton svg {
-  color: var(--color-accent);
+.logoutIcon {
+  font-size: 26px;
+  color: rgb(248, 80, 80);
+
+  transition: transform 0.5s;
+}
+
+.logoutIcon:hover {
+  font-size: 26px;
+  color: rgb(248, 80, 80);
+  transform: scale(1.08);
 }
 
 /* Mobile responsive */

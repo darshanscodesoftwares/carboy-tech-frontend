@@ -124,7 +124,7 @@ const InspectionSummary = ({ job }) => {
       <div className={styles.buttonContainer}>
         <button
           className={styles.secondaryButton}
-          onClick={() => navigate(`/job/${job._id}?edit=true`)}
+          onClick={() => navigate(`/flow/${job._id}?edit=true`)}
         >
           Edit Report
         </button>

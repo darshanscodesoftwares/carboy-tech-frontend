@@ -176,7 +176,7 @@
   margin: 0;
 }
 
-.actionButton {
+/* .actionButton {
   width: 100%;
   max-width: 400px;
   display: block;
@@ -194,7 +194,7 @@
 
 .actionButton:hover {
   opacity: 0.9;
-}
+} */
 
 /* Responsive */
 @media (max-width: 1024px) {
@@ -256,7 +256,7 @@
   }
 }
 
-.backButtonContainer {
+/* .backButtonContainer {
   margin-top: var(--space-xl);
   display: flex;
   justify-content: center;
@@ -278,10 +278,123 @@
 .backButton:hover {
   border-color: var(--color-accent);
   color: var(--color-accent);
+} */
+
+/* Parent wrapper so both buttons stack neatly */
+/* .buttonGroup {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  margin-top: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md); 
 }
 
-@media (max-width: 768px) {
+
+.primaryButton {
+  width: 100%;
+  padding: var(--space-md);
+  background-color: var(--color-accent);
+  border: none;
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: var(--font-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.4s ease;
+}
+
+.primaryButton:hover {
+  opacity: 0.9;
+}
+
+
+.secondaryButton {
+  width: 100%;
+  padding: var(--space-md);
+  background-color: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: var(--radius-md);
+  font-size: var(--font-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-accent);
+  color: white;
+} */
+
+/* Parent wrapper */
+.buttonGroup {
+  width: 100%;
+  max-width: 350px;
+  margin: var(--space-xl) auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* SHARED BASE — guarantees same size */
+.primaryButton,
+.secondaryButton {
+  width: 100%;
+  padding: 12px var(--space-lg);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-md);    
+  font-weight: 500;            
+  /* line-height: 1.2;               */
+  box-sizing: border-box;       
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Primary */
+.primaryButton {
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  color: white;
+}
+
+.primaryButton:hover {
+  opacity: 0.9;
+}
+
+/* Secondary */
+.secondaryButton {
+  background-color: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+
+
+/* @media (max-width: 768px) {
   .backButton {
     width: 100%;
   }
+} */
+
+/* Mobile screens */
+@media (max-width: 480px) {
+  .buttonGroup {
+    max-width: 100%;
+    gap: var(--space-sm); /* tighter spacing */
+    padding: 0 var(--space-md);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    font-size: var(--font-sm);      /* slightly smaller text */
+    padding: var(--space-sm) var(--space-md);
+  }
 }
+

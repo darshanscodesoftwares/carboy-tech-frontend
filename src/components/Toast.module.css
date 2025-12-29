@@ -1,4 +1,4 @@
-.toast {
+/* .toast {
   position: fixed;
   top: var(--space-lg);
   left: 50%;
@@ -26,7 +26,42 @@
     transform: translateX(-50%) translateY(0);
     opacity: 1;
   }
+} */
+
+.toast {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 3000;
+  
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+
+  padding: var(--space-lg);
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  max-width: 360px;
+  width: calc(100% - 2 * var(--space-lg));
+
+  animation: slideInRight 0.35s ease;
 }
+
+/* Slide from right */
+@keyframes slideInRight {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 
 .iconContainer {
   flex-shrink: 0;

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import uiConfig from '../config/uiConfig'; 
-import ProgressBar from '../components/ProgressBar';  
+import uiConfig from '../config/uiConfig';
+import ProgressBar from '../components/ProgressBar';
 import styles from './TravelProgressView.module.css';
 
 const TravelProgressView = ({ currentStep, onReachedLocation }) => {
@@ -16,7 +16,7 @@ const TravelProgressView = ({ currentStep, onReachedLocation }) => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Job Progress</h2>
+      {/* <h2 className={styles.title}>Job Progress</h2> */}
 
       {/* SWITCH HERE */}
       {uiConfig.useUnifiedProgressBar ? (
@@ -93,24 +93,25 @@ const TravelProgressView = ({ currentStep, onReachedLocation }) => {
             </button>
             <p className={styles.mapText}>
               Your navigation to the customer location has started in Google Maps.
-           
+
               Please follow directions to reach the destination.
             </p>
           </div>
         </div>
       </div>
 
-      {currentStep === 1 && (
-        <button className={styles.actionButton} onClick={onReachedLocation}>
-          Reached Location
-        </button>
-      )}
+      <div className={styles.buttonGroup}>
+        {currentStep === 1 && (
+          <button className={styles.primaryButton} onClick={onReachedLocation}>
+            Reached Location
+          </button>
+        )}
 
-      <div className={styles.backButtonContainer}>
-        <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
+        <button className={styles.secondaryButton} onClick={() => navigate('/dashboard')}>
           Back to Dashboard
         </button>
       </div>
+
     </div>
   );
 };

@@ -183,10 +183,7 @@
   color: #4338ca;
 }
 
-.statusCompleted {
-  background-color: var(--status-completed);
-  color: #065f46;
-}
+/* Removed .statusCompleted - completed jobs are now filtered out */
 
 .acceptButton {
   background-color: var(--color-accent);

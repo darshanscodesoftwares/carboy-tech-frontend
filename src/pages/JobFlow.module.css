@@ -13,11 +13,14 @@
 }
 
 .progressCard {
-  background-color: var(--color-box-bg);
+  /* background-color: var(--color-box-bg);
   border-radius: var(--radius-md);
   padding: 0;
   margin-bottom: var(--space-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm); */
+  margin-left: 160px;
+  margin-right: 160px;
+  margin-top: 40px;
 }
 
 .error {
@@ -194,7 +197,7 @@
 
 /* Removed Final Report styles - no longer needed with auto-submit */
 
-.primaryButton {
+/* .primaryButton {
   width: 100%;
   background-color: var(--color-accent);
   color: white;
@@ -230,6 +233,67 @@
   background-color: var(--color-box-bg);
   border: none;
   cursor: pointer;
+} */
+
+/* Button stack wrapper */
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+/* SAME SIZE FOR BOTH BUTTONS */
+.primaryButton,
+.secondaryButton {
+  width: 100%;
+  max-width: 360px;     /* 🔥 control visual size here */
+}
+
+/* Primary */
+.primaryButton {
+  background-color: var(--color-accent);
+  color: white;
+  padding: 12px var(--space-lg);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: var(--font-md);
+  border: none;
+  cursor: pointer;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  transition: opacity 0.2s ease;
+
+}
+
+.primaryButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary */
+.secondaryButton {
+  background-color: var(--color-box-bg);
+  color: var(--color-accent);
+  padding: 12px var(--space-lg);   /* SAME padding = same height */
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  border: 2px solid var(--color-accent);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background-color: rgba(0, 128, 96, 0.05);
 }
 
 .spinner {

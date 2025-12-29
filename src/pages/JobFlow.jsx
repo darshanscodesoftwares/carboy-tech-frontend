@@ -65,6 +65,7 @@ const JobFlow = () => {
     // Don't show Accept button anymore - accepting happens from Dashboard
     const config = { [JOB_STATUSES.ACCEPTED]: { label: 'Start Travel', action: () => startTravel(jobId) }, [JOB_STATUSES.REACHED]: { label: 'Start Inspection', action: () => startInspection(jobId) } };
     const btn = config[job.status]; if (!btn) return null;
+  
     return <button onClick={() => handleAction(btn.action)} disabled={actionLoading} className={styles.primaryButton}>{actionLoading ? <><div className={styles.spinner} />Processing...</> : btn.label}</button>;
   };
 
@@ -129,26 +130,35 @@ const JobFlow = () => {
           </div>
         )}
 
-        {((job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && allCheckpointsCompleted()) && (
-          <button
-            onClick={handleSubmitReport}
-            disabled={actionLoading}
-            className={styles.primaryButton}
-            style={{ marginBottom: 'var(--space-md)' }}
-          >
-            {actionLoading ? (
-              <>
-                <div className={styles.spinner} />
-                Submitting Report...
-              </>
-            ) : (
-              'Submit Report'
-            )}
-          </button>
-        )}
+        <div className={styles.actionButtons}>
+          {/* Primary action button for all states */}
+          {((job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && allCheckpointsCompleted()) ? (
+            <button
+              onClick={handleSubmitReport}
+              disabled={actionLoading}
+              className={styles.primaryButton}
+            >
+              {actionLoading ? (
+                <>
+                  <div className={styles.spinner} />
+                  Submitting Report...
+                </>
+              ) : (
+                'Submit Report'
+              )}
+            </button>
+          ) : (
+            renderActionButton()
+          )}
 
-        {job?.status !== JOB_STATUSES.IN_INSPECTION && renderActionButton()}
-        <button onClick={() => navigate('/dashboard')} className={styles.secondaryButton}>Back to Dashboard</button>
+          {/* Secondary action - always present */}
+          <button
+            onClick={() => navigate('/dashboard')}
+            className={styles.secondaryButton}
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </>
     );
   };

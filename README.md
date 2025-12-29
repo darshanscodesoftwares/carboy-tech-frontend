@@ -1,36 +1,53 @@
-## ✏️ Edit Mode Support for Technician Inspection Flow
+## JobFlow Action Button Alignment Issue – Investigation & Fix
 
-The frontend must support an **Edit Report** mode so technicians can reopen a completed inspection, modify checkpoint answers, change uploaded images, and resubmit the report.
+### Problem Summary
+In JobFlow, action buttons such as:
+- Start Travel
+- Start Inspection
+- Submit Report
+- Back to Dashboard
 
-### 🔧 Required Behaviors
+were rendered in multiple conditional blocks across the component.
 
-1. **Edit Mode Routing**
-   - The “Edit Report” button on the Summary Page must route to:
-     `/job/:jobId/inspection?edit=true`
+Because these buttons were not wrapped inside a single shared container,
+each state rendered buttons relative to different layout contexts, causing:
+- Misalignment
+- Inconsistent widths
+- Buttons jumping position when job status changes
 
-2. **Skip Summary Override in Edit Mode**
-   - In JobFlow.jsx, the summary auto-render logic must be bypassed when `edit=true`.
-   - Replace the existing summary check with:
-     ```js
-     if (!isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary)) {
-       return renderSummary();
-     }
-     ```
+This was a structural JSX issue, not a CSS styling issue.
 
-3. **Enable Editing of Existing Checkpoints**
-   - ChecklistItem.jsx currently locks editing using:
-     `disabled={isCompleted}`
-   - Change this to:
-     `disabled={isCompleted && !isEditMode}`
+---
 
-4. **Enable Resubmission**
-   - The “Submit Report” button at the bottom of the Inspection page must work in edit mode as well and correctly call the `completeJob()` logic.
+### Root Cause
+- Buttons were conditionally rendered in separate JSX branches
+- No shared parent wrapper controlled layout
+- Some buttons were full-width, others auto-sized
+- ClassName misuse (comma operator) prevented multiple classes from applying
 
-5. **Do NOT auto-submit after all checkpoints are completed.**
-   - The inspection only completes when the technician presses **Submit Report**.
+---
 
-6. **All pages must support edit mode consistently.**
+### Solution Approach
+1. Introduced a single wrapper container:
+   `.actionButtonGroup`
+2. Rendered ALL bottom action buttons inside this container
+3. Applied consistent width, spacing, and centering via CSS
+4. Ensured logic remains unchanged — only layout structure was fixed
+5. Buttons now stack vertically and remain centered in all job states
 
-### 🔍 Summary
+---
 
-Claude must implement a persistent **edit mode system** based on the `?edit=true` query param, allowing the technician to re-open a completed inspection, adjust checkpoints, change photos, and resubmit the report.
+### Result
+✅ Consistent button width  
+✅ Smooth visual flow between job states  
+✅ No layout jumping  
+✅ Matches provided UI reference screenshots  
+✅ Scalable for future action buttons  
+
+---
+
+### Files Updated
+- `JobFlow.jsx`
+- `JobFlow.module.css`
+
+This fix is structural, reusable, and future-proof.

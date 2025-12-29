@@ -11,7 +11,7 @@ import styles from './Dashboard.module.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { updateTechnician } = useTechnicianStore();
+  const { updateTechnician, clearNotification } = useTechnicianStore();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,18 +21,39 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); setError(null);
-      try {
-        const [technicianData, jobsData] = await Promise.all([getTechnicianProfile(), getJobs()]);
-        updateTechnician(technicianData);
-        setJobs(jobsData);
-      } catch (err) { setError(err.response?.data?.error || 'Failed to load data'); }
-      finally { setLoading(false); }
-    };
-    fetchData();
-  }, [updateTechnician]);
+      setLoading(true);
+      setError(null);
 
-  const completedCount = jobs.filter((j) => j.status === 'completed').length;
+      // Clear notification badge immediately when Dashboard loads
+      clearNotification();
+
+      try {
+        console.log('Fetching technician profile and jobs...'); // Debug log
+
+        const [technicianData, jobsData] = await Promise.all([
+          getTechnicianProfile(),
+          getJobs()
+        ]);
+
+        console.log('Technician data received:', technicianData); // Debug log
+        console.log('Jobs data received:', jobsData); // Debug log
+
+        // Update technician in store
+        updateTechnician(technicianData);
+        // Filter out completed jobs
+        const filteredJobs = jobsData.filter(job => job.status !== 'completed');
+        setJobs(filteredJobs);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err); // Debug log
+        setError(err.response?.data?.error || err.message || 'Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [updateTechnician, clearNotification]);
+
   const pendingCount = jobs.filter((j) => j.status === 'pending').length;
 
   // Pagination calculations
@@ -81,21 +102,9 @@ const Dashboard = () => {
 
   return (
     <div className={styles.container}>
-      <Navbar showNotificationBadge={pendingCount > 0} />
+      <Navbar />
       <main className={styles.main}>
         <div className={styles.statsSection}>
-          <div className={styles.statCard}>
-            <div className={styles.statIcon} style={{ backgroundColor: '#B2F3D8' }}>
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className={styles.statContent}>
-              <p className={styles.statLabel}>Completed Jobs</p>
-              <p className={styles.statValue}>{completedCount}</p>
-            </div>
-          </div>
-
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{ backgroundColor: '#FFE7A1' }}>
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
@@ -103,7 +112,7 @@ const Dashboard = () => {
               </svg>
             </div>
             <div className={styles.statContent}>
-              <p className={styles.statLabel}>Pending</p>
+              <p className={styles.statLabel}>Pending Jobs</p>
               <p className={styles.statValue}>{pendingCount}</p>
             </div>
           </div>
@@ -145,7 +154,8 @@ const Dashboard = () => {
                       const statusInfo = getStatusInfo(job.status);
                       const actualIndex = startIndex + index;
                       return (
-                        <tr key={job._id} onClick={() => navigate(`/flow/${job._id}`)} className={styles.tableRow}>
+                        <tr key={job._id} className={styles.tableRow}>
+                          {/* onClick={() => navigate(`/flow/${job._id}`)} */}
                           <td>{actualIndex + 1}.</td>
                         <td>{job.customerSnapshot?.name || 'N/A'}</td>
                         <td>{job.serviceType}</td>

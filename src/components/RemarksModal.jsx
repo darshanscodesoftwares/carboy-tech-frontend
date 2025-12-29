@@ -71,7 +71,7 @@ const RemarksModal = ({ isOpen, onClose, onSubmit, initialRemark = '' }) => {
             className={styles.textarea}
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
-            placeholder="Enter your remarks here... These remarks will be included in the inspection report and may be used by the admin to modify the report if needed."
+            placeholder="Enter your remarks here..."
             rows={8}
             autoFocus={isOpen}
           />
