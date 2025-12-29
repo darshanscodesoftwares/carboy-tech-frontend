@@ -10,6 +10,8 @@
   margin: 0 auto;
   width: 85%;
   padding: var(--space-lg) var(--space-md);
+  position: static;
+  overflow: visible;
 }
 
 .progressCard {
@@ -100,6 +102,8 @@
 
 .checklistSection {
   margin-bottom: var(--space-md);
+  position: static;
+  overflow: visible;
 }
 
 .checklistTitle {
@@ -109,6 +113,8 @@
 
 .sectionGroup {
   margin-bottom: var(--space-lg);
+  position: static;
+  overflow: visible;
 }
 
 .sectionHeader {
