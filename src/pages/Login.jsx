@@ -15,14 +15,35 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); setLoading(true);
+    setError('');
+    setLoading(true);
+
     try {
-      const { token, technician } = await login(email, password);
+      const response = await login(email, password);
+      console.log('Login response:', response); // Debug log
+
+      // Extract token and technician from response
+      const { token, technician } = response;
+
+      if (!token) {
+        throw new Error('No token received from server');
+      }
+
+      if (!technician) {
+        throw new Error('No technician data received from server');
+      }
+
+      // Store in Zustand
       setAuth(token, technician);
+
+      // Navigate to dashboard
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed.');
-    } finally { setLoading(false); }
+      console.error('Login error:', err); // Debug log
+      setError(err.response?.data?.error || err.message || 'Login failed.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

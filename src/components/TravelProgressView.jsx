@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import uiConfig from '../config/uiConfig';
+import ProgressBar from '../components/ProgressBar';
 import styles from './TravelProgressView.module.css';
 
 const TravelProgressView = ({ currentStep, onReachedLocation }) => {
   const navigate = useNavigate();
+
   const steps = [
     { label: 'Accepted', key: 'accepted' },
     { label: 'Traveling', key: 'traveling' },
@@ -13,80 +16,70 @@ const TravelProgressView = ({ currentStep, onReachedLocation }) => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Job Progress</h2>
+      {/* <h2 className={styles.title}>Job Progress</h2> */}
 
-      {/* Progress Bar */}
-      <div className={styles.progressBar}>
-        {steps.map((step, index) => {
-          const isCompleted = index < currentStep;
-          const isCurrent = index === currentStep;
-          const isUpcoming = index > currentStep;
+      {/* SWITCH HERE */}
+      {uiConfig.useUnifiedProgressBar ? (
+        // ⭐ Client-approved unified global progress bar
+        <ProgressBar currentStep={currentStep} />
+      ) : (
+        // ⭐ Old custom travel progress bar (kept intact)
+        <div className={styles.progressBar}>
+          {steps.map((step, index) => {
+            const isCompleted = index < currentStep;
+            const isCurrent = index === currentStep;
+            const isUpcoming = index > currentStep;
 
-          return (
-            <div key={step.key} className={styles.stepContainer}>
-              <div className={styles.stepWrapper}>
-                {/* Step Circle */}
-                <div className={`${styles.stepCircle} ${isCompleted ? styles.completed : ''} ${isCurrent ? styles.current : ''} ${isUpcoming ? styles.upcoming : ''}`}>
-                  {isCompleted ? (
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : isCurrent ? (
-                    <div className={styles.currentIcon}>
-                      {index === 1 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      )}
-                      {index === 2 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        </svg>
-                      )}
-                      {index === 3 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                      )}
-                      {index === 4 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      )}
-                    </div>
-                  ) : (
-                    <div className={styles.upcomingIcon}>
-                      {index === 2 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        </svg>
-                      )}
-                      {index === 3 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                      )}
-                      {index === 4 && (
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      )}
-                    </div>
+            return (
+              <div key={step.key} className={styles.stepContainer}>
+                <div className={styles.stepWrapper}>
+                  <div
+                    className={`${styles.stepCircle} 
+                      ${isCompleted ? styles.completed : ''} 
+                      ${isCurrent ? styles.current : ''} 
+                      ${isUpcoming ? styles.upcoming : ''}`
+                    }
+                  >
+                    {isCompleted ? (
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : isCurrent ? (
+                      <>
+                        {index === 1 && (
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        )}
+                        {index === 2 && (
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          </svg>
+                        )}
+                        {index === 3 && (
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+                          </svg>
+                        )}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+
+                  {index < steps.length - 1 && (
+                    <div className={`${styles.connectingLine} ${isCompleted ? styles.lineCompleted : ''}`} />
                   )}
                 </div>
 
-                {/* Connecting Line */}
-                {index < steps.length - 1 && (
-                  <div className={`${styles.connectingLine} ${isCompleted ? styles.lineCompleted : ''}`} />
-                )}
+                <p className={`${styles.stepLabel} ${isCurrent ? styles.labelCurrent : ''}`}>
+                  {step.label}
+                </p>
               </div>
-
-              {/* Step Label */}
-              <p className={`${styles.stepLabel} ${isCurrent ? styles.labelCurrent : ''}`}>{step.label}</p>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Map Section */}
       <div className={styles.mapContainer}>
@@ -100,26 +93,25 @@ const TravelProgressView = ({ currentStep, onReachedLocation }) => {
             </button>
             <p className={styles.mapText}>
               Your navigation to the customer location has started in Google Maps.
-              <br />
-              Please follow the directions in Google Maps to reach the destination.
+
+              Please follow directions to reach the destination.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Action Button */}
-      {currentStep === 1 && (
-        <button className={styles.actionButton} onClick={onReachedLocation}>
-          Reached Location
-        </button>
-      )}
+      <div className={styles.buttonGroup}>
+        {currentStep === 1 && (
+          <button className={styles.primaryButton} onClick={onReachedLocation}>
+            Reached Location
+          </button>
+        )}
 
-      {/* Back to Dashboard Button */}
-      <div className={styles.backButtonContainer}>
-        <button className={styles.backButton} onClick={() => navigate('/dashboard')}>
+        <button className={styles.secondaryButton} onClick={() => navigate('/dashboard')}>
           Back to Dashboard
         </button>
       </div>
+
     </div>
   );
 };

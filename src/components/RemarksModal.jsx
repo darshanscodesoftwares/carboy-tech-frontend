@@ -33,8 +33,12 @@ const RemarksModal = ({ isOpen, onClose, onSubmit, initialRemark = '' }) => {
   };
 
   return (
-    <div className={styles.overlay} onClick={handleOverlayClick}>
-      <div className={styles.modal}>
+    <>
+      {/* Overlay */}
+      {isOpen && <div className={styles.overlay} onClick={onClose} />}
+
+      {/* Side Drawer */}
+      <div className={`${styles.drawer} ${isOpen ? styles.drawerOpen : styles.drawerClosed}`}>
         <div className={styles.header}>
           <div>
             <h2 className={styles.title}>Add Remark</h2>
@@ -43,7 +47,7 @@ const RemarksModal = ({ isOpen, onClose, onSubmit, initialRemark = '' }) => {
           <button
             className={styles.closeButton}
             onClick={onClose}
-            aria-label="Close modal"
+            aria-label="Close drawer"
           >
             <svg
               fill="none"
@@ -67,9 +71,9 @@ const RemarksModal = ({ isOpen, onClose, onSubmit, initialRemark = '' }) => {
             className={styles.textarea}
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
-            placeholder="Enter your remarks here... These remarks will be included in the inspection report and may be used by the admin to modify the report if needed."
-            rows={6}
-            autoFocus
+            placeholder="Enter your remarks here..."
+            rows={8}
+            autoFocus={isOpen}
           />
           <p className={styles.hint}>
             These remarks are optional and will be included in your final inspection report.
@@ -85,7 +89,7 @@ const RemarksModal = ({ isOpen, onClose, onSubmit, initialRemark = '' }) => {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

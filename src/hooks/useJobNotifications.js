@@ -1,10 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getJobs } from '../api/jobs';
+import useTechnicianStore from '../store/technician';
 
 const useJobNotifications = (enabled = false) => {
   const [showNotification, setShowNotification] = useState(false);
   const lastJobCountRef = useRef(null);
   const isInitialMount = useRef(true);
+  const location = useLocation();
+  const { incrementNotification, clearNotification } = useTechnicianStore();
 
   const checkForNewJobs = useCallback(async () => {
     if (!enabled) return;
@@ -20,6 +24,7 @@ const useJobNotifications = (enabled = false) => {
       // 3. Current count is greater than previous count
       if (!isInitialMount.current && lastJobCountRef.current !== null && currentCount > lastJobCountRef.current) {
         setShowNotification(true);
+        incrementNotification();
       }
 
       lastJobCountRef.current = currentCount;
@@ -27,7 +32,7 @@ const useJobNotifications = (enabled = false) => {
     } catch (error) {
       console.error('Failed to check for new jobs:', error);
     }
-  }, [enabled]);
+  }, [enabled, incrementNotification]);
 
   useEffect(() => {
     if (!enabled) {
@@ -42,12 +47,19 @@ const useJobNotifications = (enabled = false) => {
     checkForNewJobs();
 
     // Poll every 30 seconds
-    const interval = setInterval(checkForNewJobs, 30000);
+    const interval = setInterval(checkForNewJobs, 11000);
 
     return () => {
       clearInterval(interval);
     };
   }, [enabled, checkForNewJobs]);
+
+  // Clear notification badge when on dashboard
+  useEffect(() => {
+    if (location.pathname === '/dashboard') {
+      clearNotification();
+    }
+  }, [location.pathname, clearNotification]);
 
   const dismissNotification = useCallback(() => {
     setShowNotification(false);
