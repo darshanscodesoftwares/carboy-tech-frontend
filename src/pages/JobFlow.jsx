@@ -58,7 +58,24 @@ const JobFlow = () => {
     setRemarks(remark);
   };
   const getExistingAnswer = (key) => job?.checklistAnswers?.find((a) => a.checkpointKey === key);
-  const allCheckpointsCompleted = () => checklist?.items && checklist.items.every((item) => job?.checklistAnswers?.some((a) => a.checkpointKey === item.key));
+
+  // Handle both PDI (sections-based) and UCI (flat items)
+  const allCheckpointsCompleted = () => {
+    if (!checklist) return false;
+
+    // PDI format with sections
+    if (checklist.sections) {
+      const allItems = checklist.sections.flatMap(section => section.items);
+      return allItems.length > 0 && allItems.every((item) => job?.checklistAnswers?.some((a) => a.checkpointKey === item.key));
+    }
+
+    // UCI format with flat items
+    if (checklist.items) {
+      return checklist.items.every((item) => job?.checklistAnswers?.some((a) => a.checkpointKey === item.key));
+    }
+
+    return false;
+  };
 
   const renderActionButton = () => {
     if (!job) return null;
@@ -122,11 +139,42 @@ const JobFlow = () => {
         {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && (
           <div className={styles.checklistSection}>
             <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
-            {loading && !checklist ? <Loading message="Loading checklist..." /> : checklist?.items ? (
+            {loading && !checklist ? (
+              <Loading message="Loading checklist..." />
+            ) : checklist ? (
               <>
-                {checklist.items.map((item) => <ChecklistItem key={item.key} item={item} onSubmit={handleCheckpointSubmit} isSubmitting={checkpointLoading} existingAnswer={getExistingAnswer(item.key)} isEditMode={isEditMode} />)}
+                {/* PDI format with sections */}
+                {checklist.sections && checklist.sections.map((section) => (
+                  <div key={section.section} className={styles.sectionGroup}>
+                    <h4 className={styles.sectionHeader}>{section.section}</h4>
+                    {section.items.map((item) => (
+                      <ChecklistItem
+                        key={item.key}
+                        item={item}
+                        onSubmit={handleCheckpointSubmit}
+                        isSubmitting={checkpointLoading}
+                        existingAnswer={getExistingAnswer(item.key)}
+                        isEditMode={isEditMode}
+                      />
+                    ))}
+                  </div>
+                ))}
+
+                {/* UCI format with flat items */}
+                {checklist.items && !checklist.sections && checklist.items.map((item) => (
+                  <ChecklistItem
+                    key={item.key}
+                    item={item}
+                    onSubmit={handleCheckpointSubmit}
+                    isSubmitting={checkpointLoading}
+                    existingAnswer={getExistingAnswer(item.key)}
+                    isEditMode={isEditMode}
+                  />
+                ))}
               </>
-            ) : <p className={styles.emptyChecklist}>No checklist available</p>}
+            ) : (
+              <p className={styles.emptyChecklist}>No checklist available</p>
+            )}
           </div>
         )}
 
