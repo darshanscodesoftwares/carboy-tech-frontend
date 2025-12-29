@@ -130,8 +130,54 @@ const InspectionSummary = ({ job }) => {
           <svg className={styles.reportIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className={styles.reportTitle}>Report Submitted to Admin</h3>
+          <h3 className={styles.reportTitle}>Inspection Report</h3>
         </div>
+
+        {/* Display checkpoint answers */}
+        {job.checklistAnswers && job.checklistAnswers.length > 0 && (
+          <div className={styles.answersSection}>
+            <h4 className={styles.answersTitle}>Checkpoint Responses ({job.checklistAnswers.length} items completed)</h4>
+            <div className={styles.answersList}>
+              {job.checklistAnswers.map((answer, index) => (
+                <div key={answer.checkpointKey || index} className={styles.answerItem}>
+                  <div className={styles.answerHeader}>
+                    <span className={styles.answerLabel}>{answer.checkpointKey}</span>
+                  </div>
+                  <div className={styles.answerContent}>
+                    {answer.selectedOption && (
+                      <p className={styles.answerValue}>
+                        <strong>Response:</strong> {answer.selectedOption}
+                      </p>
+                    )}
+                    {answer.textValue && (
+                      <p className={styles.answerValue}>
+                        <strong>Value:</strong> {answer.textValue}
+                      </p>
+                    )}
+                    {answer.notes && (
+                      <p className={styles.answerNotes}>
+                        <strong>Notes:</strong> {answer.notes}
+                      </p>
+                    )}
+                    {answer.photoUrl && (
+                      <div className={styles.answerPhoto}>
+                        <img src={answer.photoUrl} alt={answer.checkpointKey} className={styles.photoThumb} />
+                      </div>
+                    )}
+                    {answer.photoUrls && answer.photoUrls.length > 0 && (
+                      <div className={styles.answerPhotos}>
+                        {answer.photoUrls.map((url, idx) => (
+                          <img key={idx} src={url} alt={`${answer.checkpointKey} ${idx + 1}`} className={styles.photoThumb} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <p className={styles.reportText}>
           Your detailed inspection report with photos and remarks has been automatically sent to the admin team. They will review it and share it with the customer.
         </p>

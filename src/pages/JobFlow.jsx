@@ -187,11 +187,12 @@ const JobFlow = () => {
 
         <div className={styles.actionButtons}>
           {/* Primary action button for all states */}
-          {((job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && allCheckpointsCompleted()) ? (
+          {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) ? (
             <button
               onClick={handleSubmitReport}
-              disabled={actionLoading}
+              disabled={actionLoading || !allCheckpointsCompleted()}
               className={styles.primaryButton}
+              title={!allCheckpointsCompleted() ? 'Please complete all checkpoints before submitting' : ''}
             >
               {actionLoading ? (
                 <>
