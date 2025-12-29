@@ -227,9 +227,18 @@
 }
 
 
+.textInputWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
 .textInput,
 .textareaInput,
 .dropdownInput {
+  flex: 1;
   width: 100%;
   padding: var(--space-md);
   font-size: var(--font-md);
@@ -239,6 +248,41 @@
   display: block;
   margin: 0;
   transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.inlineSaveButton {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: white;
+  color: var(--color-accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 150ms ease;
+  margin-top: var(--space-md);
+}
+
+.inlineSaveButton:hover:not(:disabled) {
+  background-color: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.inlineSaveButton.saved {
+  background-color: #10b981;
+  color: white;
+  border-color: #10b981;
+  cursor: default;
+}
+
+.inlineSaveButton:disabled {
+  cursor: default;
 }
 
 .textInput:focus,
