@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import ImagePreviewModal from './ImagePreviewModal';
 import styles from './ChecklistItem.module.css';
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdCheck, MdSave } from "react-icons/md";
 import { FiUpload } from "react-icons/fi";
 import { IoIosCamera } from "react-icons/io";
 
@@ -13,23 +13,14 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
   const [photoUrls, setPhotoUrls] = useState(existingAnswer?.photoUrls || []);
   const [showPreview, setShowPreview] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
+  const [isTextDirty, setIsTextDirty] = useState(false);
+  const [isTextSaved, setIsTextSaved] = useState(false);
   const uploadInputRef = useRef(null);
   const captureInputRef = useRef(null);
   const multiUploadInputRef = useRef(null);
   const multiCaptureInputRef = useRef(null);
 
   const inputType = item.inputType || 'radio'; // Default to radio for backward compatibility
-
-  // Update state when existingAnswer changes (e.g., when loading saved data)
-  useEffect(() => {
-    if (existingAnswer) {
-      if (existingAnswer.selectedOption !== undefined) setSelectedOption(existingAnswer.selectedOption);
-      if (existingAnswer.textValue !== undefined) setTextValue(existingAnswer.textValue);
-      if (existingAnswer.notes !== undefined) setNotes(existingAnswer.notes);
-      if (existingAnswer.photoUrl !== undefined) setPhotoUrl(existingAnswer.photoUrl);
-      if (existingAnswer.photoUrls !== undefined) setPhotoUrls(existingAnswer.photoUrls);
-    }
-  }, [existingAnswer]);
 
   // Auto-save helper
   const autoSave = (updates = {}) => {
@@ -44,24 +35,54 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
     onSubmit(payload);
   };
 
+  // Update state when existingAnswer changes (e.g., when loading saved data)
+  useEffect(() => {
+    if (existingAnswer) {
+      if (existingAnswer.selectedOption !== undefined) setSelectedOption(existingAnswer.selectedOption);
+      if (existingAnswer.textValue !== undefined) setTextValue(existingAnswer.textValue);
+      if (existingAnswer.notes !== undefined) setNotes(existingAnswer.notes);
+      if (existingAnswer.photoUrl !== undefined) setPhotoUrl(existingAnswer.photoUrl);
+      if (existingAnswer.photoUrls !== undefined) setPhotoUrls(existingAnswer.photoUrls);
+    }
+  }, [existingAnswer]);
+
+  // Auto-select dropdown if only one option
+  useEffect(() => {
+    if (inputType === 'dropdown' && item.options && item.options.length === 1 && !selectedOption) {
+      const singleOption = item.options[0];
+      setSelectedOption(singleOption);
+      autoSave({ selectedOption: singleOption });
+    }
+  }, [item.options, inputType, selectedOption]);
+
   // Handle text input
   const handleTextChange = (e) => {
     const value = e.target.value;
     setTextValue(value);
+    setIsTextDirty(true);
+    setIsTextSaved(false);
   };
 
-  const handleTextBlur = () => {
+  const handleTextSave = () => {
     autoSave({ textValue });
+    setIsTextDirty(false);
+    setIsTextSaved(true);
+    setTimeout(() => setIsTextSaved(false), 2000);
   };
 
   // Handle textarea
   const handleTextareaChange = (e) => {
     const value = e.target.value;
     setTextValue(value);
+    setIsTextDirty(true);
+    setIsTextSaved(false);
   };
 
-  const handleTextareaBlur = () => {
+  const handleTextareaSave = () => {
     autoSave({ textValue });
+    setIsTextDirty(false);
+    setIsTextSaved(true);
+    setTimeout(() => setIsTextSaved(false), 2000);
   };
 
   // Handle radio/dropdown option selection
@@ -140,26 +161,50 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
     switch (inputType) {
       case 'text':
         return (
-          <input
-            type="text"
-            value={textValue}
-            onChange={handleTextChange}
-            onBlur={handleTextBlur}
-            placeholder={item.label}
-            className={styles.textInput}
-          />
+          <div className={styles.textInputWrapper}>
+            <input
+              type="text"
+              value={textValue}
+              onChange={handleTextChange}
+              placeholder={item.label}
+              className={styles.textInput}
+            />
+            {(isTextDirty || isTextSaved) && (
+              <button
+                type="button"
+                onClick={handleTextSave}
+                className={`${styles.inlineSaveButton} ${isTextSaved ? styles.saved : ''}`}
+                disabled={isTextSaved}
+                title={isTextSaved ? 'Saved' : 'Click to save'}
+              >
+                {isTextSaved ? <MdCheck /> : <MdSave />}
+              </button>
+            )}
+          </div>
         );
 
       case 'textarea':
         return (
-          <textarea
-            value={textValue}
-            onChange={handleTextareaChange}
-            onBlur={handleTextareaBlur}
-            placeholder={item.label}
-            className={styles.textareaInput}
-            rows={4}
-          />
+          <div className={styles.textInputWrapper}>
+            <textarea
+              value={textValue}
+              onChange={handleTextareaChange}
+              placeholder={item.label}
+              className={styles.textareaInput}
+              rows={4}
+            />
+            {(isTextDirty || isTextSaved) && (
+              <button
+                type="button"
+                onClick={handleTextareaSave}
+                className={`${styles.inlineSaveButton} ${isTextSaved ? styles.saved : ''}`}
+                disabled={isTextSaved}
+                title={isTextSaved ? 'Saved' : 'Click to save'}
+              >
+                {isTextSaved ? <MdCheck /> : <MdSave />}
+              </button>
+            )}
+          </div>
         );
 
       case 'radio':
