@@ -113,3 +113,13 @@ export const reopenJob = async (jobId) => {
 
 };
 
+
+
+export const sendReport = async (jobId) => {
+
+  const response = await api.post(`/jobs/${jobId}/send-report`);
+
+  return response.data.data;
+
+};
+
