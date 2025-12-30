@@ -88,12 +88,14 @@ const JobFlow = () => {
   const handleSubmitReport = async () => {
     setActionLoading(true);
     try {
-      await completeJob(jobId, {
+      const reportWithRemarks = {
         summary: 'Inspection completed successfully',
         overallStatus: 'PASS',
         remarks: remarks.trim() || null,
         recommendations: []
-      });
+      };
+
+      await completeJob(jobId, reportWithRemarks);
       await fetchSummary(jobId);
       navigate(`/flow/${jobId}`);
     } finally {
@@ -108,23 +110,95 @@ const JobFlow = () => {
     if (!checklist) return false;
 
     if (checklist.sections) {
-      const items = checklist.sections.flatMap((s) => s.items);
-      return items.every((i) =>
-        job?.checklistAnswers?.some((a) => a.checkpointKey === i.key)
+      const allItems = checklist.sections.flatMap((s) => s.items);
+      return (
+        allItems.length > 0 &&
+        allItems.every((item) =>
+          job?.checklistAnswers?.some((a) => a.checkpointKey === item.key)
+        )
       );
     }
 
     if (checklist.items) {
-      return checklist.items.every((i) =>
-        job?.checklistAnswers?.some((a) => a.checkpointKey === i.key)
+      return checklist.items.every((item) =>
+        job?.checklistAnswers?.some((a) => a.checkpointKey === item.key)
       );
     }
 
     return false;
   };
 
-  const renderSummary = () =>
-    summary ? <InspectionSummary job={summary.job || job} /> : null;
+  const renderActionButton = () => {
+    if (!job) return null;
+
+    const config = {
+      [JOB_STATUSES.ACCEPTED]: {
+        label: 'Start Travel',
+        action: () => startTravel(jobId)
+      },
+      [JOB_STATUSES.REACHED]: {
+        label: 'Start Inspection',
+        action: () => startInspection(jobId)
+      }
+    };
+
+    const btn = config[job.status];
+    if (!btn) return null;
+
+    return (
+      <button
+        onClick={() => handleAction(btn.action)}
+        disabled={actionLoading}
+        className={styles.primaryButton}
+      >
+        {actionLoading ? (
+          <>
+            <div className={styles.spinner} />
+            Processing...
+          </>
+        ) : (
+          btn.label
+        )}
+      </button>
+    );
+  };
+
+  const renderSummary = () => {
+    if (!summary) return null;
+    return <InspectionSummary job={summary.job || job} />;
+  };
+
+  if (loading && !job) {
+    return (
+      <div className={styles.container}>
+        <Navbar />
+        <main className={styles.main}>
+          <Loading message="Loading job..." />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!job && error) {
+    return (
+      <div className={styles.container}>
+        <Navbar />
+        <main className={styles.main}>
+          <div className={styles.error}>
+            <p>{error}</p>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className={styles.primaryButton}
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const renderContent = () => {
     if (job?.status === JOB_STATUSES.TRAVELING) {
@@ -147,7 +221,7 @@ const JobFlow = () => {
       );
     }
 
-    // ✅ FIXED SUMMARY CONDITION
+    // ✅ FIXED: summary must NOT block edit mode
     if (
       !isEditMode &&
       job?.status === JOB_STATUSES.COMPLETED &&
@@ -158,34 +232,57 @@ const JobFlow = () => {
 
     return (
       <>
-        <div className={styles.checklistSection}>
-          {checklist?.sections?.map((section) => (
-            <div key={section.section}>
-              <h4>{section.section}</h4>
-              {section.items.map((item) => (
-                <ChecklistItem
-                  key={item.key}
-                  item={item}
-                  onSubmit={handleCheckpointSubmit}
-                  isSubmitting={checkpointLoading}
-                  existingAnswer={getExistingAnswer(item.key)}
-                  isEditMode={isEditMode}
-                />
-              ))}
+        {error && <div className={styles.error}>{error}</div>}
+
+        {job?.status !== JOB_STATUSES.COMPLETED &&
+          job?.status !== JOB_STATUSES.PENDING && (
+            <div className={styles.progressCard}>
+              <ProgressBar currentStep={getStepIndex(job?.status)} />
             </div>
-          ))}
-        </div>
+          )}
+
+        {(job?.status === JOB_STATUSES.IN_INSPECTION ||
+          (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && (
+          <div className={styles.checklistSection}>
+            <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
+
+            {checklist?.sections &&
+              checklist.sections.map((section) => (
+                <div key={section.section} className={styles.sectionGroup}>
+                  <h4 className={styles.sectionHeader}>{section.section}</h4>
+                  {section.items.map((item) => (
+                    <ChecklistItem
+                      key={item.key}
+                      item={item}
+                      onSubmit={handleCheckpointSubmit}
+                      isSubmitting={checkpointLoading}
+                      existingAnswer={getExistingAnswer(item.key)}
+                      isEditMode={isEditMode}
+                    />
+                  ))}
+                </div>
+              ))}
+          </div>
+        )}
 
         <div className={styles.actionButtons}>
-          {(job?.status === JOB_STATUSES.IN_INSPECTION ||
-            (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && (
+          {job?.status === JOB_STATUSES.IN_INSPECTION ? (
             <button
               onClick={handleSubmitReport}
-              disabled={!allCheckpointsCompleted() || actionLoading}
+              disabled={actionLoading || !allCheckpointsCompleted()}
               className={styles.primaryButton}
             >
-              Submit Report
+              {actionLoading ? (
+                <>
+                  <div className={styles.spinner} />
+                  Submitting Report...
+                </>
+              ) : (
+                'Submit Report'
+              )}
             </button>
+          ) : (
+            renderActionButton()
           )}
 
           <button
@@ -221,7 +318,7 @@ const JobFlow = () => {
 
       {showNotification && (
         <Toast
-          message="A new service job has been assigned."
+          message="A new service job has been assigned to you."
           onClose={dismissNotification}
         />
       )}
