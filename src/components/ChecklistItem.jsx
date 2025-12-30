@@ -5,9 +5,9 @@ import { MdDelete, MdCheck, MdSave } from "react-icons/md";
 import { FiUpload } from "react-icons/fi";
 import { IoIosCamera } from "react-icons/io";
 
-const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMode }) => {
+const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   const [selectedOption, setSelectedOption] = useState(existingAnswer?.selectedOption || '');
-  const [textValue, setTextValue] = useState(existingAnswer?.textValue || '');
+  const [textValue, setTextValue] = useState(existingAnswer?.value || '');
   const [notes, setNotes] = useState(existingAnswer?.notes || '');
   const [photoUrl, setPhotoUrl] = useState(existingAnswer?.photoUrl || '');
   const [photoUrls, setPhotoUrls] = useState(existingAnswer?.photoUrls || []);
@@ -15,89 +15,88 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
   const [previewImage, setPreviewImage] = useState('');
   const [isTextDirty, setIsTextDirty] = useState(false);
   const [isTextSaved, setIsTextSaved] = useState(false);
+
   const uploadInputRef = useRef(null);
   const captureInputRef = useRef(null);
   const multiUploadInputRef = useRef(null);
   const multiCaptureInputRef = useRef(null);
 
-  const inputType = item.inputType || 'radio'; // Default to radio for backward compatibility
+  const inputType = item.inputType || 'radio';
 
-  // Auto-save helper
+  // =========================
+  // AUTO SAVE (FIXED PAYLOAD)
+  // =========================
   const autoSave = useCallback((updates = {}) => {
     const payload = {
       checkpointKey: item.key,
-      selectedOption: updates.selectedOption !== undefined ? updates.selectedOption : selectedOption,
-      textValue: updates.textValue !== undefined ? updates.textValue : textValue,
-      notes: updates.notes !== undefined ? updates.notes : notes,
-      photoUrl: updates.photoUrl !== undefined ? updates.photoUrl : (photoUrl || null),
-      photoUrls: updates.photoUrls !== undefined ? updates.photoUrls : (photoUrls.length > 0 ? photoUrls : null)
+      selectedOption: updates.selectedOption ?? selectedOption ?? null,
+      value: updates.value ?? textValue ?? null,
+      notes: updates.notes ?? notes ?? null,
+      photoUrl: updates.photoUrl ?? photoUrl ?? null,
+      photoUrls: updates.photoUrls ?? (photoUrls.length > 0 ? photoUrls : null)
     };
+
     onSubmit(payload);
   }, [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, onSubmit]);
 
-  // Update state when existingAnswer changes (e.g., when loading saved data)
+  // =========================
+  // REHYDRATE FROM BACKEND
+  // =========================
   useEffect(() => {
-    if (existingAnswer) {
-      if (existingAnswer.selectedOption !== undefined) setSelectedOption(existingAnswer.selectedOption);
-      if (existingAnswer.textValue !== undefined) setTextValue(existingAnswer.textValue);
-      if (existingAnswer.notes !== undefined) setNotes(existingAnswer.notes);
-      if (existingAnswer.photoUrl !== undefined) setPhotoUrl(existingAnswer.photoUrl);
-      if (existingAnswer.photoUrls !== undefined) setPhotoUrls(existingAnswer.photoUrls);
-    }
+    if (!existingAnswer) return;
+
+    setSelectedOption(existingAnswer.selectedOption || '');
+    setTextValue(existingAnswer.value || '');
+    setNotes(existingAnswer.notes || '');
+    setPhotoUrl(existingAnswer.photoUrl || '');
+    setPhotoUrls(existingAnswer.photoUrls || []);
   }, [existingAnswer]);
 
-  // Auto-select dropdown if only one option
+  // =========================
+  // AUTO SELECT SINGLE DROPDOWN
+  // =========================
   useEffect(() => {
-    if (inputType === 'dropdown' && item.options && item.options.length === 1 && !selectedOption) {
-      const singleOption = item.options[0];
-      setSelectedOption(singleOption);
-      autoSave({ selectedOption: singleOption });
+    if (
+      inputType === 'dropdown' &&
+      item.options &&
+      item.options.length === 1 &&
+      !selectedOption
+    ) {
+      const value = item.options[0];
+      setSelectedOption(value);
+      autoSave({ selectedOption: value });
     }
   }, [item.options, inputType, selectedOption, autoSave]);
 
-  // Handle text input
+  // =========================
+  // TEXT / TEXTAREA HANDLERS
+  // =========================
   const handleTextChange = (e) => {
-    const value = e.target.value;
-    setTextValue(value);
+    setTextValue(e.target.value ?? '');
     setIsTextDirty(true);
     setIsTextSaved(false);
   };
 
   const handleTextSave = () => {
-    autoSave({ textValue });
+    autoSave({ value: textValue });
     setIsTextDirty(false);
     setIsTextSaved(true);
-    setTimeout(() => setIsTextSaved(false), 2000);
+    setTimeout(() => setIsTextSaved(false), 1500);
   };
 
-  // Handle textarea
-  const handleTextareaChange = (e) => {
-    const value = e.target.value;
-    setTextValue(value);
-    setIsTextDirty(true);
-    setIsTextSaved(false);
-  };
-
-  const handleTextareaSave = () => {
-    autoSave({ textValue });
-    setIsTextDirty(false);
-    setIsTextSaved(true);
-    setTimeout(() => setIsTextSaved(false), 2000);
-  };
-
-  // Handle radio/dropdown option selection
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     autoSave({ selectedOption: option });
   };
 
-  // Handle single photo upload
+  // =========================
+  // IMAGE HANDLERS
+  // =========================
   const handlePhotoUpload = (file) => {
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPhotoUrl(url);
-      autoSave({ photoUrl: url });
-    }
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setPhotoUrl(url);
+    autoSave({ photoUrl: url });
   };
 
   const handlePhotoDelete = () => {
@@ -105,101 +104,51 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
     autoSave({ photoUrl: null });
   };
 
-  // Handle multiple photo uploads
   const handleMultiPhotoUpload = (files) => {
-    if (files && files.length > 0) {
-      const newUrls = Array.from(files).map(file => URL.createObjectURL(file));
-      const updatedUrls = [...photoUrls, ...newUrls];
-      setPhotoUrls(updatedUrls);
-      autoSave({ photoUrls: updatedUrls });
-    }
+    const urls = Array.from(files || []).map(f => URL.createObjectURL(f));
+    const updated = [...photoUrls, ...urls];
+    setPhotoUrls(updated);
+    autoSave({ photoUrls: updated });
   };
 
   const handleMultiPhotoDelete = (index) => {
-    const updatedUrls = photoUrls.filter((_, i) => i !== index);
-    setPhotoUrls(updatedUrls);
-    autoSave({ photoUrls: updatedUrls.length > 0 ? updatedUrls : null });
+    const updated = photoUrls.filter((_, i) => i !== index);
+    setPhotoUrls(updated);
+    autoSave({ photoUrls: updated.length ? updated : null });
   };
 
-  const handlePreview = (url) => {
-    setPreviewImage(url);
-    setShowPreview(true);
-  };
-
-  const handleUploadClick = () => {
-    uploadInputRef.current?.click();
-  };
-
-  const handleCaptureClick = () => {
-    captureInputRef.current?.click();
-  };
-
-  const handleMultiUploadClick = () => {
-    multiUploadInputRef.current?.click();
-  };
-
-  const handleMultiCaptureClick = () => {
-    multiCaptureInputRef.current?.click();
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handlePhotoUpload(file);
-    }
-  };
-
-  const handleMultiFileChange = (e) => {
-    const files = e.target.files;
-    if (files) {
-      handleMultiPhotoUpload(files);
-    }
-  };
-
-  // Render input based on type
+  // =========================
+  // RENDER INPUT
+  // =========================
   const renderInput = () => {
+    const safeText = textValue ?? '';
+
     switch (inputType) {
       case 'text':
+      case 'textarea':
         return (
           <div className={styles.textInputWrapper}>
-            <input
-              type="text"
-              value={textValue}
-              onChange={handleTextChange}
-              placeholder={item.label}
-              className={styles.textInput}
-            />
+            {inputType === 'text' ? (
+              <input
+                type="text"
+                value={safeText}
+                onChange={handleTextChange}
+                className={styles.textInput}
+              />
+            ) : (
+              <textarea
+                value={safeText}
+                onChange={handleTextChange}
+                className={styles.textareaInput}
+                rows={4}
+              />
+            )}
+
             {(isTextDirty || isTextSaved) && (
               <button
                 type="button"
                 onClick={handleTextSave}
                 className={`${styles.inlineSaveButton} ${isTextSaved ? styles.saved : ''}`}
-                disabled={isTextSaved}
-                title={isTextSaved ? 'Saved' : 'Click to save'}
-              >
-                {isTextSaved ? <MdCheck /> : <MdSave />}
-              </button>
-            )}
-          </div>
-        );
-
-      case 'textarea':
-        return (
-          <div className={styles.textInputWrapper}>
-            <textarea
-              value={textValue}
-              onChange={handleTextareaChange}
-              placeholder={item.label}
-              className={styles.textareaInput}
-              rows={4}
-            />
-            {(isTextDirty || isTextSaved) && (
-              <button
-                type="button"
-                onClick={handleTextareaSave}
-                className={`${styles.inlineSaveButton} ${isTextSaved ? styles.saved : ''}`}
-                disabled={isTextSaved}
-                title={isTextSaved ? 'Saved' : 'Click to save'}
               >
                 {isTextSaved ? <MdCheck /> : <MdSave />}
               </button>
@@ -210,7 +159,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
       case 'radio':
         return (
           <div className={styles.optionsGrid}>
-            {item.options?.map((option) => (
+            {item.options?.map(option => (
               <button
                 key={option}
                 type="button"
@@ -231,10 +180,8 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
             className={styles.dropdownInput}
           >
             <option value="">-- Select --</option>
-            {item.options?.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
+            {item.options?.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
         );
@@ -243,53 +190,13 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
         return (
           <div className={styles.uploadSection}>
             {!photoUrl ? (
-              <div className={styles.uploadButtons}>
-                <input
-                  ref={uploadInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className={styles.fileInput}
-                />
-                <input
-                  ref={captureInputRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleFileChange}
-                  className={styles.fileInput}
-                />
-                <button
-                  type="button"
-                  onClick={handleUploadClick}
-                  className={styles.uploadButton}
-                >
-                  <FiUpload /> Upload
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCaptureClick}
-                  className={styles.captureButton}
-                >
-                  <IoIosCamera />
-                </button>
-              </div>
+              <>
+                <input type="file" accept="image/*" onChange={e => handlePhotoUpload(e.target.files[0])} />
+              </>
             ) : (
               <div className={styles.previewRow}>
-                <img
-                  src={photoUrl}
-                  alt="Uploaded"
-                  className={styles.previewThumb}
-                  onClick={() => handlePreview(photoUrl)}
-                />
-                <button
-                  type="button"
-                  onClick={handlePhotoDelete}
-                  className={styles.deleteIconButton}
-                  aria-label="Delete photo"
-                >
-                  <MdDelete />
-                </button>
+                <img src={photoUrl} alt="preview" onClick={() => setPreviewImage(photoUrl)} />
+                <button onClick={handlePhotoDelete}><MdDelete /></button>
               </div>
             )}
           </div>
@@ -298,60 +205,13 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
       case 'multi-image':
         return (
           <div className={styles.uploadSection}>
-            <div className={styles.uploadButtons}>
-              <input
-                ref={multiUploadInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleMultiFileChange}
-                className={styles.fileInput}
-              />
-              <input
-                ref={multiCaptureInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleMultiFileChange}
-                className={styles.fileInput}
-              />
-              <button
-                type="button"
-                onClick={handleMultiUploadClick}
-                className={styles.uploadButton}
-              >
-                <FiUpload /> Upload Multiple
-              </button>
-              <button
-                type="button"
-                onClick={handleMultiCaptureClick}
-                className={styles.captureButton}
-              >
-                <IoIosCamera />
-              </button>
-            </div>
-            {photoUrls.length > 0 && (
-              <div className={styles.multiImageGrid}>
-                {photoUrls.map((url, index) => (
-                  <div key={index} className={styles.previewRow}>
-                    <img
-                      src={url}
-                      alt={`Upload ${index + 1}`}
-                      className={styles.previewThumb}
-                      onClick={() => handlePreview(url)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleMultiPhotoDelete(index)}
-                      className={styles.deleteIconButton}
-                      aria-label="Delete photo"
-                    >
-                      <MdDelete />
-                    </button>
-                  </div>
-                ))}
+            <input type="file" multiple accept="image/*" onChange={e => handleMultiPhotoUpload(e.target.files)} />
+            {photoUrls.map((url, i) => (
+              <div key={i}>
+                <img src={url} alt="" onClick={() => setPreviewImage(url)} />
+                <button onClick={() => handleMultiPhotoDelete(i)}><MdDelete /></button>
               </div>
-            )}
+            ))}
           </div>
         );
 
@@ -360,42 +220,28 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
     }
   };
 
-  // Determine if item is completed
   const isCompleted = () => {
-    if (inputType === 'text' || inputType === 'textarea') {
-      return textValue.trim() !== '';
-    } else if (inputType === 'image') {
-      return photoUrl !== '';
-    } else if (inputType === 'multi-image') {
-      return photoUrls.length > 0;
-    } else {
-      return selectedOption !== '';
-    }
+    if (inputType === 'text' || inputType === 'textarea') return (textValue ?? '').trim() !== '';
+    if (inputType === 'image') return !!photoUrl;
+    if (inputType === 'multi-image') return photoUrls.length > 0;
+    return selectedOption !== '';
   };
 
   return (
     <>
       <div className={`${styles.card} ${isCompleted() ? styles.completed : styles.pending}`}>
         <div className={styles.header}>
-          <span className={styles.label}>{item.label}</span>
+          <span>{item.label}</span>
         </div>
-
         <div className={styles.content}>
           {renderInput()}
-
-          {isSubmitting && (
-            <div className={styles.savingIndicator}>
-              <div className={styles.spinner} />
-              <span>Saving...</span>
-            </div>
-          )}
         </div>
       </div>
 
       <ImagePreviewModal
-        isOpen={showPreview}
+        isOpen={!!previewImage}
         imageUrl={previewImage}
-        onClose={() => setShowPreview(false)}
+        onClose={() => setPreviewImage('')}
       />
     </>
   );
