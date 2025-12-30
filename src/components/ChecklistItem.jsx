@@ -33,9 +33,8 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
       value: updates.value ?? textValue ?? null,
       notes: updates.notes ?? notes ?? null,
       photoUrl: updates.photoUrl ?? photoUrl ?? null,
-      photoUrls: updates.photoUrls ?? (photoUrls.length > 0 ? photoUrls : null)
+      photoUrls: updates.photoUrls ?? (photoUrls.length ? photoUrls : null)
     };
-
     onSubmit(payload);
   }, [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, onSubmit]);
 
@@ -44,7 +43,6 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   // =========================
   useEffect(() => {
     if (!existingAnswer) return;
-
     setSelectedOption(existingAnswer.selectedOption || '');
     setTextValue(existingAnswer.value || '');
     setNotes(existingAnswer.notes || '');
@@ -53,23 +51,22 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   }, [existingAnswer]);
 
   // =========================
-  // AUTO SELECT SINGLE DROPDOWN
+  // AUTO-SELECT SINGLE DROPDOWN
   // =========================
   useEffect(() => {
     if (
       inputType === 'dropdown' &&
-      item.options &&
-      item.options.length === 1 &&
+      item.options?.length === 1 &&
       !selectedOption
     ) {
       const value = item.options[0];
       setSelectedOption(value);
       autoSave({ selectedOption: value });
     }
-  }, [item.options, inputType, selectedOption, autoSave]);
+  }, [inputType, item.options, selectedOption, autoSave]);
 
   // =========================
-  // TEXT / TEXTAREA HANDLERS
+  // TEXT HANDLERS
   // =========================
   const handleTextChange = (e) => {
     setTextValue(e.target.value ?? '');
@@ -84,6 +81,9 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
     setTimeout(() => setIsTextSaved(false), 1500);
   };
 
+  // =========================
+  // OPTION HANDLER
+  // =========================
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
     autoSave({ selectedOption: option });
@@ -105,8 +105,9 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   };
 
   const handleMultiPhotoUpload = (files) => {
-    const urls = Array.from(files || []).map(f => URL.createObjectURL(f));
-    const updated = [...photoUrls, ...urls];
+    if (!files?.length) return;
+    const newUrls = Array.from(files).map(f => URL.createObjectURL(f));
+    const updated = [...photoUrls, ...newUrls];
     setPhotoUrls(updated);
     autoSave({ photoUrls: updated });
   };
@@ -190,13 +191,43 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
         return (
           <div className={styles.uploadSection}>
             {!photoUrl ? (
-              <>
-                <input type="file" accept="image/*" onChange={e => handlePhotoUpload(e.target.files[0])} />
-              </>
+              <div className={styles.uploadButtons}>
+                <input
+                  ref={uploadInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={e => handlePhotoUpload(e.target.files[0])}
+                  className={styles.fileInput}
+                />
+                <input
+                  ref={captureInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={e => handlePhotoUpload(e.target.files[0])}
+                  className={styles.fileInput}
+                />
+                <button onClick={() => uploadInputRef.current.click()} className={styles.uploadButton}>
+                  <FiUpload /> Upload
+                </button>
+                <button onClick={() => captureInputRef.current.click()} className={styles.captureButton}>
+                  <IoIosCamera />
+                </button>
+              </div>
             ) : (
               <div className={styles.previewRow}>
-                <img src={photoUrl} alt="preview" onClick={() => setPreviewImage(photoUrl)} />
-                <button onClick={handlePhotoDelete}><MdDelete /></button>
+                <img
+                  src={photoUrl}
+                  alt="Preview"
+                  className={styles.previewThumb}
+                  onClick={() => {
+                    setPreviewImage(photoUrl);
+                    setShowPreview(true);
+                  }}
+                />
+                <button onClick={handlePhotoDelete} className={styles.deleteIconButton}>
+                  <MdDelete />
+                </button>
               </div>
             )}
           </div>
@@ -205,13 +236,55 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
       case 'multi-image':
         return (
           <div className={styles.uploadSection}>
-            <input type="file" multiple accept="image/*" onChange={e => handleMultiPhotoUpload(e.target.files)} />
-            {photoUrls.map((url, i) => (
-              <div key={i}>
-                <img src={url} alt="" onClick={() => setPreviewImage(url)} />
-                <button onClick={() => handleMultiPhotoDelete(i)}><MdDelete /></button>
+            <div className={styles.uploadButtons}>
+              <input
+                ref={multiUploadInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={e => handleMultiPhotoUpload(e.target.files)}
+                className={styles.fileInput}
+              />
+              <input
+                ref={multiCaptureInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                multiple
+                onChange={e => handleMultiPhotoUpload(e.target.files)}
+                className={styles.fileInput}
+              />
+              <button onClick={() => multiUploadInputRef.current.click()} className={styles.uploadButton}>
+                <FiUpload /> Upload Multiple
+              </button>
+              <button onClick={() => multiCaptureInputRef.current.click()} className={styles.captureButton}>
+                <IoIosCamera />
+              </button>
+            </div>
+
+            {photoUrls.length > 0 && (
+              <div className={styles.multiImageGrid}>
+                {photoUrls.map((url, index) => (
+                  <div key={index} className={styles.previewRow}>
+                    <img
+                      src={url}
+                      alt={`Upload ${index + 1}`}
+                      className={styles.previewThumb}
+                      onClick={() => {
+                        setPreviewImage(url);
+                        setShowPreview(true);
+                      }}
+                    />
+                    <button
+                      onClick={() => handleMultiPhotoDelete(index)}
+                      className={styles.deleteIconButton}
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         );
 
@@ -221,27 +294,30 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   };
 
   const isCompleted = () => {
-    if (inputType === 'text' || inputType === 'textarea') return (textValue ?? '').trim() !== '';
+    if (inputType === 'text' || inputType === 'textarea') return safeText().trim() !== '';
     if (inputType === 'image') return !!photoUrl;
     if (inputType === 'multi-image') return photoUrls.length > 0;
     return selectedOption !== '';
   };
 
+  const safeText = () => textValue ?? '';
+
   return (
     <>
       <div className={`${styles.card} ${isCompleted() ? styles.completed : styles.pending}`}>
         <div className={styles.header}>
-          <span>{item.label}</span>
+          <span className={styles.label}>{item.label}</span>
         </div>
+
         <div className={styles.content}>
           {renderInput()}
         </div>
       </div>
 
       <ImagePreviewModal
-        isOpen={!!previewImage}
+        isOpen={showPreview}
         imageUrl={previewImage}
-        onClose={() => setPreviewImage('')}
+        onClose={() => setShowPreview(false)}
       />
     </>
   );
