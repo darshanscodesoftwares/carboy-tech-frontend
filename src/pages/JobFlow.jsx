@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useJobFlow, { JOB_STATUSES, getStepIndex } from '../hooks/useJobFlow';
 import useJobNotifications from '../hooks/useJobNotifications';
 import Navbar from '../components/Navbar';
@@ -18,9 +18,6 @@ import styles from './JobFlow.module.css';
 const JobFlow = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
-  const isEditMode = searchParams.get('edit') === 'true';
 
   const {
     job,
@@ -57,14 +54,10 @@ const JobFlow = () => {
   }, [jobId, fetchJob]);
 
   useEffect(() => {
-    const shouldFetchChecklist =
-      job?.status === JOB_STATUSES.IN_INSPECTION ||
-      (isEditMode && job?.status === JOB_STATUSES.COMPLETED);
-
-    if (shouldFetchChecklist && !checklist) {
+    if (job?.status === JOB_STATUSES.IN_INSPECTION && !checklist) {
       fetchChecklist(jobId);
     }
-  }, [job?.status, checklist, jobId, isEditMode, fetchChecklist]);
+  }, [job?.status, checklist, jobId, fetchChecklist]);
 
   const handleAction = async (action) => {
     setActionLoading(true);
@@ -88,16 +81,15 @@ const JobFlow = () => {
   const handleSubmitReport = async () => {
     setActionLoading(true);
     try {
-      const reportWithRemarks = {
+      const report = {
         summary: 'Inspection completed successfully',
         overallStatus: 'PASS',
         remarks: remarks.trim() || null,
         recommendations: []
       };
 
-      await completeJob(jobId, reportWithRemarks);
+      await completeJob(jobId, report);
       await fetchSummary(jobId);
-      navigate(`/flow/${jobId}`);
     } finally {
       setActionLoading(false);
     }
@@ -110,12 +102,9 @@ const JobFlow = () => {
     if (!checklist) return false;
 
     if (checklist.sections) {
-      const allItems = checklist.sections.flatMap((s) => s.items);
-      return (
-        allItems.length > 0 &&
-        allItems.every((item) =>
-          job?.checklistAnswers?.some((a) => a.checkpointKey === item.key)
-        )
+      const items = checklist.sections.flatMap((s) => s.items);
+      return items.every((item) =>
+        job?.checklistAnswers?.some((a) => a.checkpointKey === item.key)
       );
     }
 
@@ -163,11 +152,6 @@ const JobFlow = () => {
     );
   };
 
-  const renderSummary = () => {
-    if (!summary) return null;
-    return <InspectionSummary job={summary.job || job} />;
-  };
-
   if (loading && !job) {
     return (
       <div className={styles.container}>
@@ -200,90 +184,74 @@ const JobFlow = () => {
     );
   }
 
-  const renderContent = () => {
-    if (job?.status === JOB_STATUSES.TRAVELING) {
-      return (
-        <TravelProgressView
-          currentStep={1}
-          onReachedLocation={() =>
-            handleAction(() => reachedLocation(jobId))
-          }
-        />
-      );
-    }
-
-    if (job?.status === JOB_STATUSES.ACCEPTED) {
-      return (
-        <JobDetailsView
-          job={job}
-          onStartTravel={() => handleAction(() => startTravel(jobId))}
-        />
-      );
-    }
-
-    // ✅ FIXED: summary must NOT block edit mode
-    if (
-      !isEditMode &&
-      job?.status === JOB_STATUSES.COMPLETED &&
-      summary
-    ) {
-      return renderSummary();
-    }
-
+  if (job?.status === JOB_STATUSES.TRAVELING) {
     return (
-      <>
-        {error && <div className={styles.error}>{error}</div>}
+      <TravelProgressView
+        currentStep={1}
+        onReachedLocation={() =>
+          handleAction(() => reachedLocation(jobId))
+        }
+      />
+    );
+  }
 
-        {job?.status !== JOB_STATUSES.COMPLETED &&
-          job?.status !== JOB_STATUSES.PENDING && (
-            <div className={styles.progressCard}>
-              <ProgressBar currentStep={getStepIndex(job?.status)} />
-            </div>
-          )}
+  if (job?.status === JOB_STATUSES.ACCEPTED) {
+    return (
+      <JobDetailsView
+        job={job}
+        onStartTravel={() => handleAction(() => startTravel(jobId))}
+      />
+    );
+  }
 
-        {(job?.status === JOB_STATUSES.IN_INSPECTION ||
-          (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && (
-          <div className={styles.checklistSection}>
-            <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
+  if (job?.status === JOB_STATUSES.COMPLETED || summary) {
+    return <InspectionSummary job={summary?.job || job} />;
+  }
 
-            {checklist?.sections &&
-              checklist.sections.map((section) => (
-                <div key={section.section} className={styles.sectionGroup}>
-                  <h4 className={styles.sectionHeader}>{section.section}</h4>
-                  {section.items.map((item) => (
-                    <ChecklistItem
-                      key={item.key}
-                      item={item}
-                      onSubmit={handleCheckpointSubmit}
-                      isSubmitting={checkpointLoading}
-                      existingAnswer={getExistingAnswer(item.key)}
-                      isEditMode={isEditMode}
-                    />
-                  ))}
-                </div>
-              ))}
+  return (
+    <div className={styles.container}>
+      <Navbar />
+      <main className={styles.main}>
+        {job?.status !== JOB_STATUSES.PENDING && (
+          <div className={styles.progressCard}>
+            <ProgressBar currentStep={getStepIndex(job?.status)} />
           </div>
         )}
 
+        <div className={styles.checklistSection}>
+          <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
+
+          {checklist?.sections?.map((section) => (
+            <div key={section.section} className={styles.sectionGroup}>
+              <h4 className={styles.sectionHeader}>{section.section}</h4>
+              {section.items.map((item) => (
+                <ChecklistItem
+                  key={item.key}
+                  item={item}
+                  onSubmit={handleCheckpointSubmit}
+                  isSubmitting={checkpointLoading}
+                  existingAnswer={getExistingAnswer(item.key)}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+
         <div className={styles.actionButtons}>
-          {job?.status === JOB_STATUSES.IN_INSPECTION ? (
-            <button
-              onClick={handleSubmitReport}
-              disabled={actionLoading || !allCheckpointsCompleted()}
-              className={styles.primaryButton}
-            >
-              {actionLoading ? (
-                <>
-                  <div className={styles.spinner} />
-                  Submitting Report...
-                </>
-              ) : (
-                'Submit Report'
-              )}
-            </button>
-          ) : (
-            renderActionButton()
-          )}
+          <button
+            onClick={handleSubmitReport}
+            disabled={actionLoading || !allCheckpointsCompleted()}
+            className={styles.primaryButton}
+          >
+            {actionLoading ? (
+              <>
+                <div className={styles.spinner} />
+                Submitting Report...
+              </>
+            ) : (
+              'Submit Report'
+            )}
+          </button>
 
           <button
             onClick={() => navigate('/dashboard')}
@@ -292,14 +260,8 @@ const JobFlow = () => {
             Back to Dashboard
           </button>
         </div>
-      </>
-    );
-  };
+      </main>
 
-  return (
-    <div className={styles.container}>
-      <Navbar />
-      <main className={styles.main}>{renderContent()}</main>
       <Footer />
 
       {job?.status === JOB_STATUSES.IN_INSPECTION && (
