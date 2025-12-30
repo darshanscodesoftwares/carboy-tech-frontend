@@ -96,6 +96,7 @@ const JobFlow = () => {
       };
       await completeJob(jobId, reportWithRemarks);
       await fetchSummary(jobId);
+      navigate(`/flow/${jobId}`, { replace: true });
     } catch {
     } finally {
       setActionLoading(false);
