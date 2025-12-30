@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import ImagePreviewModal from './ImagePreviewModal';
 import styles from './ChecklistItem.module.css';
 import { MdDelete, MdCheck, MdSave } from "react-icons/md";
@@ -23,7 +23,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
   const inputType = item.inputType || 'radio'; // Default to radio for backward compatibility
 
   // Auto-save helper
-  const autoSave = (updates = {}) => {
+  const autoSave = useCallback((updates = {}) => {
     const payload = {
       checkpointKey: item.key,
       selectedOption: updates.selectedOption !== undefined ? updates.selectedOption : selectedOption,
@@ -33,7 +33,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
       photoUrls: updates.photoUrls !== undefined ? updates.photoUrls : (photoUrls.length > 0 ? photoUrls : null)
     };
     onSubmit(payload);
-  };
+  }, [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, onSubmit]);
 
   // Update state when existingAnswer changes (e.g., when loading saved data)
   useEffect(() => {
@@ -53,7 +53,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer, isEditMod
       setSelectedOption(singleOption);
       autoSave({ selectedOption: singleOption });
     }
-  }, [item.options, inputType, selectedOption]);
+  }, [item.options, inputType, selectedOption, autoSave]);
 
   // Handle text input
   const handleTextChange = (e) => {
