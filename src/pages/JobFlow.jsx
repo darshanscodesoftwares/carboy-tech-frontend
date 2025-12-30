@@ -123,7 +123,7 @@ const JobFlow = () => {
     }
 
     // Completed Summary View (skip in edit mode)
-    if (!isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary)) {
+    if (!isEditMode && job?.status === JOB_STATUSES.COMPLETED && summary) {
       return renderSummary();
     }
 
