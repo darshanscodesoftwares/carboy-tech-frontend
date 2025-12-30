@@ -56,6 +56,7 @@ const JobFlow = () => {
       };
       await completeJob(jobId, reportWithRemarks);
       await fetchSummary(jobId);
+      navigate(`/flow/${jobId}`); // ⬅️ force summary render
     } catch { }
     finally {
       setActionLoading(false);
@@ -123,8 +124,8 @@ const JobFlow = () => {
     }
 
     // Completed Summary View (skip in edit mode)
-    if (!isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary)) {
-      return renderSummary();
+    if (job?.status === JOB_STATUSES.COMPLETED || summary) {
+    return renderSummary();
     }
 
     // Default view for other statuses (pending, reached, in_inspection)
@@ -187,7 +188,7 @@ const JobFlow = () => {
 
         <div className={styles.actionButtons}>
           {/* Primary action button for all states */}
-          {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED && job?.status !== 'report_sent')) ? (
+            {job?.status === JOB_STATUSES.IN_INSPECTION ? (
             <button
               onClick={handleSubmitReport}
               disabled={actionLoading || !allCheckpointsCompleted()}
