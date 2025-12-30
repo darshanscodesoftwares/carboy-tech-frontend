@@ -143,7 +143,7 @@ const JobFlow = () => {
           <div className={styles.schedule}><span className={styles.scheduleDate}>{job?.schedule?.date}</span><span className={styles.scheduleSlot}>{job?.schedule?.slot}</span></div>
         </div>
 
-        {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) && (
+        {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED && job?.status !== 'report_sent')) && (
           <div className={styles.checklistSection}>
             <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
             {loading && !checklist ? (
@@ -187,7 +187,7 @@ const JobFlow = () => {
 
         <div className={styles.actionButtons}>
           {/* Primary action button for all states */}
-          {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED)) ? (
+          {(job?.status === JOB_STATUSES.IN_INSPECTION || (isEditMode && job?.status === JOB_STATUSES.COMPLETED && job?.status !== 'report_sent')) ? (
             <button
               onClick={handleSubmitReport}
               disabled={actionLoading || !allCheckpointsCompleted()}

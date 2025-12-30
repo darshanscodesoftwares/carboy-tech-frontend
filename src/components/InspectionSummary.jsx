@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { reopenJob } from '../api/jobs';
+import { reopenJob, sendReport } from '../api/jobs';
 import ProgressBar from './ProgressBar';
 import styles from './InspectionSummary.module.css';
 
 const InspectionSummary = ({ job }) => {
   const navigate = useNavigate();
   const [isReopening, setIsReopening] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   if (!job) return null;
 
@@ -22,6 +23,23 @@ const InspectionSummary = ({ job }) => {
       setIsReopening(false);
     }
   };
+
+  const handleSendReport = async () => {
+    try {
+      setIsSending(true);
+      await sendReport(job._id);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Failed to send report:', error);
+      alert('Failed to send report. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const isReportSent = job?.status === 'report_sent';
+
+  if (!job) return null;
 
   const summaryData = [
     { label: 'Customer', value: job.customerSnapshot?.name || 'N/A' },
@@ -131,16 +149,18 @@ const InspectionSummary = ({ job }) => {
         <button
           className={styles.secondaryButton}
           onClick={handleEditReport}
-          disabled={isReopening}
+          disabled={isReopening || isReportSent}
+          title={isReportSent ? 'Report has been sent and cannot be edited' : ''}
         >
           {isReopening ? 'Opening…' : 'Edit Report'}
         </button>
 
         <button
           className={styles.primaryButton}
-          onClick={() => navigate('/dashboard')}
+          onClick={handleSendReport}
+          disabled={isSending || isReportSent}
         >
-          Back to Dashboard
+          {isSending ? 'Sending Report...' : isReportSent ? 'Report Sent - Back to Dashboard' : 'Send Report & Return to Dashboard'}
         </button>
       </div>
 
