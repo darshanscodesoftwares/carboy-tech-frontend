@@ -20,6 +20,8 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   const captureInputRef = useRef(null);
   const multiUploadInputRef = useRef(null);
   const multiCaptureInputRef = useRef(null);
+  const imageDeletedRef = useRef(false);
+
 
   const inputType = item.inputType || 'radio';
 
@@ -43,6 +45,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   // =========================
   useEffect(() => {
     if (!existingAnswer) return;
+    if (imageDeletedRef.current) return;
     setSelectedOption(existingAnswer.selectedOption || '');
     setTextValue(existingAnswer.value || '');
     setNotes(existingAnswer.notes || '');
@@ -104,9 +107,10 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   };
 
   const handlePhotoDelete = () => {
-    setPhotoUrl('');
-    autoSave({ photoUrl: null });
-  };
+  imageDeletedRef.current = true;
+  setPhotoUrl('');
+  autoSave({ photoUrl: null });
+};
 
   const handleMultiPhotoUpload = (files) => {
     if (!files?.length) return;
@@ -131,10 +135,12 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   };
 
   const handleMultiPhotoDelete = (index) => {
-    const updated = photoUrls.filter((_, i) => i !== index);
-    setPhotoUrls(updated);
-    autoSave({ photoUrls: updated.length ? updated : null });
-  };
+  imageDeletedRef.current = true;
+  const updated = photoUrls.filter((_, i) => i !== index);
+  setPhotoUrls(updated);
+  autoSave({ photoUrls: updated.length ? updated : null });
+};
+
 
   // =========================
   // RENDER INPUT
