@@ -55,7 +55,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   // =========================
   useEffect(() => {
     if (
-      inputType === 'dropdown' &&
+      (inputType === 'dropdown' || inputType === 'select') &&
       item.options?.length === 1 &&
       !selectedOption
     ) {
@@ -174,6 +174,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
         );
 
       case 'dropdown':
+      case 'select':
         return (
           <select
             value={selectedOption}
