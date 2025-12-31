@@ -227,6 +227,7 @@ const JobFlow = () => {
         <TravelProgressView
           currentStep={1}
           onReachedLocation={() => handleAction(() => reachedLocation(jobId))}
+          job={job}
         />
       );
     }
