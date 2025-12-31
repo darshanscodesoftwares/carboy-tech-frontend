@@ -29,6 +29,7 @@
   align-items: center;
   gap: var(--space-md);
   box-shadow: var(--shadow-sm);
+  margin-right: 900px;
 }
 
 .statIcon {
