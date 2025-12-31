@@ -94,9 +94,13 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   // =========================
   const handlePhotoUpload = (file) => {
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPhotoUrl(url);
-    autoSave({ photoUrl: url });
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      setPhotoUrl(base64String);
+      autoSave({ photoUrl: base64String });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handlePhotoDelete = () => {
@@ -106,10 +110,24 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
 
   const handleMultiPhotoUpload = (files) => {
     if (!files?.length) return;
-    const newUrls = Array.from(files).map(f => URL.createObjectURL(f));
-    const updated = [...photoUrls, ...newUrls];
-    setPhotoUrls(updated);
-    autoSave({ photoUrls: updated });
+    const fileArray = Array.from(files);
+    let processedCount = 0;
+    const base64Urls = [];
+
+    fileArray.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        base64Urls[index] = reader.result;
+        processedCount++;
+
+        if (processedCount === fileArray.length) {
+          const updated = [...photoUrls, ...base64Urls];
+          setPhotoUrls(updated);
+          autoSave({ photoUrls: updated });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleMultiPhotoDelete = (index) => {
