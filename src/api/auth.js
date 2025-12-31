@@ -5,13 +5,10 @@ import api from './index';
 // -------------------------
 export const login = async (email, password) => {
   const response = await api.post(
-    '/technician/auth/login',
+    '/auth/login', // ✅ FIXED
     { email, password }
   );
 
-  // Backend may return:
-  // { token, technician }
-  // OR { success: true, data: { token, technician } }
   const data = response.data?.data || response.data;
   return data;
 };
@@ -20,7 +17,7 @@ export const login = async (email, password) => {
 // GET TECHNICIAN PROFILE
 // -------------------------
 export const getTechnicianProfile = async () => {
-  const response = await api.get('/technician/me');
+  const response = await api.get('/me'); // ✅ FIXED
 
   const data = response.data?.data || response.data;
   return data.technician || data;
