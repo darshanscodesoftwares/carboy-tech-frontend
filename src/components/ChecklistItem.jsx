@@ -158,6 +158,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
         );
 
       case 'radio':
+      case 'select':
         return (
           <div className={styles.optionsGrid}>
             {item.options?.map(option => (
@@ -174,7 +175,6 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
         );
 
       case 'dropdown':
-      case 'select':
         return (
           <select
             value={selectedOption}
