@@ -371,3 +371,160 @@
     padding: var(--space-md);
   }
 }
+
+/* Mobile responsiveness - Enhanced */
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+
+  .label {
+    font-size: var(--font-sm);
+    line-height: 1.4;
+  }
+
+  .content {
+    gap: var(--space-sm);
+  }
+
+  .optionsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .optionButton {
+    padding: var(--space-sm);
+    font-size: var(--font-xs);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .textInput,
+  .textareaInput,
+  .dropdownInput {
+    font-size: var(--font-sm);
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .textareaInput {
+    min-height: 100px;
+  }
+
+  .textInputWrapper {
+    gap: var(--space-xs);
+  }
+
+  .inlineSaveButton {
+    width: 36px;
+    height: 36px;
+    min-height: 44px;
+    font-size: 20px;
+    margin-top: var(--space-sm);
+  }
+
+  .uploadSection {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+
+  .uploadButtons {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-md);
+  }
+
+  .uploadButton {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+    font-size: var(--font-sm);
+  }
+
+  .captureButton {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .previewRow {
+    gap: var(--space-md);
+    padding: var(--space-xs);
+    flex-wrap: wrap;
+  }
+
+  .previewThumb {
+    width: 100px;
+    height: 60px;
+  }
+
+  .deleteIconButton {
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    min-height: 44px;
+  }
+
+  .multiImageGrid {
+    gap: var(--space-sm);
+  }
+}
+
+@media (max-width: 375px) {
+  .card {
+    padding: var(--space-sm);
+  }
+
+  .label {
+    font-size: var(--font-xs);
+  }
+
+  .optionButton {
+    padding: var(--space-xs);
+    font-size: 11px;
+  }
+
+  .textInput,
+  .textareaInput,
+  .dropdownInput {
+    font-size: var(--font-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .uploadButton {
+    font-size: var(--font-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .previewThumb {
+    width: 80px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 320px) {
+  .card {
+    padding: var(--space-xs);
+  }
+
+  .optionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .optionButton {
+    width: 100%;
+  }
+
+  .uploadButtons {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .captureButton {
+    width: 100%;
+    border-radius: var(--radius-md);
+  }
+}

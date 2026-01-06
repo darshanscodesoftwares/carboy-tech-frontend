@@ -402,3 +402,144 @@
   border-radius: var(--radius-sm);
   background-color: var(--color-box-bg);
 }
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .main {
+    width: 95%;
+    padding: var(--space-md) var(--space-xs);
+  }
+
+  .progressCard {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: var(--space-md);
+  }
+
+  .jobCard {
+    padding: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .jobHeader {
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+
+  .serviceType {
+    font-size: var(--font-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .statusBadge {
+    font-size: 10px;
+  }
+
+  .sectionTitle {
+    font-size: var(--font-xs);
+  }
+
+  .sectionContent,
+  .sectionText {
+    font-size: var(--font-sm);
+  }
+
+  .schedule {
+    flex-direction: column;
+    gap: var(--space-xs);
+    align-items: flex-start;
+  }
+
+  .checklistSection {
+    margin-bottom: var(--space-md);
+  }
+
+  .checklistTitle {
+    font-size: var(--font-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .sectionGroup {
+    margin-bottom: var(--space-md);
+  }
+
+  .sectionHeader {
+    font-size: var(--font-md);
+    padding-bottom: var(--space-xs);
+  }
+
+  .actionButtons {
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    max-width: 100%;
+    min-height: 48px;
+    font-size: var(--font-sm);
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .primaryButton {
+    order: 1;
+  }
+
+  .secondaryButton {
+    order: 2;
+  }
+
+  .error {
+    padding: var(--space-sm);
+    font-size: var(--font-xs);
+  }
+}
+
+@media (max-width: 375px) {
+  .main {
+    width: 100%;
+    padding: var(--space-sm) var(--space-xs);
+  }
+
+  .jobCard {
+    padding: var(--space-sm);
+  }
+
+  .sectionContent,
+  .sectionText {
+    font-size: var(--font-xs);
+  }
+
+  .checklistTitle {
+    font-size: var(--font-sm);
+  }
+
+  .sectionHeader {
+    font-size: var(--font-sm);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    font-size: var(--font-xs);
+    padding: var(--space-sm) var(--space-md);
+  }
+}
+
+@media (max-width: 320px) {
+  .main {
+    padding: var(--space-xs);
+  }
+
+  .jobCard {
+    padding: var(--space-xs);
+  }
+
+  .progressCard {
+    margin-top: var(--space-sm);
+  }
+
+  .actionButtons {
+    gap: var(--space-xs);
+  }
+}

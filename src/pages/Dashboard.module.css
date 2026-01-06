@@ -329,3 +329,235 @@
     min-width: 900px;
   }
 }
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .main {
+    width: 100%;
+    padding: var(--space-md) var(--space-xs);
+  }
+
+  .statsSection {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  .statCard {
+    padding: var(--space-md);
+  }
+
+  .statIcon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .statLabel {
+    font-size: var(--font-sm);
+  }
+
+  .statValue {
+    font-size: var(--font-xl);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-lg);
+    margin-bottom: var(--space-md);
+  }
+
+  /* Convert table to mobile-friendly stacked cards */
+  .tableWrapper {
+    overflow: visible;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .jobTable {
+    min-width: unset;
+    border: none;
+  }
+
+  .jobTable thead {
+    display: none;
+  }
+
+  .jobTable tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .jobTable tbody tr {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tableRow {
+    cursor: default;
+  }
+
+  .tableRow:hover {
+    background-color: var(--color-bg);
+  }
+
+  .jobTable tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: var(--font-sm);
+  }
+
+  .jobTable tbody td:last-child {
+    border-bottom: none;
+    padding-top: var(--space-md);
+  }
+
+  .jobTable tbody td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text);
+    flex-shrink: 0;
+    width: 35%;
+    font-size: var(--font-sm);
+  }
+
+  .jobTable tbody td:first-child:before {
+    content: "S.No";
+  }
+
+  .jobTable tbody td:nth-child(2):before {
+    content: "Customer";
+  }
+
+  .jobTable tbody td:nth-child(3):before {
+    content: "Type";
+  }
+
+  .jobTable tbody td:nth-child(4):before {
+    content: "Vehicle";
+  }
+
+  .jobTable tbody td:nth-child(5):before {
+    content: "Location";
+  }
+
+  .jobTable tbody td:nth-child(6):before {
+    content: "Schedule";
+  }
+
+  .jobTable tbody td:nth-child(7):before {
+    content: "Status";
+  }
+
+  .jobTable tbody td:nth-child(8):before {
+    content: "Action";
+  }
+
+  .location {
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    width: 62%;
+  }
+
+  .location span {
+    width: 100%;
+    word-wrap: break-word;
+  }
+
+  .schedule {
+    text-align: right;
+    gap: 4px;
+  }
+
+  .acceptButton,
+  .viewDetailsButton {
+    min-height: 44px;
+    width: 100%;
+    max-width: 180px;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-sm);
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+  }
+
+  .paginationButton {
+    min-height: 44px;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .pageInfo {
+    width: 100%;
+    text-align: center;
+    order: -1;
+    margin-bottom: var(--space-xs);
+  }
+}
+
+@media (max-width: 375px) {
+  .main {
+    padding: var(--space-sm) var(--space-xs);
+  }
+
+  .statCard {
+    padding: var(--space-sm);
+  }
+
+  .statIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .statLabel {
+    font-size: var(--font-xs);
+  }
+
+  .statValue {
+    font-size: var(--font-lg);
+  }
+
+  .jobTable tbody td {
+    font-size: var(--font-xs);
+  }
+
+  .jobTable tbody td:before {
+    font-size: var(--font-xs);
+    width: 40%;
+  }
+
+  .location {
+    width: 58%;
+  }
+}
+
+@media (max-width: 320px) {
+  .main {
+    padding: var(--space-xs);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-md);
+  }
+
+  .jobTable tbody tr {
+    padding: var(--space-sm);
+  }
+
+  .acceptButton,
+  .viewDetailsButton {
+    font-size: var(--font-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+}

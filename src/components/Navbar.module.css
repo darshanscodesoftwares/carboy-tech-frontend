@@ -138,7 +138,7 @@
   transform: scale(1.08);
 }
 
-/* Mobile responsive */
+/* Mobile responsiveness */
 @media (max-width: 768px) {
   .navbar {
     padding: var(--space-md);
@@ -163,5 +163,131 @@
 
   .userId {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .container {
+    flex-wrap: nowrap;
+    gap: var(--space-sm);
+  }
+
+  .brandName {
+    font-size: var(--font-md);
+    white-space: nowrap;
+  }
+
+  .navLeft {
+    margin-left: 0;
+    justify-content: center;
+    flex: initial;
+  }
+
+  .navLink,
+  .navLinkActive {
+    font-size: var(--font-sm);
+  }
+
+  .notificationBadge {
+    font-size: 9px;
+    padding: 1px 4px;
+    top: -6px;
+    right: -12px;
+  }
+
+  .userSection {
+    gap: var(--space-xs);
+  }
+
+  .userAvatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .avatarText {
+    font-size: var(--font-sm);
+  }
+
+  .userName {
+    font-size: var(--font-xs);
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .userId {
+    display: none;
+  }
+
+  .userInfo {
+    display: none;
+  }
+
+  .logoutButton {
+    padding: var(--space-xs);
+  }
+
+  .logoutIcon {
+    font-size: 22px;
+  }
+
+  .logoutIcon:hover {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 375px) {
+  .navbar {
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .brandName {
+    font-size: var(--font-sm);
+  }
+
+  .navLink,
+  .navLinkActive {
+    font-size: var(--font-xs);
+  }
+
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .avatarText {
+    font-size: var(--font-xs);
+  }
+
+  .logoutIcon {
+    font-size: 20px;
+  }
+
+  .logoutIcon:hover {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 320px) {
+  .navbar {
+    padding: var(--space-xs);
+  }
+
+  .brandName {
+    font-size: var(--font-xs);
+  }
+
+  .navLeft {
+    display: none;
+  }
+
+  .userAvatar {
+    width: 28px;
+    height: 28px;
   }
 }
