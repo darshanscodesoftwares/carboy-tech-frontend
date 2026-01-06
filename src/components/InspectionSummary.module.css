@@ -299,7 +299,7 @@
   font-style: italic;
 }
 
-/* Mobile responsiveness */
+/* Mobile responsiveness - Enhanced */
 @media (max-width: 768px) {
   .container {
     padding: var(--space-md);
@@ -347,5 +347,195 @@
   .primaryButton,
   .secondaryButton {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: var(--space-md);
+  }
+
+  .progressCard {
+    padding: var(--space-sm);
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .successBanner {
+    padding: var(--space-lg) var(--space-md);
+    gap: var(--space-sm);
+  }
+
+  .successIconContainer {
+    width: 64px;
+    height: 64px;
+  }
+
+  .successIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .successTitle {
+    font-size: var(--font-lg);
+  }
+
+  .successDescription {
+    font-size: var(--font-sm);
+  }
+
+  .summarySection {
+    margin-bottom: var(--space-lg);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .summaryCard {
+    padding: var(--space-md);
+  }
+
+  .summaryCard:hover {
+    transform: none;
+  }
+
+  .cardLabel {
+    font-size: var(--font-xs);
+  }
+
+  .cardValue {
+    font-size: var(--font-sm);
+  }
+
+  .reportBlock {
+    padding: var(--space-md);
+  }
+
+  .reportTitle {
+    font-size: var(--font-sm);
+  }
+
+  .reportText {
+    font-size: var(--font-xs);
+  }
+
+  .answersSection {
+    margin: var(--space-md) 0;
+    padding-top: var(--space-md);
+  }
+
+  .answersTitle {
+    font-size: var(--font-sm);
+  }
+
+  .answersList {
+    max-height: 300px;
+  }
+
+  .answerItem {
+    padding: var(--space-sm);
+  }
+
+  .answerLabel {
+    font-size: var(--font-xs);
+  }
+
+  .answerValue,
+  .answerNotes {
+    font-size: var(--font-xs);
+  }
+
+  .photoThumb {
+    width: 50px;
+    height: 50px;
+  }
+
+  .buttonContainer {
+    flex-direction: column-reverse;
+    gap: var(--space-sm);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+    min-height: 48px;
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--font-sm);
+  }
+
+  .footerText {
+    font-size: var(--font-sm);
+  }
+}
+
+@media (max-width: 375px) {
+  .container {
+    padding: var(--space-sm);
+  }
+
+  .successBanner {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .successIconContainer {
+    width: 56px;
+    height: 56px;
+  }
+
+  .successIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .successTitle {
+    font-size: var(--font-md);
+  }
+
+  .successDescription {
+    font-size: var(--font-xs);
+  }
+
+  .summaryCard {
+    padding: var(--space-sm);
+  }
+
+  .reportBlock {
+    padding: var(--space-sm);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    font-size: var(--font-xs);
+    padding: var(--space-sm) var(--space-md);
+  }
+}
+
+@media (max-width: 320px) {
+  .container {
+    padding: var(--space-xs);
+  }
+
+  .successBanner {
+    padding: var(--space-sm);
+  }
+
+  .sectionTitle {
+    font-size: var(--font-sm);
+  }
+
+  .answersList {
+    max-height: 250px;
+  }
+
+  .photoThumb {
+    width: 40px;
+    height: 40px;
   }
 }
