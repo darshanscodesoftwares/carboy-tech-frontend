@@ -203,20 +203,30 @@
 }
 
 .viewDetailsButton {
-  background-color: transparent;
-  color: var(--color-accent);
-  border: none;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  font-size: var(--font-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+ display: flex;
+ flex-direction: row;
+ justify-content: center;
+ align-items: center;
+ gap: 5px;
+ background-color: transparent;
+ color: #2C7A7A;
+ border: none;
+ padding: 8px 12px;
+ border-radius: 6px;
+ cursor: pointer;
+ font-size: 13px;
+ font-weight: 600;
+ transition: background-color 0.3s ease;
 }
 
 .viewDetailsButton:hover {
-  background-color: rgba(52, 123, 101, 0.1);
+   background-color: #E8F5F5;
 }
+
+.viewDetailsButton .arrowButton {
+ margin-bottom: 2.3px;
+}
+
 
 .error {
   padding: var(--space-md);
