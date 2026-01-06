@@ -71,9 +71,9 @@ const Login = () => {
             {loading ? <><div className={styles.spinner} />Signing in...</> : 'Sign In'}
           </button>
         </form>
-        <div className={styles.demo}>
+        {/* <div className={styles.demo}>
           <p className={styles.demoText}>Demo: ravi.tech@carboy.com / ravi12345</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
