@@ -53,7 +53,7 @@ const Login = () => {
           <div className={styles.logo}>
             <span className={styles.logoText}>CB</span>
           </div>
-          <h1 className={styles.title}>CarBoy Tech</h1>
+          <h1 className={styles.title}>MYCARBOY</h1>
           <p className={styles.subtitle}>Technician Portal</p>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -71,9 +71,9 @@ const Login = () => {
             {loading ? <><div className={styles.spinner} />Signing in...</> : 'Sign In'}
           </button>
         </form>
-        <div className={styles.demo}>
+        {/* <div className={styles.demo}>
           <p className={styles.demoText}>Demo: ravi.tech@carboy.com / ravi12345</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

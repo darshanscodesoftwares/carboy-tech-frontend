@@ -24,8 +24,8 @@ const Footer = () => {
         </div>
 
         <div className={styles.content}>
-          <p className={styles.companyName}>CarBoy Tech</p>
-          <p className={styles.copyright}>© 2025 CarBoy</p>
+          <p className={styles.companyName}>MYCARBOY</p>
+          <p className={styles.copyright}>© 2025 MYCARBOY</p>
           <div className={styles.links}>
             <a href="#" className={styles.link}>Privacy Policy</a>
             <span className={styles.separator}>•</span>
