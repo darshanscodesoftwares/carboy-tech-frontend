@@ -288,6 +288,84 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
           </div>
         );
 
+      case 'audio':
+        return (
+          <div className={styles.uploadSection}>
+            <div className={styles.uploadButtons}>
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={e => handlePhotoUpload(e.target.files[0])}
+                className={styles.fileInput}
+              />
+              <button onClick={() => uploadInputRef.current.click()} className={styles.uploadButton}>
+                <FiUpload /> Upload Audio
+              </button>
+            </div>
+            {photoUrl && (
+              <div className={styles.previewRow}>
+                <audio src={photoUrl} controls style={{ width: '100%', maxWidth: '400px' }} />
+                <button onClick={handlePhotoDelete} className={styles.deleteIconButton}>
+                  <MdDelete />
+                </button>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'video':
+        return (
+          <div className={styles.uploadSection}>
+            <div className={styles.uploadButtons}>
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="video/*"
+                onChange={e => handlePhotoUpload(e.target.files[0])}
+                className={styles.fileInput}
+              />
+              <button onClick={() => uploadInputRef.current.click()} className={styles.uploadButton}>
+                <FiUpload /> Upload Video
+              </button>
+            </div>
+            {photoUrl && (
+              <div className={styles.previewRow}>
+                <video src={photoUrl} controls style={{ width: '100%', maxWidth: '400px', maxHeight: '300px' }} />
+                <button onClick={handlePhotoDelete} className={styles.deleteIconButton}>
+                  <MdDelete />
+                </button>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'document':
+        return (
+          <div className={styles.uploadSection}>
+            <div className={styles.uploadButtons}>
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx,.txt"
+                onChange={e => handlePhotoUpload(e.target.files[0])}
+                className={styles.fileInput}
+              />
+              <button onClick={() => uploadInputRef.current.click()} className={styles.uploadButton}>
+                <FiUpload /> Upload Document
+              </button>
+            </div>
+            {photoUrl && (
+              <div className={styles.previewRow}>
+                <span style={{ fontSize: '14px', color: '#347b65' }}>📄 Document uploaded</span>
+                <button onClick={handlePhotoDelete} className={styles.deleteIconButton}>
+                  <MdDelete />
+                </button>
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return null;
     }
@@ -295,7 +373,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
 
   const isCompleted = () => {
     if (inputType === 'text' || inputType === 'textarea') return safeText().trim() !== '';
-    if (inputType === 'image') return !!photoUrl;
+    if (inputType === 'image' || inputType === 'audio' || inputType === 'video' || inputType === 'document') return !!photoUrl;
     if (inputType === 'multi-image') return photoUrls.length > 0;
     return selectedOption !== '';
   };
