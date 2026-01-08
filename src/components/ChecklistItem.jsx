@@ -299,7 +299,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
                   onClick={() => uploadInputRef.current.click()}
                   className={styles.uploadButton}
                 >
-                  <FiUpload /> Upload
+                  <FiUpload /> Upload Img
                 </button>
 
                 <button
@@ -349,7 +349,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
                   onClick={() => mediaUploadInputRef.current.click()}
                   className={styles.uploadButton}
                 >
-                  <FiUpload /> Upload {inputType}
+                  <FiUpload /> Upload Doc {inputType}
                 </button>
               </>
             ) : (
