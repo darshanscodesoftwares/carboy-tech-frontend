@@ -418,6 +418,7 @@ const JobFlow = () => {
                         <ChecklistItem
                           key={item.key}
                           item={item}
+                          job={job}
                           onSubmit={handleCheckpointSubmit}
                           isSubmitting={checkpointLoading}
                           existingAnswer={getExistingAnswer(item.key)}
@@ -434,6 +435,7 @@ const JobFlow = () => {
                     <ChecklistItem
                       key={item.key}
                       item={item}
+                      job={job}
                       onSubmit={handleCheckpointSubmit}
                       isSubmitting={checkpointLoading}
                       existingAnswer={getExistingAnswer(item.key)}
