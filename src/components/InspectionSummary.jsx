@@ -38,8 +38,6 @@ const InspectionSummary = ({ job }) => {
 
   const isReportSent = job?.status === 'report_sent';
 
-  if (!job) return null;
-
   const summaryData = [
     { label: 'Customer', value: job.customerSnapshot?.name || 'N/A' },
     {
@@ -50,6 +48,68 @@ const InspectionSummary = ({ job }) => {
     { label: 'Service Type', value: job.serviceType || 'N/A' },
     { label: 'Completion Date', value: job.schedule?.date || 'N/A' }
   ];
+
+  const answers =
+    job?.inspectionReport?.checklistAnswers ||
+    job?.report?.checklistAnswers ||
+    [];
+
+  const getMediaType = (url) => {
+    if (!url) return null;
+    const lower = url.toLowerCase();
+    if (lower.match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)) return 'image';
+    if (lower.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/)) return 'audio';
+    if (lower.match(/\.(mp4|webm|ogv|mov|avi|mkv)$/)) return 'video';
+    if (lower.match(/\.(pdf|doc|docx|txt)$/)) return 'document';
+    if (lower.includes('/image')) return 'image';
+    if (lower.includes('/audio')) return 'audio';
+    if (lower.includes('/video')) return 'video';
+    if (lower.includes('/document')) return 'document';
+    return 'image';
+  };
+
+  const renderMedia = (url, label) => {
+    const mediaType = getMediaType(url);
+
+    switch (mediaType) {
+      case 'image':
+        return (
+          <div className={styles.answerPhoto}>
+            <img
+              src={url}
+              alt={label}
+              className={styles.photoThumb}
+            />
+          </div>
+        );
+
+      case 'audio':
+        return (
+          <div className={styles.answerPhoto}>
+            <audio src={url} controls style={{ width: '100%', maxWidth: '400px' }} />
+          </div>
+        );
+
+      case 'video':
+        return (
+          <div className={styles.answerPhoto}>
+            <video src={url} controls style={{ width: '100%', maxWidth: '400px', maxHeight: '300px' }} />
+          </div>
+        );
+
+      case 'document':
+        return (
+          <div className={styles.answerPhoto}>
+            <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#347b65', textDecoration: 'underline' }}>
+              📄 View Document
+            </a>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -76,15 +136,14 @@ const InspectionSummary = ({ job }) => {
         </div>
       </div>
 
-      {/* 🔥 CHECKPOINT ANSWERS */}
-      {Array.isArray(job.checklistAnswers) && job.checklistAnswers.length > 0 && (
+      {Array.isArray(answers) && answers.length > 0 && (
         <div className={styles.reportBlock}>
           <h3 className={styles.reportTitle}>
-            Inspection Report ({job.checklistAnswers.length} items)
+            Inspection Report ({answers.length} items)
           </h3>
 
           <div className={styles.answersList}>
-            {job.checklistAnswers.map((answer, index) => (
+            {answers.map((answer, index) => (
               <div
                 key={`${answer.checkpointKey}-${index}`}
                 className={styles.answerItem}
@@ -93,39 +152,26 @@ const InspectionSummary = ({ job }) => {
                   {answer.checkpointKey}
                 </p>
 
-                {/* ✅ DROPDOWN / RADIO */}
                 {answer.selectedOption && (
                   <p className={styles.answerValue}>
                     <strong>Response:</strong> {answer.selectedOption}
                   </p>
                 )}
 
-                {/* ✅ TEXT / TEXTAREA (FIXED) */}
                 {answer.value && (
                   <p className={styles.answerValue}>
                     <strong>Value:</strong> {answer.value}
                   </p>
                 )}
 
-                {/* ✅ NOTES */}
                 {answer.notes && (
                   <p className={styles.answerNotes}>
                     <strong>Notes:</strong> {answer.notes}
                   </p>
                 )}
 
-                {/* ✅ SINGLE IMAGE */}
-                {answer.photoUrl && (
-                  <div className={styles.answerPhoto}>
-                    <img
-                      src={answer.photoUrl}
-                      alt={answer.checkpointKey}
-                      className={styles.photoThumb}
-                    />
-                  </div>
-                )}
+                {answer.photoUrl && renderMedia(answer.photoUrl, answer.checkpointKey)}
 
-                {/* ✅ MULTI IMAGE */}
                 {Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0 && (
                   <div className={styles.answerPhotos}>
                     {answer.photoUrls.map((url, idx) => (
