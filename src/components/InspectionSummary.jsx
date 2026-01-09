@@ -10,10 +10,9 @@ const InspectionSummary = ({ job }) => {
   const [isSending, setIsSending] = useState(false);
 
   const answers =
-  job?.inspectionReport?.checklistAnswers ||
-  job?.report?.checklistAnswers ||
-  [];
-
+    job?.inspectionReport?.checklistAnswers ||
+    job?.report?.checklistAnswers ||
+    [];
 
   if (!job) return null;
 
@@ -98,30 +97,24 @@ const InspectionSummary = ({ job }) => {
                 key={`${answer.checkpointKey}-${index}`}
                 className={styles.answerItem}
               >
-                <p className={styles.answerLabel}>{answer.checkpointKey}</p>
+                <p className={styles.answerLabel}>
+                  {answer.checkpointKey.replace(/_/g, " ")}
+                </p>
 
-                {/* ✅ DROPDOWN / RADIO */}
+                {/* TEXT / SELECT */}
                 {answer.selectedOption && (
                   <p className={styles.answerValue}>
                     <strong>Response:</strong> {answer.selectedOption}
                   </p>
                 )}
 
-                {/* ✅ TEXT / TEXTAREA */}
                 {answer.value && (
                   <p className={styles.answerValue}>
                     <strong>Value:</strong> {answer.value}
                   </p>
                 )}
 
-                {/* ✅ NOTES */}
-                {answer.notes && (
-                  <p className={styles.answerNotes}>
-                    <strong>Notes:</strong> {answer.notes}
-                  </p>
-                )}
-
-                {/* ✅ SINGLE IMAGE */}
+                {/* SINGLE IMAGE */}
                 {answer.photoUrl && (
                   <div className={styles.answerPhoto}>
                     <img
@@ -132,7 +125,7 @@ const InspectionSummary = ({ job }) => {
                   </div>
                 )}
 
-                {/* ✅ MULTI IMAGE */}
+                {/* MULTI IMAGE */}
                 {Array.isArray(answer.photoUrls) &&
                   answer.photoUrls.length > 0 && (
                     <div className={styles.answerPhotos}>
@@ -145,6 +138,36 @@ const InspectionSummary = ({ job }) => {
                         />
                       ))}
                     </div>
+                  )}
+
+                {/* AUDIO */}
+                {answer.photoUrl &&
+                  answer.photoUrl.match(/\.(mp3|wav|ogg)$/) && (
+                    <audio controls className={styles.mediaPlayer}>
+                      <source src={answer.photoUrl} />
+                    </audio>
+                  )}
+
+                {/* VIDEO */}
+                {answer.photoUrl && answer.photoUrl.match(/\.(mp4|webm)$/) && (
+                  <video
+                    src={answer.photoUrl}
+                    controls
+                    className={styles.mediaPlayer}
+                  />
+                )}
+
+                {/* DOCUMENT */}
+                {answer.photoUrl &&
+                  answer.photoUrl.match(/\.(pdf|doc|docx)$/) && (
+                    <a
+                      href={answer.photoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.documentLink}
+                    >
+                      View Document
+                    </a>
                   )}
               </div>
             ))}
