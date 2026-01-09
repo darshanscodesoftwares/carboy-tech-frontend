@@ -9,11 +9,6 @@ const InspectionSummary = ({ job }) => {
   const [isReopening, setIsReopening] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
-  const answers =
-    job?.inspectionReport?.checklistAnswers ||
-    job?.report?.checklistAnswers ||
-    [];
-
   if (!job) return null;
 
   const handleEditReport = async () => {
@@ -61,63 +56,6 @@ const InspectionSummary = ({ job }) => {
     job?.inspectionReport?.checklistAnswers ||
     job?.report?.checklistAnswers ||
     [];
-
-  const getMediaType = (url) => {
-    if (!url) return null;
-    const lower = url.toLowerCase();
-    if (lower.match(/\.(jpg|jpeg|png|gif|bmp|webp|svg)$/)) return 'image';
-    if (lower.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/)) return 'audio';
-    if (lower.match(/\.(mp4|webm|ogv|mov|avi|mkv)$/)) return 'video';
-    if (lower.match(/\.(pdf|doc|docx|txt)$/)) return 'document';
-    if (lower.includes('/image')) return 'image';
-    if (lower.includes('/audio')) return 'audio';
-    if (lower.includes('/video')) return 'video';
-    if (lower.includes('/document')) return 'document';
-    return 'image';
-  };
-
-  const renderMedia = (url, label) => {
-    const mediaType = getMediaType(url);
-
-    switch (mediaType) {
-      case 'image':
-        return (
-          <div className={styles.answerPhoto}>
-            <img
-              src={url}
-              alt={label}
-              className={styles.photoThumb}
-            />
-          </div>
-        );
-
-      case 'audio':
-        return (
-          <div className={styles.answerPhoto}>
-            <audio src={url} controls style={{ width: '100%', maxWidth: '400px' }} />
-          </div>
-        );
-
-      case 'video':
-        return (
-          <div className={styles.answerPhoto}>
-            <video src={url} controls style={{ width: '100%', maxWidth: '400px', maxHeight: '300px' }} />
-          </div>
-        );
-
-      case 'document':
-        return (
-          <div className={styles.answerPhoto}>
-            <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#347b65', textDecoration: 'underline' }}>
-              📄 View Document
-            </a>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className={styles.container}>
@@ -198,36 +136,6 @@ const InspectionSummary = ({ job }) => {
                         />
                       ))}
                     </div>
-                  )}
-
-                {/* AUDIO */}
-                {answer.photoUrl &&
-                  answer.photoUrl.match(/\.(mp3|wav|ogg)$/) && (
-                    <audio controls className={styles.mediaPlayer}>
-                      <source src={answer.photoUrl} />
-                    </audio>
-                  )}
-
-                {/* VIDEO */}
-                {answer.photoUrl && answer.photoUrl.match(/\.(mp4|webm)$/) && (
-                  <video
-                    src={answer.photoUrl}
-                    controls
-                    className={styles.mediaPlayer}
-                  />
-                )}
-
-                {/* DOCUMENT */}
-                {answer.photoUrl &&
-                  answer.photoUrl.match(/\.(pdf|doc|docx)$/) && (
-                    <a
-                      href={answer.photoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.documentLink}
-                    >
-                      View Document
-                    </a>
                   )}
               </div>
             ))}
