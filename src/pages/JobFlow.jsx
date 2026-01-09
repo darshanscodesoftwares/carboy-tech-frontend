@@ -183,6 +183,9 @@ const JobFlow = () => {
       return (
         allItems.length > 0 &&
         allItems.every((item) => {
+          // ✅ OPTIONAL CHECK — NEW (SAFE)
+          if (item.optional === true) return true;
+
           const answer = job?.checklistAnswers?.find(
             (a) => a.checkpointKey === item.key
           );
@@ -202,7 +205,7 @@ const JobFlow = () => {
             );
           }
 
-          // Text / dropdown / radio / select  ✅ FIXED
+          // Text / dropdown / radio / select (UNCHANGED)
           return (
             (answer.value !== null && answer.value !== "") ||
             (answer.selectedOption !== null && answer.selectedOption !== "")
@@ -216,6 +219,9 @@ const JobFlow = () => {
     // =========================
     if (checklist.items) {
       return checklist.items.every((item) => {
+        // ✅ OPTIONAL CHECK — NEW (SAFE)
+        if (item.optional === true) return true;
+
         const answer = job?.checklistAnswers?.find(
           (a) => a.checkpointKey === item.key
         );
@@ -230,7 +236,7 @@ const JobFlow = () => {
           return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
         }
 
-        // ✅ FIXED
+        // UNCHANGED
         return (
           (answer.value !== null && answer.value !== "") ||
           (answer.selectedOption !== null && answer.selectedOption !== "")

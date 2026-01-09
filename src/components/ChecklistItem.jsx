@@ -510,12 +510,19 @@ const ChecklistItem = ({
   return (
     <>
       <div
-        className={`${styles.card} ${
-          isCompleted() ? styles.completed : styles.pending
-        }`}
+        className={`${styles.card}
+    ${isCompleted() ? styles.completed : styles.pending}
+    ${item.optional ? styles.optionalCard : ""}
+  `}
       >
         <div className={styles.header}>
-          <span className={styles.label}>{item.label}</span>
+          <span className={styles.label}>
+            {item.label}
+
+            {item.optional === true && (
+              <span className={styles.optionalBadge}>Optional</span>
+            )}
+          </span>
         </div>
 
         <div className={styles.content}>{renderInput()}</div>
