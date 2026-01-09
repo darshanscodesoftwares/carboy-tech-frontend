@@ -29,7 +29,13 @@ const MEDIA_CONFIG = {
   },
 };
 
-const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
+const ChecklistItem = ({
+  item,
+  job,
+  onSubmit,
+  isSubmitting,
+  existingAnswer,
+}) => {
   const [selectedOption, setSelectedOption] = useState(
     existingAnswer?.selectedOption || ""
   );
@@ -49,8 +55,33 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   const multiCaptureInputRef = useRef(null);
   const imageDeletedRef = useRef(false);
 
-  const inputType = item.inputType || "radio";
+  const AUTO_FILL_FIELDS = {
+    customer_name: (job) => job?.customerSnapshot?.name,
+    contact_number: (job) => job?.customerSnapshot?.phone,
+    inspection_date: (job) => {
+      const rawDate = job?.schedule?.date;
+      if (!rawDate) return "";
 
+      const d = new Date(rawDate);
+
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+    },
+
+    car_make: (job) => job?.vehicleSnapshot?.brand,
+    car_model: (job) => job?.vehicleSnapshot?.model,
+    make_model_year: (job) => job?.vehicleSnapshot?.year,
+
+    // already working ones (for consistency)
+    technician_name: (job) =>
+      job?.technicianSnapshot?.name || job?.technician?.name || "",
+    location: (job) => job?.location?.address,
+  };
+
+  const inputType = item.inputType || "radio";
   // const uploadImageAndGetUrl = async (file) => {
   //   const formData = new FormData();
   //   formData.append("image", file);
@@ -94,6 +125,28 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
     },
     [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, onSubmit]
   );
+
+  useEffect(() => {
+    const autoFillFn = AUTO_FILL_FIELDS[item.key];
+    if (!autoFillFn) return;
+
+    // If backend already has value, don’t override
+    if (existingAnswer?.value) return;
+
+    const value = autoFillFn(job);
+    if (!value) return;
+
+    setTextValue(value);
+
+    onSubmit({
+      checkpointKey: item.key,
+      value,
+      selectedOption: null,
+      notes: null,
+      photoUrl: null,
+      photoUrls: null,
+    });
+  }, [item.key, job, existingAnswer, onSubmit]);
 
   // =========================
   // REHYDRATE FROM BACKEND
@@ -208,6 +261,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
               <input
                 type="text"
                 value={safeText}
+                readOnly={!!AUTO_FILL_FIELDS[item.key]}
                 onChange={handleTextChange}
                 className={styles.textInput}
               />
@@ -299,7 +353,7 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
                   onClick={() => uploadInputRef.current.click()}
                   className={styles.uploadButton}
                 >
-                  <FiUpload /> Upload
+                  <FiUpload /> Upload Img
                 </button>
 
                 <button
@@ -444,7 +498,8 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
     }
 
     if (inputType === "text" || inputType === "textarea") {
-      return safeText().trim() !== "";
+      const value = typeof textValue === "string" ? textValue : "";
+      return value.length > 0;
     }
 
     return selectedOption !== "";
@@ -455,12 +510,19 @@ const ChecklistItem = ({ item, onSubmit, isSubmitting, existingAnswer }) => {
   return (
     <>
       <div
-        className={`${styles.card} ${
-          isCompleted() ? styles.completed : styles.pending
-        }`}
+        className={`${styles.card}
+    ${isCompleted() ? styles.completed : styles.pending}
+    ${item.optional ? styles.optionalCard : ""}
+  `}
       >
         <div className={styles.header}>
-          <span className={styles.label}>{item.label}</span>
+          <span className={styles.label}>
+            {item.label}
+
+            {item.optional === true && (
+              <span className={styles.optionalBadge}>Optional</span>
+            )}
+          </span>
         </div>
 
         <div className={styles.content}>{renderInput()}</div>

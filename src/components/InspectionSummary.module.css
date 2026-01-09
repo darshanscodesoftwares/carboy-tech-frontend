@@ -299,6 +299,32 @@
   font-style: italic;
 }
 
+.mediaPlayer {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.documentLink {
+  display: inline-block;
+  margin-top: 6px;
+  color: #0a7cff;
+  font-weight: 500;
+}
+
+.answerPhotos {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.photoThumb {
+  width: 80px;
+  height: auto;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
 /* Mobile responsiveness - Enhanced */
 @media (max-width: 768px) {
   .container {

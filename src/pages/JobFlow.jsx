@@ -108,83 +108,141 @@ const JobFlow = () => {
   const getExistingAnswer = (key) =>
     job?.checklistAnswers?.find((a) => a.checkpointKey === key);
 
+  //   // Handle both PDI (sections-based) and UCI (flat items)
+  //   const allCheckpointsCompleted = () => {
+  //     if (!checklist) return false;
+
+  //     // PDI format with sections
+  // if (checklist.sections) {
+  //   const allItems = checklist.sections.flatMap(section => section.items);
+
+  //   return (
+  //     allItems.length > 0 &&
+  //     allItems.every(item => {
+  //       const answer = job?.checklistAnswers?.find(
+  //         a => a.checkpointKey === item.key
+  //       );
+
+  //       if (!answer) return false;
+
+  //       // Media types
+  //       if (["image", "audio", "video", "document"].includes(item.inputType)) {
+  //         return !!answer.photoUrl;
+  //       }
+
+  //       if (item.inputType === "multi-image") {
+  //         return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
+  //       }
+
+  //       // Text / dropdown / radio / select
+  //       return (
+  //         answer.value !== null && answer.value !== "" ||
+  //         answer.selectedOption !== null && answer.selectedOption !== ""
+  //       );
+  //     })
+  //   );
+  // }
+
+  // // UCI format with flat items
+  // if (checklist.items) {
+  //   return checklist.items.every(item => {
+  //     const answer = job?.checklistAnswers?.find(
+  //       a => a.checkpointKey === item.key
+  //     );
+
+  //     if (!answer) return false;
+
+  //     if (["image", "audio", "video", "document"].includes(item.inputType)) {
+  //       return !!answer.photoUrl;
+  //     }
+
+  //     if (item.inputType === "multi-image") {
+  //       return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
+  //     }
+
+  //     return (
+  //       answer.value !== null && answer.value !== "" ||
+  //       answer.selectedOption !== null && answer.selectedOption !== ""
+  //     );
+  //   });
+  // }
+
+  //     return false;
+  //   };
+
   // Handle both PDI (sections-based) and UCI (flat items)
   const allCheckpointsCompleted = () => {
     if (!checklist) return false;
 
-    // // PDI format with sections
-    // if (checklist.sections) {
-    //   const allItems = checklist.sections.flatMap((section) => section.items);
-    //   return (
-    //     allItems.length > 0 &&
-    //     allItems.every((item) =>
-    //       job?.checklistAnswers?.some((a) => a.checkpointKey === item.key)
-    //     )
-    //   );
-    // }
-
-    // // UCI format with flat items
-    // if (checklist.items) {
-    //   return checklist.items.every((item) =>
-    //     job?.checklistAnswers?.some((a) => a.checkpointKey === item.key)
-    //   );
-    // }
-
+    // =========================
     // PDI format with sections
-if (checklist.sections) {
-  const allItems = checklist.sections.flatMap(section => section.items);
+    // =========================
+    if (checklist.sections) {
+      const allItems = checklist.sections.flatMap((section) => section.items);
 
-  return (
-    allItems.length > 0 &&
-    allItems.every(item => {
-      const answer = job?.checklistAnswers?.find(
-        a => a.checkpointKey === item.key
-      );
-
-      if (!answer) return false;
-
-      // Media types
-      if (["image", "audio", "video", "document"].includes(item.inputType)) {
-        return !!answer.photoUrl;
-      }
-
-      if (item.inputType === "multi-image") {
-        return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
-      }
-
-      // Text / dropdown / radio / select
       return (
-        answer.value !== null && answer.value !== "" ||
-        answer.selectedOption !== null && answer.selectedOption !== ""
+        allItems.length > 0 &&
+        allItems.every((item) => {
+          // ✅ OPTIONAL CHECK — NEW (SAFE)
+          if (item.optional === true) return true;
+
+          const answer = job?.checklistAnswers?.find(
+            (a) => a.checkpointKey === item.key
+          );
+
+          if (!answer) return false;
+
+          // Media types
+          if (
+            ["image", "audio", "video", "document"].includes(item.inputType)
+          ) {
+            return !!answer.photoUrl;
+          }
+
+          if (item.inputType === "multi-image") {
+            return (
+              Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0
+            );
+          }
+
+          // Text / dropdown / radio / select (UNCHANGED)
+          return (
+            (answer.value !== null && answer.value !== "") ||
+            (answer.selectedOption !== null && answer.selectedOption !== "")
+          );
+        })
       );
-    })
-  );
-}
-
-// UCI format with flat items
-if (checklist.items) {
-  return checklist.items.every(item => {
-    const answer = job?.checklistAnswers?.find(
-      a => a.checkpointKey === item.key
-    );
-
-    if (!answer) return false;
-
-    if (["image", "audio", "video", "document"].includes(item.inputType)) {
-      return !!answer.photoUrl;
     }
 
-    if (item.inputType === "multi-image") {
-      return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
+    // =========================
+    // UCI format with flat items
+    // =========================
+    if (checklist.items) {
+      return checklist.items.every((item) => {
+        // ✅ OPTIONAL CHECK — NEW (SAFE)
+        if (item.optional === true) return true;
+
+        const answer = job?.checklistAnswers?.find(
+          (a) => a.checkpointKey === item.key
+        );
+
+        if (!answer) return false;
+
+        if (["image", "audio", "video", "document"].includes(item.inputType)) {
+          return !!answer.photoUrl;
+        }
+
+        if (item.inputType === "multi-image") {
+          return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
+        }
+
+        // UNCHANGED
+        return (
+          (answer.value !== null && answer.value !== "") ||
+          (answer.selectedOption !== null && answer.selectedOption !== "")
+        );
+      });
     }
-
-    return (
-      answer.value !== null && answer.value !== "" ||
-      answer.selectedOption !== null && answer.selectedOption !== ""
-    );
-  });
-}
-
 
     return false;
   };
@@ -366,6 +424,7 @@ if (checklist.items) {
                         <ChecklistItem
                           key={item.key}
                           item={item}
+                          job={job}
                           onSubmit={handleCheckpointSubmit}
                           isSubmitting={checkpointLoading}
                           existingAnswer={getExistingAnswer(item.key)}
@@ -382,6 +441,7 @@ if (checklist.items) {
                     <ChecklistItem
                       key={item.key}
                       item={item}
+                      job={job}
                       onSubmit={handleCheckpointSubmit}
                       isSubmitting={checkpointLoading}
                       existingAnswer={getExistingAnswer(item.key)}

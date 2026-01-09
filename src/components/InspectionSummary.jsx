@@ -1,13 +1,18 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { reopenJob, sendReport } from '../api/jobs';
-import ProgressBar from './ProgressBar';
-import styles from './InspectionSummary.module.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { reopenJob, sendReport } from "../api/jobs";
+import ProgressBar from "./ProgressBar";
+import styles from "./InspectionSummary.module.css";
 
 const InspectionSummary = ({ job }) => {
   const navigate = useNavigate();
   const [isReopening, setIsReopening] = useState(false);
   const [isSending, setIsSending] = useState(false);
+
+  const answers =
+    job?.inspectionReport?.checklistAnswers ||
+    job?.report?.checklistAnswers ||
+    [];
 
   if (!job) return null;
 
@@ -17,8 +22,8 @@ const InspectionSummary = ({ job }) => {
       await reopenJob(job._id);
       navigate(`/flow/${job._id}?edit=true`);
     } catch (error) {
-      console.error('Failed to reopen job:', error);
-      alert('Failed to reopen inspection. Please try again.');
+      console.error("Failed to reopen job:", error);
+      alert("Failed to reopen inspection. Please try again.");
     } finally {
       setIsReopening(false);
     }
@@ -29,24 +34,27 @@ const InspectionSummary = ({ job }) => {
       setIsSending(true);
       await sendReport(job._id);
     } catch (error) {
-      console.warn('Send report API not yet implemented:', error);
+      console.warn("Send report API not yet implemented:", error);
     } finally {
       setIsSending(false);
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
-  const isReportSent = job?.status === 'report_sent';
+  const isReportSent = job?.status === "report_sent";
 
   const summaryData = [
-    { label: 'Customer', value: job.customerSnapshot?.name || 'N/A' },
+    { label: "Customer", value: job.customerSnapshot?.name || "N/A" },
     {
-      label: 'Vehicle',
-      value: `${job.vehicleSnapshot?.year || ''} ${job.vehicleSnapshot?.brand || ''} ${job.vehicleSnapshot?.model || ''}`.trim() || 'N/A'
+      label: "Vehicle",
+      value:
+        `${job.vehicleSnapshot?.year || ""} ${
+          job.vehicleSnapshot?.brand || ""
+        } ${job.vehicleSnapshot?.model || ""}`.trim() || "N/A",
     },
-    { label: 'Location', value: job.location?.address || 'N/A' },
-    { label: 'Service Type', value: job.serviceType || 'N/A' },
-    { label: 'Completion Date', value: job.schedule?.date || 'N/A' }
+    { label: "Location", value: job.location?.address || "N/A" },
+    { label: "Service Type", value: job.serviceType || "N/A" },
+    { label: "Completion Date", value: job.schedule?.date || "N/A" },
   ];
 
   const answers =
@@ -136,6 +144,7 @@ const InspectionSummary = ({ job }) => {
         </div>
       </div>
 
+      {/* 🔥 CHECKPOINT ANSWERS (DEDUPED SOURCE) */}
       {Array.isArray(answers) && answers.length > 0 && (
         <div className={styles.reportBlock}>
           <h3 className={styles.reportTitle}>
@@ -149,9 +158,10 @@ const InspectionSummary = ({ job }) => {
                 className={styles.answerItem}
               >
                 <p className={styles.answerLabel}>
-                  {answer.checkpointKey}
+                  {answer.checkpointKey.replace(/_/g, " ")}
                 </p>
 
+                {/* TEXT / SELECT */}
                 {answer.selectedOption && (
                   <p className={styles.answerValue}>
                     <strong>Response:</strong> {answer.selectedOption}
@@ -164,26 +174,61 @@ const InspectionSummary = ({ job }) => {
                   </p>
                 )}
 
-                {answer.notes && (
-                  <p className={styles.answerNotes}>
-                    <strong>Notes:</strong> {answer.notes}
-                  </p>
-                )}
-
-                {answer.photoUrl && renderMedia(answer.photoUrl, answer.checkpointKey)}
-
-                {Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0 && (
-                  <div className={styles.answerPhotos}>
-                    {answer.photoUrls.map((url, idx) => (
-                      <img
-                        key={idx}
-                        src={url}
-                        alt={`${answer.checkpointKey}-${idx}`}
-                        className={styles.photoThumb}
-                      />
-                    ))}
+                {/* SINGLE IMAGE */}
+                {answer.photoUrl && (
+                  <div className={styles.answerPhoto}>
+                    <img
+                      src={answer.photoUrl}
+                      alt={answer.checkpointKey}
+                      className={styles.photoThumb}
+                    />
                   </div>
                 )}
+
+                {/* MULTI IMAGE */}
+                {Array.isArray(answer.photoUrls) &&
+                  answer.photoUrls.length > 0 && (
+                    <div className={styles.answerPhotos}>
+                      {answer.photoUrls.map((url, idx) => (
+                        <img
+                          key={idx}
+                          src={url}
+                          alt={`${answer.checkpointKey}-${idx}`}
+                          className={styles.photoThumb}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                {/* AUDIO */}
+                {answer.photoUrl &&
+                  answer.photoUrl.match(/\.(mp3|wav|ogg)$/) && (
+                    <audio controls className={styles.mediaPlayer}>
+                      <source src={answer.photoUrl} />
+                    </audio>
+                  )}
+
+                {/* VIDEO */}
+                {answer.photoUrl && answer.photoUrl.match(/\.(mp4|webm)$/) && (
+                  <video
+                    src={answer.photoUrl}
+                    controls
+                    className={styles.mediaPlayer}
+                  />
+                )}
+
+                {/* DOCUMENT */}
+                {answer.photoUrl &&
+                  answer.photoUrl.match(/\.(pdf|doc|docx)$/) && (
+                    <a
+                      href={answer.photoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.documentLink}
+                    >
+                      View Document
+                    </a>
+                  )}
               </div>
             ))}
           </div>
@@ -195,9 +240,11 @@ const InspectionSummary = ({ job }) => {
           className={styles.secondaryButton}
           onClick={handleEditReport}
           disabled={isReopening || isReportSent}
-          title={isReportSent ? 'Report has been sent and cannot be edited' : ''}
+          title={
+            isReportSent ? "Report has been sent and cannot be edited" : ""
+          }
         >
-          {isReopening ? 'Opening…' : 'Edit Report'}
+          {isReopening ? "Opening…" : "Edit Report"}
         </button>
 
         <button
@@ -205,7 +252,11 @@ const InspectionSummary = ({ job }) => {
           onClick={handleSendReport}
           disabled={isSending || isReportSent}
         >
-          {isSending ? 'Sending Report...' : isReportSent ? 'Report Sent - Back to Dashboard' : 'Send Report & Return to Dashboard'}
+          {isSending
+            ? "Sending Report..."
+            : isReportSent
+            ? "Report Sent - Back to Dashboard"
+            : "Send Report & Return to Dashboard"}
         </button>
       </div>
 
