@@ -83,6 +83,7 @@ const InspectionSummary = ({ job }) => {
       </div>
 
       {/* 🔥 CHECKPOINT ANSWERS (DEDUPED SOURCE) */}
+      {/* 🔥 CHECKPOINT ANSWERS (DEDUPED SOURCE) */}
       {Array.isArray(answers) && answers.length > 0 && (
         <div className={styles.reportBlock}>
           <h3 className={styles.reportTitle}>
@@ -95,24 +96,30 @@ const InspectionSummary = ({ job }) => {
                 key={`${answer.checkpointKey}-${index}`}
                 className={styles.answerItem}
               >
-                <p className={styles.answerLabel}>
-                  {answer.checkpointKey.replace(/_/g, " ")}
-                </p>
+                <p className={styles.answerLabel}>{answer.checkpointKey}</p>
 
-                {/* TEXT / SELECT */}
+                {/* ✅ DROPDOWN / RADIO */}
                 {answer.selectedOption && (
                   <p className={styles.answerValue}>
                     <strong>Response:</strong> {answer.selectedOption}
                   </p>
                 )}
 
+                {/* ✅ TEXT / TEXTAREA */}
                 {answer.value && (
                   <p className={styles.answerValue}>
                     <strong>Value:</strong> {answer.value}
                   </p>
                 )}
 
-                {/* SINGLE IMAGE */}
+                {/* ✅ NOTES */}
+                {answer.notes && (
+                  <p className={styles.answerNotes}>
+                    <strong>Notes:</strong> {answer.notes}
+                  </p>
+                )}
+
+                {/* ✅ SINGLE IMAGE */}
                 {answer.photoUrl && (
                   <div className={styles.answerPhoto}>
                     <img
@@ -123,7 +130,7 @@ const InspectionSummary = ({ job }) => {
                   </div>
                 )}
 
-                {/* MULTI IMAGE */}
+                {/* ✅ MULTI IMAGE */}
                 {Array.isArray(answer.photoUrls) &&
                   answer.photoUrls.length > 0 && (
                     <div className={styles.answerPhotos}>
