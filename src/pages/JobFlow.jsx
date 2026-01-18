@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import useJobFlow, { JOB_STATUSES, getStepIndex } from "../hooks/useJobFlow";
 import useJobNotifications from "../hooks/useJobNotifications";
@@ -41,6 +41,8 @@ const JobFlow = () => {
   const [checkpointLoading, setCheckpointLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
   const [showRemarksModal, setShowRemarksModal] = useState(false);
+  const checkpointRefs = useRef({});
+  const [missingKeys, setMissingKeys] = useState([]);
 
   // Enable job notifications only on inspection and summary pages
   const isInspectionOrSummary =
@@ -74,10 +76,72 @@ const JobFlow = () => {
       setActionLoading(false);
     }
   };
+  // Helper to get all checklist items (both formats)
+  const getAllChecklistItems = () => {
+    if (!checklist) return [];
+    // PDI format with sections
+    if (checklist.sections) {
+      return checklist.sections.flatMap((section) => section.items);
+    }
+    // UCI format with flat items
+    if (checklist.items) {
+      return checklist.items;
+    }
+    return [];
+  };
+
+  // Find missing checkpoints
+  const findMissingCheckpoints = () => {
+    const allItems = getAllChecklistItems();
+    const missing = [];
+
+    allItems.forEach((item) => {
+      // Skip optional items
+      if (item.optional === true) return;
+
+      const answer = job?.checklistAnswers?.find(
+        (a) => a.checkpointKey === item.key
+      );
+
+      if (!answer) {
+        missing.push(item.key);
+        return;
+      }
+
+      // Media types
+      if (["image", "audio", "video", "document"].includes(item.inputType)) {
+        if (!answer.photoUrl) {
+          missing.push(item.key);
+        }
+        return;
+      }
+
+      if (item.inputType === "multi-image") {
+        if (!Array.isArray(answer.photoUrls) || answer.photoUrls.length === 0) {
+          missing.push(item.key);
+        }
+        return;
+      }
+
+      // Text / dropdown / radio / select
+      const hasValue = answer.value !== null && answer.value !== "";
+      const hasOption = answer.selectedOption !== null && answer.selectedOption !== "";
+      if (!hasValue && !hasOption) {
+        missing.push(item.key);
+      }
+    });
+
+    return missing;
+  };
+
   const handleCheckpointSubmit = async (checkpoint) => {
     setCheckpointLoading(true);
     try {
       await submitCheckpoint(jobId, checkpoint);
+      // Remove from missing keys if it was there
+      if (missingKeys.includes(checkpoint.checkpointKey)) {
+        setMissingKeys(prev => prev.filter(key => key !== checkpoint.checkpointKey));
+      }
     } catch {
     } finally {
       setCheckpointLoading(false);
@@ -86,6 +150,19 @@ const JobFlow = () => {
 
   // Manual submit report
   const handleSubmitReport = async () => {
+    // Check for missing checkpoints
+    const missing = findMissingCheckpoints();
+    if (missing.length > 0) {
+      setMissingKeys(missing);
+      // Scroll to first missing checkpoint
+      const firstMissingKey = missing[0];
+      const element = checkpointRefs.current[firstMissingKey];
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     setActionLoading(true);
     try {
       const reportWithRemarks = {
@@ -423,12 +500,14 @@ const JobFlow = () => {
                       {section.items.map((item) => (
                         <ChecklistItem
                           key={item.key}
+                          ref={(el) => (checkpointRefs.current[item.key] = el)}
                           item={item}
                           job={job}
                           onSubmit={handleCheckpointSubmit}
                           isSubmitting={checkpointLoading}
                           existingAnswer={getExistingAnswer(item.key)}
                           isEditMode={isEditMode}
+                          hasError={missingKeys.includes(item.key)}
                         />
                       ))}
                     </div>
@@ -440,12 +519,14 @@ const JobFlow = () => {
                   checklist.items.map((item) => (
                     <ChecklistItem
                       key={item.key}
+                      ref={(el) => (checkpointRefs.current[item.key] = el)}
                       item={item}
                       job={job}
                       onSubmit={handleCheckpointSubmit}
                       isSubmitting={checkpointLoading}
                       existingAnswer={getExistingAnswer(item.key)}
                       isEditMode={isEditMode}
+                      hasError={missingKeys.includes(item.key)}
                     />
                   ))}
               </>

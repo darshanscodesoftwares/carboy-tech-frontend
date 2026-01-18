@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, forwardRef } from "react";
 import ImagePreviewModal from "./ImagePreviewModal";
 import styles from "./ChecklistItem.module.css";
 import { MdDelete, MdCheck, MdSave } from "react-icons/md";
@@ -29,13 +29,14 @@ const MEDIA_CONFIG = {
   },
 };
 
-const ChecklistItem = ({
+const ChecklistItem = forwardRef(({
   item,
   job,
   onSubmit,
   isSubmitting,
   existingAnswer,
-}) => {
+  hasError,
+}, ref) => {
   const [selectedOption, setSelectedOption] = useState(
     existingAnswer?.selectedOption || ""
   );
@@ -510,9 +511,11 @@ const ChecklistItem = ({
   return (
     <>
       <div
+        ref={ref}
         className={`${styles.card}
     ${isCompleted() ? styles.completed : styles.pending}
     ${item.optional ? styles.optionalCard : ""}
+    ${hasError ? styles.errorCard : ""}
   `}
       >
         <div className={styles.header}>
@@ -535,6 +538,6 @@ const ChecklistItem = ({
       />
     </>
   );
-};
+});
 
 export default ChecklistItem;
