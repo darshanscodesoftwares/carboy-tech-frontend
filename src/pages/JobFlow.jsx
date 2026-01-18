@@ -544,7 +544,7 @@ const JobFlow = () => {
             job?.status !== "report_sent") ? (
             <button
               onClick={handleSubmitReport}
-              disabled={actionLoading || !allCheckpointsCompleted()}
+              disabled={actionLoading}
               className={styles.primaryButton}
               title={
                 !allCheckpointsCompleted()
