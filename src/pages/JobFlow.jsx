@@ -162,9 +162,17 @@ const handleSubmitReport = async () => {
   try {
     console.log("🟡 Technician FE sending remarks:", remarks);
 
+    // ✅ STEP 1: COMPLETE INSPECTION (creates submittedAt)
+    await completeJob(jobId, {
+      remarks: remarks.trim(),
+    });
+
+    // ✅ STEP 2: SEND REPORT TO ADMIN
     await sendReport(jobId, remarks.trim());
 
+    // ✅ STEP 3: FETCH SUMMARY
     await fetchSummary(jobId);
+
     navigate(`/flow/${jobId}`, { replace: true });
   } catch (e) {
     console.error("❌ Submit report error:", e);
@@ -172,6 +180,7 @@ const handleSubmitReport = async () => {
     setActionLoading(false);
   }
 };
+
 
 
   const handleSaveRemark = (remark) => {
