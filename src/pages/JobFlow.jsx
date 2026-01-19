@@ -150,41 +150,29 @@ const JobFlow = () => {
   };
 
 const handleSubmitReport = async () => {
-  // Check for missing checkpoints
   const missing = findMissingCheckpoints();
   if (missing.length > 0) {
     setMissingKeys(missing);
-    const firstMissingKey = missing[0];
-    const element = checkpointRefs.current[firstMissingKey];
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    const el = checkpointRefs.current[missing[0]];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
 
   setActionLoading(true);
   try {
-    const reportWithRemarks = {
-      summary: "Inspection completed successfully",
-      overallStatus: "PASS",
-      remarks: remarks.trim() || null,
-      recommendations: [],
-    };
+    console.log("🟡 Technician FE sending remarks:", remarks);
 
-    // ✅ ADD THIS LOG (THIS IS THE ONE)
-    console.log("🟡 Technician FE sending remarks:", reportWithRemarks.remarks);
-
-    // await completeJob(jobId, reportWithRemarks);
     await sendReport(jobId, remarks.trim());
 
     await fetchSummary(jobId);
     navigate(`/flow/${jobId}`, { replace: true });
-  } catch (err) {
-    console.error("❌ Submit report error:", err);
+  } catch (e) {
+    console.error("❌ Submit report error:", e);
   } finally {
     setActionLoading(false);
   }
 };
+
 
   const handleSaveRemark = (remark) => {
     setRemarks(remark);

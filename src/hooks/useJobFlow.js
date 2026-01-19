@@ -189,9 +189,9 @@ const useJobFlow = () => {
     setError(null);
 
     try {
-      return await jobsApi.completeJob(jobId, {
-        remarks: report?.remarks || "",
-      });
+      // 🚨 DO NOT send remarks here anymore
+      // remarks are handled ONLY by sendReport()
+      return await jobsApi.completeJob(jobId, report);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to complete job");
       throw err;
