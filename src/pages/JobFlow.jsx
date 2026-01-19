@@ -148,37 +148,41 @@ const JobFlow = () => {
     }
   };
 
-  // Manual submit report
-  const handleSubmitReport = async () => {
-    // Check for missing checkpoints
-    const missing = findMissingCheckpoints();
-    if (missing.length > 0) {
-      setMissingKeys(missing);
-      // Scroll to first missing checkpoint
-      const firstMissingKey = missing[0];
-      const element = checkpointRefs.current[firstMissingKey];
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
+const handleSubmitReport = async () => {
+  // Check for missing checkpoints
+  const missing = findMissingCheckpoints();
+  if (missing.length > 0) {
+    setMissingKeys(missing);
+    const firstMissingKey = missing[0];
+    const element = checkpointRefs.current[firstMissingKey];
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
     }
+    return;
+  }
 
-    setActionLoading(true);
-    try {
-      const reportWithRemarks = {
-        summary: "Inspection completed successfully",
-        overallStatus: "PASS",
-        remarks: remarks.trim() || null,
-        recommendations: [],
-      };
-      await completeJob(jobId, reportWithRemarks);
-      await fetchSummary(jobId);
-      navigate(`/flow/${jobId}`, { replace: true });
-    } catch {
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  setActionLoading(true);
+  try {
+    const reportWithRemarks = {
+      summary: "Inspection completed successfully",
+      overallStatus: "PASS",
+      remarks: remarks.trim() || null,
+      recommendations: [],
+    };
+
+    // ✅ ADD THIS LOG (THIS IS THE ONE)
+    console.log("🟡 Technician FE sending remarks:", reportWithRemarks.remarks);
+
+    await completeJob(jobId, reportWithRemarks);
+    await fetchSummary(jobId);
+    navigate(`/flow/${jobId}`, { replace: true });
+  } catch (err) {
+    console.error("❌ Submit report error:", err);
+  } finally {
+    setActionLoading(false);
+  }
+};
+
   const handleSaveRemark = (remark) => {
     setRemarks(remark);
   };
