@@ -173,7 +173,9 @@ const handleSubmitReport = async () => {
     // ✅ ADD THIS LOG (THIS IS THE ONE)
     console.log("🟡 Technician FE sending remarks:", reportWithRemarks.remarks);
 
-    await completeJob(jobId, reportWithRemarks);
+    // await completeJob(jobId, reportWithRemarks);
+    await sendReport(jobId, remarks.trim());
+
     await fetchSummary(jobId);
     navigate(`/flow/${jobId}`, { replace: true });
   } catch (err) {

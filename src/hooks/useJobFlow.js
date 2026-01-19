@@ -171,6 +171,19 @@ const useJobFlow = () => {
     }
   }, []);
 
+  const sendReport = useCallback(async (jobId, remarks) => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await jobsApi.sendReport(jobId, remarks);
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to send report");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const completeJob = useCallback(async (jobId, report) => {
     setLoading(true);
     setError(null);
@@ -221,6 +234,7 @@ const useJobFlow = () => {
     fetchChecklist,
     submitCheckpoint,
     completeJob,
+    sendReport,
     fetchSummary,
   };
 };
