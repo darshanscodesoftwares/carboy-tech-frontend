@@ -27,12 +27,18 @@ const InspectionSummary = ({ job }) => {
   const handleSendReport = async () => {
     try {
       setIsSending(true);
+
       await sendReport(job._id);
+
+      // ✅ allow React to flush state before route change
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 0);
     } catch (error) {
-      console.warn("Send report API not yet implemented:", error);
+      console.error("Failed to send report:", error);
+      alert("Failed to send report. Please try again.");
     } finally {
       setIsSending(false);
-      navigate("/dashboard");
     }
   };
 
@@ -170,8 +176,8 @@ const InspectionSummary = ({ job }) => {
           {isSending
             ? "Sending Report..."
             : isReportSent
-            ? "Report Sent - Back to Dashboard"
-            : "Send Report & Return to Dashboard"}
+              ? "Report Sent - Back to Dashboard"
+              : "Send Report & Return to Dashboard"}
         </button>
       </div>
 
