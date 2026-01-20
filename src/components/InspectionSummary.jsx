@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { reopenJob, sendReport } from "../api/jobs";
 import ProgressBar from "./ProgressBar";
 import styles from "./InspectionSummary.module.css";
 
-const InspectionSummary = ({ job }) => {
-  const navigate = useNavigate();
+const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const [isReopening, setIsReopening] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
@@ -14,8 +11,7 @@ const InspectionSummary = ({ job }) => {
   const handleEditReport = async () => {
     try {
       setIsReopening(true);
-      await reopenJob(job._id);
-      navigate(`/flow/${job._id}?edit=true`);
+      await onEditReport();
     } catch (error) {
       console.error("Failed to reopen job:", error);
       alert("Failed to reopen inspection. Please try again.");
@@ -27,12 +23,11 @@ const InspectionSummary = ({ job }) => {
   const handleSendReport = async () => {
     try {
       setIsSending(true);
-      await sendReport(job._id);
+      await onSendReport();
     } catch (error) {
-      console.warn("Send report API not yet implemented:", error);
+      console.warn("Error sending report:", error);
     } finally {
       setIsSending(false);
-      navigate("/dashboard");
     }
   };
 

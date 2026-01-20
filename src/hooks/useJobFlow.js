@@ -207,7 +207,7 @@ const useJobFlow = () => {
 
   return {
 
-    job, checklist, summary, loading, error, setError,
+    job, checklist, summary, loading, error, setError, setSummary,
 
     fetchJob, acceptJob, startTravel, reachedLocation, startInspection,
 
