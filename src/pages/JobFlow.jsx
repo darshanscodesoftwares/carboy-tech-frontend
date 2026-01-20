@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import useJobFlow, { JOB_STATUSES, getStepIndex } from "../hooks/useJobFlow";
 import useJobNotifications from "../hooks/useJobNotifications";
-import * as jobsApi from "../api/jobs";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import JobDetailsView from "../components/JobDetailsView";
@@ -39,6 +38,8 @@ const JobFlow = () => {
     sendReport,
     completeJob,
     fetchSummary,
+    reopenJob,
+    sendReport,
   } = useJobFlow();
   const [actionLoading, setActionLoading] = useState(false);
   const [checkpointLoading, setCheckpointLoading] = useState(false);
@@ -388,9 +389,7 @@ const handleSubmitReport = async () => {
 
   const handleEditReportFromSummary = async () => {
     try {
-      await jobsApi.reopenJob(jobId);
-      // Clear summary state FIRST, then navigate
-      setSummary(null);
+      await reopenJob(jobId); // This now updates job state AND clears summary
       navigate(`/flow/${jobId}?edit=true`);
     } catch (error) {
       console.error("Failed to reopen job:", error);
@@ -400,12 +399,10 @@ const handleSubmitReport = async () => {
 
   const handleSendReportFromSummary = async () => {
     try {
-      await jobsApi.sendReport(jobId);
-      // Clear summary state FIRST, then navigate
-      setSummary(null);
+      await sendReport(jobId); // This now updates job state AND clears summary
       navigate("/dashboard");
     } catch (error) {
-      console.warn("Send report API not yet implemented:", error);
+      console.warn("Send report API error:", error);
       // Still navigate even if API fails
       setSummary(null);
       navigate("/dashboard");

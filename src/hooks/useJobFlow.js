@@ -175,7 +175,10 @@ const useJobFlow = () => {
     setLoading(true);
     setError(null);
     try {
-      return await jobsApi.sendReport(jobId, remarks);
+      const data = await jobsApi.sendReport(jobId, remarks);
+      setJob(data);
+      setSummary(null);
+      return data;
     } catch (err) {
       setError(err.response?.data?.error || "Failed to send report");
       throw err;
@@ -217,6 +220,23 @@ const useJobFlow = () => {
     }
   }, []);
 
+  const reopenJob = useCallback(async (jobId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await jobsApi.reopenJob(jobId);
+      setJob(data);
+      setSummary(null);
+      return data;
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to reopen job");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     job,
     checklist,
@@ -224,18 +244,18 @@ const useJobFlow = () => {
     loading,
     error,
     setError,
-
+    setSummary,
     fetchJob,
     acceptJob,
     startTravel,
     reachedLocation,
     startInspection,
-
     fetchChecklist,
     submitCheckpoint,
     completeJob,
     sendReport,
     fetchSummary,
+    reopenJob,
   };
 };
 
