@@ -35,7 +35,6 @@ const JobFlow = () => {
     startInspection,
     fetchChecklist,
     submitCheckpoint,
-    sendReport,
     completeJob,
     fetchSummary,
     reopenJob,
