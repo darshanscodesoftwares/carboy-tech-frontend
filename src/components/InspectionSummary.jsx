@@ -11,10 +11,16 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const handleEditReport = async () => {
     try {
       setIsReopening(true);
-      await onEditReport();
+
+      // ✅ navigate first
+      navigate(`/flow/${job._id}?edit=true`, { replace: true });
+
+      // ✅ then mutate backend
+      await reopenJob(job._id);
     } catch (error) {
       console.error("Failed to reopen job:", error);
       alert("Failed to reopen inspection. Please try again.");
+      console.log("Navigating now...");
     } finally {
       setIsReopening(false);
     }
@@ -23,9 +29,16 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const handleSendReport = async () => {
     try {
       setIsSending(true);
-      await onSendReport();
+
+      // ✅ navigate immediately while component exists
+      navigate("/dashboard", { replace: true });
+
+      // ✅ then mutate backend
+      await sendReport(job._id);
     } catch (error) {
-      console.warn("Error sending report:", error);
+      console.error("Failed to send report:", error);
+      alert("Failed to send report. Please try again.");
+      console.log("Navigating now...");
     } finally {
       setIsSending(false);
     }
@@ -78,6 +91,7 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
       </div>
 
       {/* 🔥 CHECKPOINT ANSWERS (DEDUPED SOURCE) */}
+      {/* 🔥 CHECKPOINT ANSWERS (DEDUPED SOURCE) */}
       {Array.isArray(answers) && answers.length > 0 && (
         <div className={styles.reportBlock}>
           <h3 className={styles.reportTitle}>
@@ -90,24 +104,30 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
                 key={`${answer.checkpointKey}-${index}`}
                 className={styles.answerItem}
               >
-                <p className={styles.answerLabel}>
-                  {answer.checkpointKey.replace(/_/g, " ")}
-                </p>
+                <p className={styles.answerLabel}>{answer.checkpointKey}</p>
 
-                {/* TEXT / SELECT */}
+                {/* ✅ DROPDOWN / RADIO */}
                 {answer.selectedOption && (
                   <p className={styles.answerValue}>
                     <strong>Response:</strong> {answer.selectedOption}
                   </p>
                 )}
 
+                {/* ✅ TEXT / TEXTAREA */}
                 {answer.value && (
                   <p className={styles.answerValue}>
                     <strong>Value:</strong> {answer.value}
                   </p>
                 )}
 
-                {/* SINGLE IMAGE */}
+                {/* ✅ NOTES */}
+                {answer.notes && (
+                  <p className={styles.answerNotes}>
+                    <strong>Notes:</strong> {answer.notes}
+                  </p>
+                )}
+
+                {/* ✅ SINGLE IMAGE */}
                 {answer.photoUrl && (
                   <div className={styles.answerPhoto}>
                     <img
@@ -118,7 +138,7 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
                   </div>
                 )}
 
-                {/* MULTI IMAGE */}
+                {/* ✅ MULTI IMAGE */}
                 {Array.isArray(answer.photoUrls) &&
                   answer.photoUrls.length > 0 && (
                     <div className={styles.answerPhotos}>
@@ -158,8 +178,8 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
           {isSending
             ? "Sending Report..."
             : isReportSent
-            ? "Report Sent - Back to Dashboard"
-            : "Send Report & Return to Dashboard"}
+              ? "Report Sent - Back to Dashboard"
+              : "Send Report & Return to Dashboard"}
         </button>
       </div>
 

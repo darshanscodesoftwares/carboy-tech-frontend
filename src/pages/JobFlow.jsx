@@ -36,6 +36,7 @@ const JobFlow = () => {
     startInspection,
     fetchChecklist,
     submitCheckpoint,
+    sendReport,
     completeJob,
     fetchSummary,
   } = useJobFlow();
@@ -150,37 +151,40 @@ const JobFlow = () => {
     }
   };
 
-  // Manual submit report
-  const handleSubmitReport = async () => {
-    // Check for missing checkpoints
-    const missing = findMissingCheckpoints();
-    if (missing.length > 0) {
-      setMissingKeys(missing);
-      // Scroll to first missing checkpoint
-      const firstMissingKey = missing[0];
-      const element = checkpointRefs.current[firstMissingKey];
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
+const handleSubmitReport = async () => {
+  const missing = findMissingCheckpoints();
+  if (missing.length > 0) {
+    setMissingKeys(missing);
+    const el = checkpointRefs.current[missing[0]];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
 
-    setActionLoading(true);
-    try {
-      const reportWithRemarks = {
-        summary: "Inspection completed successfully",
-        overallStatus: "PASS",
-        remarks: remarks.trim() || null,
-        recommendations: [],
-      };
-      await completeJob(jobId, reportWithRemarks);
-      await fetchSummary(jobId);
-      navigate(`/flow/${jobId}`, { replace: true });
-    } catch {
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  setActionLoading(true);
+  try {
+    console.log("🟡 Technician FE sending remarks:", remarks);
+
+    // ✅ STEP 1: COMPLETE INSPECTION (creates submittedAt)
+    await completeJob(jobId, {
+      remarks: remarks.trim(),
+    });
+
+    // ✅ STEP 2: SEND REPORT TO ADMIN
+    await sendReport(jobId, remarks.trim());
+
+    // ✅ STEP 3: FETCH SUMMARY
+    await fetchSummary(jobId);
+
+    navigate(`/flow/${jobId}`, { replace: true });
+  } catch (e) {
+    console.error("❌ Submit report error:", e);
+  } finally {
+    setActionLoading(false);
+  }
+};
+
+
+
   const handleSaveRemark = (remark) => {
     setRemarks(remark);
   };

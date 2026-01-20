@@ -115,11 +115,11 @@ export const reopenJob = async (jobId) => {
 
 
 
-export const sendReport = async (jobId) => {
-
-  const response = await api.post(`/jobs/${jobId}/send-report`);
-
+export const sendReport = async (jobId, remarks) => {
+  const response = await api.post(`/jobs/${jobId}/send-report`, {
+    remarks,
+  });
   return response.data.data;
-
 };
+
 
