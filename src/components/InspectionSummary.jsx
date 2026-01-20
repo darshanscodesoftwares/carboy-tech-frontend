@@ -14,11 +14,16 @@ const InspectionSummary = ({ job }) => {
   const handleEditReport = async () => {
     try {
       setIsReopening(true);
+
+      // ✅ navigate first
+      navigate(`/flow/${job._id}?edit=true`, { replace: true });
+
+      // ✅ then mutate backend
       await reopenJob(job._id);
-      navigate(`/flow/${job._id}?edit=true`);
     } catch (error) {
       console.error("Failed to reopen job:", error);
       alert("Failed to reopen inspection. Please try again.");
+      console.log("Navigating now...");
     } finally {
       setIsReopening(false);
     }
@@ -28,15 +33,15 @@ const InspectionSummary = ({ job }) => {
     try {
       setIsSending(true);
 
-      await sendReport(job._id);
+      // ✅ navigate immediately while component exists
+      navigate("/dashboard", { replace: true });
 
-      // ✅ allow React to flush state before route change
-      setTimeout(() => {
-        navigate("/dashboard", { replace: true });
-      }, 0);
+      // ✅ then mutate backend
+      await sendReport(job._id);
     } catch (error) {
       console.error("Failed to send report:", error);
       alert("Failed to send report. Please try again.");
+      console.log("Navigating now...");
     } finally {
       setIsSending(false);
     }
