@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { reopenJob, sendReport } from "../api/jobs";
 import ProgressBar from "./ProgressBar";
 import styles from "./InspectionSummary.module.css";
 
-const InspectionSummary = ({ job }) => {
-  const navigate = useNavigate();
+const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const [isReopening, setIsReopening] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
