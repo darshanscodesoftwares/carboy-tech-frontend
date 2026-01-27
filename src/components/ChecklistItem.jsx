@@ -24,15 +24,17 @@ const MEDIA_CONFIG = {
   },
   document: {
     endpoint: "/uploads/document",
-    accept: ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,image/*",
+    accept:
+      ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,.html,.htm,.mht,.mhtml,image/*",
     field: "document",
   },
   obd: {
     endpoint: "/uploads/document",
-    accept: ".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.zip,.rar,image/*",
+    accept: "*/*", // THIS IS THE KEY FIX FOR MOBILE
     field: "document",
-  }
+  },
 };
+
 
 const ChecklistItem = forwardRef(
   ({ item, job, onSubmit, isSubmitting, existingAnswer, hasError }, ref) => {
