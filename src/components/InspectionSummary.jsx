@@ -1,10 +1,12 @@
 import { useState } from "react";
 import ProgressBar from "./ProgressBar";
 import styles from "./InspectionSummary.module.css";
+import { useNavigate } from "react-router-dom";
 
 const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const [isReopening, setIsReopening] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const navigate = useNavigate();
 
   if (!job) return null;
 
@@ -12,15 +14,14 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
     try {
       setIsReopening(true);
 
-      // ✅ navigate first
-      navigate(`/flow/${job._id}?edit=true`, { replace: true });
+      // ✅ 1. call parent logic (backend mutation)
+      await onEditReport(job._id);
 
-      // ✅ then mutate backend
-      await reopenJob(job._id);
+      // ✅ 2. navigate AFTER success
+      navigate(`/flow/${job._id}?edit=true`);
     } catch (error) {
       console.error("Failed to reopen job:", error);
       alert("Failed to reopen inspection. Please try again.");
-      console.log("Navigating now...");
     } finally {
       setIsReopening(false);
     }
@@ -30,15 +31,14 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
     try {
       setIsSending(true);
 
-      // ✅ navigate immediately while component exists
-      navigate("/dashboard", { replace: true });
+      // ✅ 1. call parent logic (backend mutation)
+      await onSendReport(job._id);
 
-      // ✅ then mutate backend
-      await sendReport(job._id);
+      // ✅ 2. navigate AFTER success
+      navigate("/dashboard");
     } catch (error) {
       console.error("Failed to send report:", error);
       alert("Failed to send report. Please try again.");
-      console.log("Navigating now...");
     } finally {
       setIsSending(false);
     }
@@ -163,9 +163,6 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
           className={styles.secondaryButton}
           onClick={handleEditReport}
           disabled={isReopening || isReportSent}
-          title={
-            isReportSent ? "Report has been sent and cannot be edited" : ""
-          }
         >
           {isReopening ? "Opening…" : "Edit Report"}
         </button>
@@ -177,9 +174,7 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
         >
           {isSending
             ? "Sending Report..."
-            : isReportSent
-              ? "Report Sent - Back to Dashboard"
-              : "Send Report & Return to Dashboard"}
+            : "Send Report & Return to Dashboard"}
         </button>
       </div>
 
