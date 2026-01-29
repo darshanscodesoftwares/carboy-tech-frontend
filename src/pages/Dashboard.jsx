@@ -122,7 +122,8 @@ const Dashboard = () => {
           <div className={styles.statCard}>
             <div
               className={styles.statIcon}
-              style={{ backgroundColor: "#FFE7A1" }}
+              // style={{ backgroundColor: "#FFE7A1" }}
+              style={{ backgroundColor: "#065f46" }}
             >
               <svg
                 fill="none"
