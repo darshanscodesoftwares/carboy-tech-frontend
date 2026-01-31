@@ -550,8 +550,8 @@ const handleSubmitReport = async () => {
 
         {(job?.status === JOB_STATUSES.IN_INSPECTION ||
           (isEditMode &&
-            job?.status === JOB_STATUSES.COMPLETED &&
-            job?.status !== "report_sent")) && (
+            (job?.status === JOB_STATUSES.COMPLETED ||
+             job?.status === "report_sent"))) && (
           <div className={styles.checklistSection}>
             <h3 className={styles.checklistTitle}>Inspection Checklist</h3>
             {loading && !checklist ? (
@@ -608,8 +608,8 @@ const handleSubmitReport = async () => {
           {/* Primary action button for all states */}
           {job?.status === JOB_STATUSES.IN_INSPECTION ||
           (isEditMode &&
-            job?.status === JOB_STATUSES.COMPLETED &&
-            job?.status !== "report_sent") ? (
+            (job?.status === JOB_STATUSES.COMPLETED ||
+             job?.status === "report_sent")) ? (
             <button
               onClick={handleSubmitReport}
               disabled={actionLoading}
