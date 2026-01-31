@@ -386,25 +386,40 @@ const handleSubmitReport = async () => {
     );
   };
 
-  const handleEditReportFromSummary = async () => {
+  const handleEditReportFromSummary = async (jobIdParam) => {
+    const targetJobId = jobIdParam || jobId;
+    console.log("🔵 [JobFlow] handleEditReportFromSummary called with jobId:", targetJobId);
+    console.log("🔵 [JobFlow] Current job.status:", job?.status);
+    console.log("🔵 [JobFlow] Current summary:", summary ? "exists" : "null");
     try {
-      await reopenJob(jobId); // This now updates job state AND clears summary
-      navigate(`/flow/${jobId}?edit=true`);
+      console.log("🔵 [JobFlow] Calling reopenJob...");
+      await reopenJob(targetJobId);
+      console.log("🔵 [JobFlow] reopenJob completed");
+      console.log("🔵 [JobFlow] Updated job.status:", job?.status);
+      console.log("🔵 [JobFlow] Updated summary:", summary ? "exists" : "null");
     } catch (error) {
-      console.error("Failed to reopen job:", error);
+      console.error("❌ [JobFlow] Failed to reopen job:", error);
       setError("Failed to reopen inspection. Please try again.");
+      throw error; // Re-throw so InspectionSummary knows it failed
     }
   };
 
-  const handleSendReportFromSummary = async () => {
+  const handleSendReportFromSummary = async (jobIdParam) => {
+    const targetJobId = jobIdParam || jobId;
+    console.log("🟢 [JobFlow] handleSendReportFromSummary called with jobId:", targetJobId);
+    console.log("🟢 [JobFlow] Current job.status:", job?.status);
+    console.log("🟢 [JobFlow] Current summary:", summary ? "exists" : "null");
     try {
-      await sendReport(jobId); // This now updates job state AND clears summary
-      navigate("/dashboard");
+      console.log("🟢 [JobFlow] Calling sendReport...");
+      await sendReport(targetJobId);
+      console.log("🟢 [JobFlow] sendReport completed");
+      console.log("🟢 [JobFlow] Updated job.status:", job?.status);
+      console.log("🟢 [JobFlow] Updated summary:", summary ? "exists" : "null");
     } catch (error) {
-      console.warn("Send report API error:", error);
-      // Still navigate even if API fails
+      console.warn("❌ [JobFlow] Send report API error:", error);
+      // Still navigate even if API fails (InspectionSummary will handle navigation)
       setSummary(null);
-      navigate("/dashboard");
+      throw error; // Re-throw so InspectionSummary knows it failed
     }
   };
 
@@ -446,8 +461,15 @@ const handleSubmitReport = async () => {
     );
 
   const renderContent = () => {
+    console.log("🔄 [JobFlow] renderContent called");
+    console.log("🔄 [JobFlow] - pathname:", location.pathname);
+    console.log("🔄 [JobFlow] - isEditMode:", isEditMode);
+    console.log("🔄 [JobFlow] - job.status:", job?.status);
+    console.log("🔄 [JobFlow] - summary:", summary ? "exists" : "null");
+
     // Flow 3: Travel Progress View (when traveling)
     if (job?.status === JOB_STATUSES.TRAVELING) {
+      console.log("🔄 [JobFlow] Rendering TravelProgressView");
       return (
         <TravelProgressView
           currentStep={1}
@@ -459,6 +481,7 @@ const handleSubmitReport = async () => {
 
     // Flow 2: Job Details View (when accepted, not yet traveling)
     if (job?.status === JOB_STATUSES.ACCEPTED) {
+      console.log("🔄 [JobFlow] Rendering JobDetailsView");
       return (
         <JobDetailsView
           job={job}
@@ -468,7 +491,10 @@ const handleSubmitReport = async () => {
     }
 
     // Completed Summary View (skip in edit mode)
-    if (!isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary)) {
+    const shouldShowSummary = !isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary);
+    console.log("🔄 [JobFlow] shouldShowSummary condition:", shouldShowSummary);
+    if (shouldShowSummary) {
+      console.log("🔄 [JobFlow] Rendering InspectionSummary");
       return renderSummary();
     }
 
