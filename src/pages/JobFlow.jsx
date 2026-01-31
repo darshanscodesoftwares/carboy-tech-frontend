@@ -386,43 +386,40 @@ const handleSubmitReport = async () => {
     );
   };
 
-  const handleEditReportFromSummary = async () => {
-    console.log("🔵 [JobFlow] handleEditReportFromSummary called");
+  const handleEditReportFromSummary = async (jobIdParam) => {
+    const targetJobId = jobIdParam || jobId;
+    console.log("🔵 [JobFlow] handleEditReportFromSummary called with jobId:", targetJobId);
     console.log("🔵 [JobFlow] Current job.status:", job?.status);
     console.log("🔵 [JobFlow] Current summary:", summary ? "exists" : "null");
     try {
       console.log("🔵 [JobFlow] Calling reopenJob...");
-      await reopenJob(jobId);
+      await reopenJob(targetJobId);
       console.log("🔵 [JobFlow] reopenJob completed");
       console.log("🔵 [JobFlow] Updated job.status:", job?.status);
       console.log("🔵 [JobFlow] Updated summary:", summary ? "exists" : "null");
-      console.log("🔵 [JobFlow] Calling navigate...");
-      navigate(`/flow/${jobId}?edit=true`);
-      console.log("🔵 [JobFlow] navigate called");
     } catch (error) {
       console.error("❌ [JobFlow] Failed to reopen job:", error);
       setError("Failed to reopen inspection. Please try again.");
+      throw error; // Re-throw so InspectionSummary knows it failed
     }
   };
 
-  const handleSendReportFromSummary = async () => {
-    console.log("🟢 [JobFlow] handleSendReportFromSummary called");
+  const handleSendReportFromSummary = async (jobIdParam) => {
+    const targetJobId = jobIdParam || jobId;
+    console.log("🟢 [JobFlow] handleSendReportFromSummary called with jobId:", targetJobId);
     console.log("🟢 [JobFlow] Current job.status:", job?.status);
     console.log("🟢 [JobFlow] Current summary:", summary ? "exists" : "null");
     try {
       console.log("🟢 [JobFlow] Calling sendReport...");
-      await sendReport(jobId);
+      await sendReport(targetJobId);
       console.log("🟢 [JobFlow] sendReport completed");
       console.log("🟢 [JobFlow] Updated job.status:", job?.status);
       console.log("🟢 [JobFlow] Updated summary:", summary ? "exists" : "null");
-      console.log("🟢 [JobFlow] Calling navigate...");
-      navigate("/dashboard");
-      console.log("🟢 [JobFlow] navigate called");
     } catch (error) {
       console.warn("❌ [JobFlow] Send report API error:", error);
-      // Still navigate even if API fails
+      // Still navigate even if API fails (InspectionSummary will handle navigation)
       setSummary(null);
-      navigate("/dashboard");
+      throw error; // Re-throw so InspectionSummary knows it failed
     }
   };
 
