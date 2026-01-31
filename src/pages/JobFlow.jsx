@@ -391,6 +391,11 @@ const handleSubmitReport = async () => {
     console.log("🔵 [JobFlow] handleEditReportFromSummary called with jobId:", targetJobId);
     console.log("🔵 [JobFlow] Current job.status:", job?.status);
     console.log("🔵 [JobFlow] Current summary:", summary ? "exists" : "null");
+
+    // ✅ CRITICAL FIX: Clear summary IMMEDIATELY so navigation can proceed
+    setSummary(null);
+    console.log("🔵 [JobFlow] Summary cleared to allow navigation");
+
     try {
       console.log("🔵 [JobFlow] Calling reopenJob...");
       await reopenJob(targetJobId);
@@ -409,6 +414,11 @@ const handleSubmitReport = async () => {
     console.log("🟢 [JobFlow] handleSendReportFromSummary called with jobId:", targetJobId);
     console.log("🟢 [JobFlow] Current job.status:", job?.status);
     console.log("🟢 [JobFlow] Current summary:", summary ? "exists" : "null");
+
+    // ✅ CRITICAL FIX: Clear summary IMMEDIATELY so navigation can proceed
+    setSummary(null);
+    console.log("🟢 [JobFlow] Summary cleared to allow navigation");
+
     try {
       console.log("🟢 [JobFlow] Calling sendReport...");
       await sendReport(targetJobId);
@@ -417,8 +427,6 @@ const handleSubmitReport = async () => {
       console.log("🟢 [JobFlow] Updated summary:", summary ? "exists" : "null");
     } catch (error) {
       console.warn("❌ [JobFlow] Send report API error:", error);
-      // Still navigate even if API fails (InspectionSummary will handle navigation)
-      setSummary(null);
       throw error; // Re-throw so InspectionSummary knows it failed
     }
   };
