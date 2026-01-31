@@ -34,6 +34,15 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
 
   const handleSendReport = async () => {
     console.log("🟢 [InspectionSummary] Send Report button clicked");
+    console.log("🟢 [InspectionSummary] isReportSent:", isReportSent);
+
+    // If report already sent, just navigate to dashboard
+    if (isReportSent) {
+      console.log("🟢 [InspectionSummary] Report already sent, navigating to dashboard...");
+      navigate("/dashboard");
+      return;
+    }
+
     try {
       setIsSending(true);
 
@@ -173,10 +182,12 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
         <button
           className={styles.primaryButton}
           onClick={handleSendReport}
-          disabled={isSending || isReportSent}
+          disabled={isSending}
         >
           {isSending
             ? "Sending Report..."
+            : isReportSent
+            ? "Report Sent - Back to Dashboard"
             : "Send Report & Return to Dashboard"}
         </button>
       </div>
