@@ -1,17 +1,24 @@
 import { useState } from "react";
 import ProgressBar from "./ProgressBar";
 import styles from "./InspectionSummary.module.css";
+import { useNavigate } from "react-router-dom";
 
 const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const [isReopening, setIsReopening] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const navigate = useNavigate();
 
   if (!job) return null;
 
   const handleEditReport = async () => {
     try {
       setIsReopening(true);
-      await onEditReport();
+
+      // ✅ 1. call parent logic (backend mutation)
+      await onEditReport(job._id);
+
+      // ✅ 2. navigate AFTER success
+      navigate(`/flow/${job._id}?edit=true`);
     } catch (error) {
       console.error("Failed to reopen job:", error);
       alert("Failed to reopen inspection. Please try again.");
@@ -23,9 +30,15 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   const handleSendReport = async () => {
     try {
       setIsSending(true);
-      await onSendReport();
+
+      // ✅ 1. call parent logic (backend mutation)
+      await onSendReport(job._id);
+
+      // ✅ 2. navigate AFTER success
+      navigate("/dashboard");
     } catch (error) {
-      console.warn("Error sending report:", error);
+      console.error("Failed to send report:", error);
+      alert("Failed to send report. Please try again.");
     } finally {
       setIsSending(false);
     }
@@ -143,9 +156,6 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
           className={styles.secondaryButton}
           onClick={handleEditReport}
           disabled={isReopening || isReportSent}
-          title={
-            isReportSent ? "Report has been sent and cannot be edited" : ""
-          }
         >
           {isReopening ? "Opening…" : "Edit Report"}
         </button>
@@ -157,8 +167,6 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
         >
           {isSending
             ? "Sending Report..."
-            : isReportSent
-            ? "Report Sent - Back to Dashboard"
             : "Send Report & Return to Dashboard"}
         </button>
       </div>
