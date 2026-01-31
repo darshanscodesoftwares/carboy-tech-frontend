@@ -174,7 +174,7 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
         <button
           className={styles.secondaryButton}
           onClick={handleEditReport}
-          disabled={isReopening || isReportSent}
+          disabled={isReopening}
         >
           {isReopening ? "Opening…" : "Edit Report"}
         </button>
