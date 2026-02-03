@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 
 import * as jobsApi from "../api/jobs";
+import { saveTechnicianRemarks } from "../api/jobs";
 
 export const JOB_STATUSES = {
   PENDING: "pending",
@@ -187,6 +188,25 @@ const useJobFlow = () => {
     }
   }, []);
 
+  // 🔥 NEW — persist remarks WITHOUT sending report
+const saveRemarks = useCallback(async (jobId, remarks) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await saveTechnicianRemarks(jobId, remarks);
+    await fetchJob(jobId); // keep UI in sync
+    return res;
+  } catch (err) {
+    setError(err.response?.data?.error || "Failed to save remarks");
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+}, [fetchJob]);
+
+
+
   const completeJob = useCallback(async (jobId, report) => {
     setLoading(true);
     setError(null);
@@ -256,6 +276,7 @@ const useJobFlow = () => {
     sendReport,
     fetchSummary,
     reopenJob,
+    saveRemarks,
   };
 };
 

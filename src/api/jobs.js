@@ -74,3 +74,11 @@ export const sendReport = async (jobId, remarks) => {
   });
   return response.data.data;
 };
+
+// NEW — Save remarks without sending the whole report
+export const saveTechnicianRemarks = async (jobId, remarks) => {
+  const response = await api.patch(`/jobs/${jobId}/remarks`, {
+    remarks,
+  });
+  return response.data.data;
+};

@@ -39,6 +39,7 @@ const JobFlow = () => {
     fetchSummary,
     reopenJob,
     sendReport,
+    saveRemarks, 
   } = useJobFlow();
   const [actionLoading, setActionLoading] = useState(false);
   const [checkpointLoading, setCheckpointLoading] = useState(false);
@@ -59,6 +60,14 @@ const JobFlow = () => {
   useEffect(() => {
     if (jobId) fetchJob(jobId);
   }, [jobId, fetchJob]);
+
+  // Sync local remarks state from persisted technicianRemarks on job load
+  useEffect(() => {
+    if (job?.technicianRemarks) {
+      setRemarks(job.technicianRemarks);
+    }
+  }, [job?.technicianRemarks]);
+
   useEffect(() => {
     // Fetch checklist when in inspection mode OR when in edit mode (completed)
     const shouldFetchChecklist =
@@ -74,7 +83,7 @@ const JobFlow = () => {
     setError(null);
     try {
       await action();
-    } catch {
+    // } catch {
     } finally {
       setActionLoading(false);
     }
@@ -145,7 +154,7 @@ const JobFlow = () => {
       if (missingKeys.includes(checkpoint.checkpointKey)) {
         setMissingKeys(prev => prev.filter(key => key !== checkpoint.checkpointKey));
       }
-    } catch {
+    // } catch {
     } finally {
       setCheckpointLoading(false);
     }
@@ -172,6 +181,9 @@ const handleSubmitReport = async () => {
     // ✅ STEP 2: SEND REPORT TO ADMIN
     await sendReport(jobId, remarks.trim());
 
+    // 🔥 CRITICAL: Refresh job so technicianRemarks is in state
+await fetchJob(jobId);
+
     // ✅ STEP 3: FETCH SUMMARY
     await fetchSummary(jobId);
 
@@ -183,11 +195,19 @@ const handleSubmitReport = async () => {
   }
 };
 
+const handleSaveRemark = async (remark) => {
+  const trimmed = remark.trim();
+  setRemarks(trimmed); // optimistic UI
+
+  try {
+    await saveRemarks(jobId, trimmed); // 🔥 CORRECT CALL
+  } catch (e) {
+    console.error("❌ Failed to save remark:", e);
+    setError("Failed to save remark. Please try again.");
+  }
+};
 
 
-  const handleSaveRemark = (remark) => {
-    setRemarks(remark);
-  };
   const getExistingAnswer = (key) =>
     job?.checklistAnswers?.find((a) => a.checkpointKey === key);
 
@@ -664,7 +684,7 @@ const handleSubmitReport = async () => {
         isOpen={showRemarksModal}
         onClose={() => setShowRemarksModal(false)}
         onSubmit={handleSaveRemark}
-        initialRemark={remarks}
+        initialRemark={job?.technicianRemarks || ""}
       />
 
       {/* Toast Notification for New Job Assignments */}
