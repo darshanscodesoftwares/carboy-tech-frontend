@@ -541,109 +541,118 @@ const ChecklistItem = forwardRef(
 
         case "obd":
           return (
-            <div className={styles.uploadSection}>
+            <div className={styles.obdSection}>
               {/* ================= URL INPUT ================= */}
-              <input
-                type="url"
-                placeholder="Paste OBD report URL (optional)"
-                value={textValue || ""}
-                onChange={(e) => {
-                  setTextValue(e.target.value);
-                  autoSave({ value: e.target.value });
-                }}
-                className={styles.textInput}
-              />
+              <div className={styles.obdUrlWrapper}>
+                <input
+                  type="url"
+                  placeholder="Paste OBD report URL (optional)"
+                  value={textValue || ""}
+                  onChange={(e) => {
+                    setTextValue(e.target.value);
+                    autoSave({ value: e.target.value });
+                  }}
+                  className={styles.textInput}
+                />
+              </div>
 
-              {/* ================= FILE UPLOAD ================= */}
-              {!photoUrl && (
-                <>
+              {/* ================= UPLOAD BUTTONS ROW ================= */}
+              <div className={styles.obdButtonsContainer}>
+                {!photoUrl && (
+                  <div className={styles.obdButtonWrapper}>
+                    <input
+                      ref={mediaUploadInputRef}
+                      type="file"
+                      accept=".pdf,image/*"
+                      onChange={(e) =>
+                        handleSingleFileUpload(e.target.files[0], "document")
+                      }
+                      className={styles.fileInput}
+                    />
+                    <button
+                      onClick={() => mediaUploadInputRef.current.click()}
+                      className={styles.uploadButton}
+                    >
+                      <FiUpload /> Upload PDF / Image
+                    </button>
+                  </div>
+                )}
+
+                <div className={styles.obdButtonWrapper}>
                   <input
-                    ref={mediaUploadInputRef}
+                    ref={multiUploadInputRef}
                     type="file"
-                    accept=".pdf,image/*"
-                    onChange={(e) =>
-                      handleSingleFileUpload(e.target.files[0], "document")
-                    }
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleMultiPhotoUpload(e.target.files)}
                     className={styles.fileInput}
                   />
                   <button
-                    onClick={() => mediaUploadInputRef.current.click()}
+                    onClick={() => multiUploadInputRef.current.click()}
                     className={styles.uploadButton}
                   >
-                    <FiUpload /> Upload PDF / Image
+                    <FiUpload /> Upload Screenshots
                   </button>
-                </>
-              )}
+                </div>
+              </div>
 
               {/* ================= PREVIEW ================= */}
               {photoUrl && (
-                <div className={styles.previewRow}>
-                  {photoUrl.match(/\.(jpg|jpeg|png)$/i) ? (
-                    <img
-                      src={photoUrl}
-                      className={styles.previewThumb}
-                      onClick={() => {
-                        setPreviewImage(photoUrl);
-                        setShowPreview(true);
-                      }}
-                    />
-                  ) : (
-                    <a
-                      href={photoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View uploaded document
-                    </a>
-                  )}
-
-                  <button
-                    onClick={handlePhotoDelete}
-                    className={styles.deleteIconButton}
-                  >
-                    <MdDelete />
-                  </button>
-                </div>
-              )}
-
-              {/* ================= MULTI IMAGE ================= */}
-              <div className={styles.uploadButtons}>
-                <input
-                  ref={multiUploadInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleMultiPhotoUpload(e.target.files)}
-                  className={styles.fileInput}
-                />
-                <button
-                  onClick={() => multiUploadInputRef.current.click()}
-                  className={styles.uploadButton}
-                >
-                  <FiUpload /> Upload Screenshots
-                </button>
-              </div>
-
-              {photoUrls.length > 0 && (
-                <div className={styles.multiImageGrid}>
-                  {photoUrls.map((url, index) => (
-                    <div key={index} className={styles.previewRow}>
+                <div className={styles.obdPreviewSection}>
+                  <div className={styles.previewRow}>
+                    {photoUrl.match(/\.(jpg|jpeg|png)$/i) ? (
                       <img
-                        src={url}
+                        src={photoUrl}
                         className={styles.previewThumb}
                         onClick={() => {
-                          setPreviewImage(url);
+                          setPreviewImage(photoUrl);
                           setShowPreview(true);
                         }}
                       />
-                      <button
-                        onClick={() => handleMultiPhotoDelete(index)}
-                        className={styles.deleteIconButton}
+                    ) : (
+                      <a
+                        href={photoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.documentLink}
                       >
-                        <MdDelete />
-                      </button>
-                    </div>
-                  ))}
+                        📄 View uploaded document
+                      </a>
+                    )}
+
+                    <button
+                      onClick={handlePhotoDelete}
+                      className={styles.deleteIconButton}
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ================= MULTI IMAGE PREVIEW ================= */}
+              {photoUrls.length > 0 && (
+                <div className={styles.obdMultiImageSection}>
+                  <div className={styles.multiImageGrid}>
+                    {photoUrls.map((url, index) => (
+                      <div key={index} className={styles.previewRow}>
+                        <img
+                          src={url}
+                          className={styles.previewThumb}
+                          onClick={() => {
+                            setPreviewImage(url);
+                            setShowPreview(true);
+                          }}
+                        />
+                        <button
+                          onClick={() => handleMultiPhotoDelete(index)}
+                          className={styles.deleteIconButton}
+                        >
+                          <MdDelete />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

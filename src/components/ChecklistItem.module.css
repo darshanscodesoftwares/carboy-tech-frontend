@@ -323,6 +323,66 @@
   font-family: inherit;
 }
 
+/* ===================== OBD SECTION STYLES ===================== */
+.obdSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.obdUrlWrapper {
+  width: 100%;
+}
+
+.obdButtonsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.obdButtonWrapper {
+  flex: 0 1 auto;
+}
+
+.obdPreviewSection {
+  padding: var(--space-md);
+  background-color: #f8f9fa;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.obdMultiImageSection {
+  padding: var(--space-md);
+  background-color: #f8f9fa;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.documentLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.documentLink:hover {
+  background-color: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+/* ===================== END OBD SECTION ===================== */
+
 .multiImageGrid {
   display: flex;
   flex-direction: column;
@@ -471,6 +531,34 @@
     justify-content: center;
     min-height: 44px;
     font-size: var(--font-sm);
+  }
+
+  /* Mobile OBD styles */
+  .obdSection {
+    gap: var(--space-sm);
+  }
+
+  .obdButtonsContainer {
+    gap: var(--space-sm);
+  }
+
+  .obdButtonWrapper {
+    flex: 1;
+  }
+
+  .obdButtonWrapper .uploadButton {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .obdPreviewSection,
+  .obdMultiImageSection {
+    padding: var(--space-md);
+  }
+
+  .documentLink {
+    font-size: var(--font-sm);
+    padding: var(--space-md);
   }
 
   .captureButton {

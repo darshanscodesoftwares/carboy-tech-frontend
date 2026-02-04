@@ -103,48 +103,67 @@ const JobFlow = () => {
   };
 
   // Find missing checkpoints
-  const findMissingCheckpoints = () => {
-    const allItems = getAllChecklistItems();
-    const missing = [];
+const findMissingCheckpoints = () => {
+  const allItems = getAllChecklistItems();
+  const missing = [];
 
-    allItems.forEach((item) => {
-      // Skip optional items
-      if (item.optional === true) return;
+  const isOBD = (item) => item.inputType === "obd";
 
-      const answer = job?.checklistAnswers?.find(
-        (a) => a.checkpointKey === item.key
-      );
+  const isOBDComplete = (answer) => {
+    // OBD stores: value (URL), photoUrl (file), photoUrls (screenshots)
+    const hasUrl = !!answer?.value;
+    const hasFile = !!answer?.photoUrl;
+    const hasImages =
+      Array.isArray(answer?.photoUrls) && answer.photoUrls.length > 0;
 
-      if (!answer) {
-        missing.push(item.key);
-        return;
-      }
-
-      // Media types
-      if (["image", "audio", "video", "document"].includes(item.inputType)) {
-        if (!answer.photoUrl) {
-          missing.push(item.key);
-        }
-        return;
-      }
-
-      if (item.inputType === "multi-image") {
-        if (!Array.isArray(answer.photoUrls) || answer.photoUrls.length === 0) {
-          missing.push(item.key);
-        }
-        return;
-      }
-
-      // Text / dropdown / radio / select
-      const hasValue = answer.value !== null && answer.value !== "";
-      const hasOption = answer.selectedOption !== null && answer.selectedOption !== "";
-      if (!hasValue && !hasOption) {
-        missing.push(item.key);
-      }
-    });
-
-    return missing;
+    return hasUrl || hasFile || hasImages;
   };
+
+  allItems.forEach((item) => {
+    if (item.optional) return;
+
+    const answer = job?.checklistAnswers?.find(
+      (a) => a.checkpointKey === item.key
+    );
+
+    if (!answer) {
+      missing.push(item.key);
+      return;
+    }
+
+    // 🔥 SPECIAL CASE: OBD REPORT
+    if (isOBD(item)) {
+      if (!isOBDComplete(answer)) {
+        missing.push(item.key);
+      }
+      return;
+    }
+
+    // Other media types
+    if (["image", "audio", "video", "document"].includes(item.inputType)) {
+      if (!answer.photoUrl) missing.push(item.key);
+      return;
+    }
+
+    if (item.inputType === "multi-image") {
+      if (!Array.isArray(answer.photoUrls) || answer.photoUrls.length === 0) {
+        missing.push(item.key);
+      }
+      return;
+    }
+
+    const hasValue = answer.value !== null && answer.value !== "";
+    const hasOption =
+      answer.selectedOption !== null && answer.selectedOption !== "";
+
+    if (!hasValue && !hasOption) {
+      missing.push(item.key);
+    }
+  });
+
+  return missing;
+};
+
 
   const handleCheckpointSubmit = async (checkpoint) => {
     setCheckpointLoading(true);
@@ -273,82 +292,62 @@ const handleSaveRemark = async (remark) => {
   //     return false;
   //   };
 
-  // Handle both PDI (sections-based) and UCI (flat items)
-  const allCheckpointsCompleted = () => {
-    if (!checklist) return false;
+ const allCheckpointsCompleted = () => {
+  if (!checklist) return false;
 
-    // =========================
-    // PDI format with sections
-    // =========================
-    if (checklist.sections) {
-      const allItems = checklist.sections.flatMap((section) => section.items);
+  const isOBD = (item) => item.inputType === "obd";
+
+  const isOBDComplete = (answer) => {
+    // OBD stores: value (URL), photoUrl (file), photoUrls (screenshots)
+    const hasUrl = !!answer?.value;
+    const hasFile = !!answer?.photoUrl;
+    const hasImages =
+      Array.isArray(answer?.photoUrls) && answer.photoUrls.length > 0;
+
+    return hasUrl || hasFile || hasImages;
+  };
+
+  const validateItems = (items) =>
+    items.every((item) => {
+      if (item.optional) return true;
+
+      const answer = job?.checklistAnswers?.find(
+        (a) => a.checkpointKey === item.key
+      );
+
+      if (!answer) return false;
+
+      // 🔥 OBD SPECIAL CASE
+      if (isOBD(item)) {
+        return isOBDComplete(answer);
+      }
+
+      if (["image", "audio", "video", "document"].includes(item.inputType)) {
+        return !!answer.photoUrl;
+      }
+
+      if (item.inputType === "multi-image") {
+        return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
+      }
 
       return (
-        allItems.length > 0 &&
-        allItems.every((item) => {
-          // ✅ OPTIONAL CHECK — NEW (SAFE)
-          if (item.optional === true) return true;
-
-          const answer = job?.checklistAnswers?.find(
-            (a) => a.checkpointKey === item.key
-          );
-
-          if (!answer) return false;
-
-          // Media types
-          if (
-            ["image", "audio", "video", "document"].includes(item.inputType)
-          ) {
-            return !!answer.photoUrl;
-          }
-
-          if (item.inputType === "multi-image") {
-            return (
-              Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0
-            );
-          }
-
-          // Text / dropdown / radio / select (UNCHANGED)
-          return (
-            (answer.value !== null && answer.value !== "") ||
-            (answer.selectedOption !== null && answer.selectedOption !== "")
-          );
-        })
+        (answer.value !== null && answer.value !== "") ||
+        (answer.selectedOption !== null &&
+          answer.selectedOption !== "")
       );
-    }
+    });
 
-    // =========================
-    // UCI format with flat items
-    // =========================
-    if (checklist.items) {
-      return checklist.items.every((item) => {
-        // ✅ OPTIONAL CHECK — NEW (SAFE)
-        if (item.optional === true) return true;
+  if (checklist.sections) {
+    const allItems = checklist.sections.flatMap((s) => s.items);
+    return allItems.length > 0 && validateItems(allItems);
+  }
 
-        const answer = job?.checklistAnswers?.find(
-          (a) => a.checkpointKey === item.key
-        );
+  if (checklist.items) {
+    return validateItems(checklist.items);
+  }
 
-        if (!answer) return false;
-
-        if (["image", "audio", "video", "document"].includes(item.inputType)) {
-          return !!answer.photoUrl;
-        }
-
-        if (item.inputType === "multi-image") {
-          return Array.isArray(answer.photoUrls) && answer.photoUrls.length > 0;
-        }
-
-        // UNCHANGED
-        return (
-          (answer.value !== null && answer.value !== "") ||
-          (answer.selectedOption !== null && answer.selectedOption !== "")
-        );
-      });
-    }
-
-    return false;
-  };
+  return false;
+};
 
   const renderActionButton = () => {
     if (!job) return null;
