@@ -21,7 +21,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // 🔥 REQUIRED for CORS on Render
+  // withCredentials: true, // 🔥 REQUIRED for CORS on Render
 });
 
 /* ========================================================
