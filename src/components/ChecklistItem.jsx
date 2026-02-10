@@ -236,13 +236,7 @@ const ChecklistItem = forwardRef(
       setUploadProgress(0);
       setUploadStartTime(Date.now());
       setElapsedSeconds(0);
-      addNotification(
-        {
-          title: "Uploading media",
-          text: "Uploading in background…",
-        },
-        "info"
-      );
+      addNotification("Uploading in background…", "info");
 
       uploadQueue.add(
         file,
@@ -254,23 +248,11 @@ const ChecklistItem = forwardRef(
           setUploadProgress(100);
           setPhotoUrl(url);
           autoSave({ photoUrl: url });
-          addNotification(
-            {
-              title: "Upload completed",
-              text: "Your file has been uploaded successfully.",
-            },
-            "success"
-          );
+          addNotification("Upload completed ✅", "success");
         },
         () => {
           setUploading(false);
-          addNotification(
-            {
-              title: "Upload failed",
-              text: "Upload failed — retrying…",
-            },
-            "error"
-          );
+          addNotification("Upload failed — retrying…", "error");
         },
       );
     };
@@ -287,13 +269,7 @@ const ChecklistItem = forwardRef(
       setUploadProgress(0);
       setUploadStartTime(Date.now());
       setElapsedSeconds(0);
-      addNotification(
-        {
-          title: "Uploading media",
-          text: "Uploading in background…",
-        },
-        "info"
-      );
+      addNotification("Uploading in background…", "info");
 
       uploadQueue.add(
         file,
@@ -306,23 +282,11 @@ const ChecklistItem = forwardRef(
           const updated = [...photoUrls, url];
           setPhotoUrls(updated);
           autoSave({ photoUrls: updated });
-          addNotification(
-            {
-              title: "Upload completed",
-              text: "Your file has been uploaded successfully.",
-            },
-            "success"
-          );
+          addNotification("Upload completed ✅", "success");
         },
         () => {
           setUploading(false);
-          addNotification(
-            {
-              title: "Upload failed",
-              text: "Upload failed — retrying…",
-            },
-            "error"
-          );
+          addNotification("Upload failed — retrying…", "error");
         },
       );
     };
