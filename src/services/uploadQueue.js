@@ -3,6 +3,19 @@ import { createFileChunks } from "../utils/chunkUploader";
 
 const MAX_RETRIES = 3;
 
+// 🔥 DYNAMIC BASE URL (LOCAL vs PROD)
+const getBaseUrl = () => {
+  const local = import.meta.env.VITE_API_BASE_URL_LOCAL;
+  const prod = import.meta.env.VITE_API_BASE_URL;
+
+  if (window.location.hostname === "localhost") {
+    return local;
+  }
+  return prod;
+};
+
+const BASE_URL = getBaseUrl();
+
 class UploadQueue {
   constructor() {
     this.queue = [];
@@ -36,21 +49,21 @@ class UploadQueue {
       for (let i = 0; i < task.chunks.length; i++) {
         const formData = new FormData();
         formData.append("fileId", task.fileId);
-formData.append("originalName", task.file.name);   // ✅ must match backend
-formData.append(
-  "fileType",
-  task.file.type.startsWith("video/") ? "video" : "image"
-); // ✅ normalize type
-formData.append("chunkIndex", i);
-formData.append("totalChunks", task.totalChunks);
-formData.append("chunk", task.chunks[i]);
-
+        formData.append("originalName", task.file.name);
+        formData.append(
+          "fileType",
+          task.file.type.startsWith("video/") ? "video" : "image"
+        );
+        formData.append("chunkIndex", i);
+        formData.append("totalChunks", task.totalChunks);
+        formData.append("chunk", task.chunks[i]);
 
         let res;
+
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
           try {
             res = await axios.post(
-           `${import.meta.env.VITE_API_BASE_URL_LOCAL}/uploads/chunk`,
+              `${BASE_URL}/uploads/chunk`,
               formData,
               {
                 headers: {
@@ -58,10 +71,12 @@ formData.append("chunk", task.chunks[i]);
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
                 onUploadProgress: () => {
-                  const percent = Math.round(((i + 1) / task.totalChunks) * 100);
+                  const percent = Math.round(
+                    ((i + 1) / task.totalChunks) * 100
+                  );
                   task.onProgress?.(percent);
                 },
-              },
+              }
             );
             break;
           } catch (err) {
@@ -70,11 +85,22 @@ formData.append("chunk", task.chunks[i]);
           }
         }
 
+        // ✅ CORRECT HANDLING: 
+        // - Ignore intermediate chunk responses
+        // - Only call success when final URL arrives
+
         if (res?.data?.url) {
+          // ✅ FINAL CHUNK — real success
           task.onSuccess?.(res.data.url);
+        } else {
+          // 🟡 INTERMEDIATE CHUNK — NOT AN ERROR
+          console.log(
+            `🟡 Chunk ${i + 1}/${task.totalChunks} accepted, waiting for final merge...`
+          );
         }
       }
     } catch (err) {
+      // ❌ ONLY REAL NETWORK / SERVER FAILURE COMES HERE
       task.onError?.(err);
     } finally {
       this.active = false;
