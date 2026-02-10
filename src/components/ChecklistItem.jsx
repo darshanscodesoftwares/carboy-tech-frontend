@@ -4,7 +4,8 @@ import styles from "./ChecklistItem.module.css";
 import { MdDelete, MdCheck, MdSave } from "react-icons/md";
 import { FiUpload } from "react-icons/fi";
 import { IoIosCamera } from "react-icons/io";
-import axios from "../api/index";
+import { uploadQueue } from "../services/uploadQueue";
+import useNotificationStore from "../store/notification.store";
 
 const MEDIA_CONFIG = {
   image: {
@@ -37,7 +38,7 @@ const MEDIA_CONFIG = {
 
 
 const ChecklistItem = forwardRef(
-  ({ item, job, onSubmit, isSubmitting, existingAnswer, hasError }, ref) => {
+  ({ item, job, onSubmit, existingAnswer, hasError }, ref) => {
     const [selectedOption, setSelectedOption] = useState(
       existingAnswer?.selectedOption || "",
     );
@@ -49,6 +50,10 @@ const ChecklistItem = forwardRef(
     const [previewImage, setPreviewImage] = useState("");
     const [isTextDirty, setIsTextDirty] = useState(false);
     const [isTextSaved, setIsTextSaved] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploading, setUploading] = useState(false);
+    const [uploadStartTime, setUploadStartTime] = useState(null);
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     const uploadInputRef = useRef(null);
     const mediaUploadInputRef = useRef(null);
@@ -95,20 +100,7 @@ const ChecklistItem = forwardRef(
     //   return res.data.url; // MUST return public URL
     // };
 
-    const uploadFileAndGetUrl = async (file, forcedType = null) => {
-      const type = forcedType || inputType;
-      const config = MEDIA_CONFIG[type];
-      if (!config) throw new Error("Unsupported media type");
-
-      const formData = new FormData();
-      formData.append(config.field, file);
-
-      const res = await axios.post(config.endpoint, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      return res.data.url;
-    };
+    const addNotification = useNotificationStore((state) => state.addNotification);
 
     // =========================
     // AUTO SAVE (FIXED PAYLOAD)
@@ -186,6 +178,16 @@ const ChecklistItem = forwardRef(
       }
     }, [inputType, item.options, selectedOption, autoSave]);
 
+    useEffect(() => {
+      if (!uploading || !uploadStartTime) return;
+
+      const timer = setInterval(() => {
+        setElapsedSeconds(Math.round((Date.now() - uploadStartTime) / 1000));
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }, [uploading, uploadStartTime]);
+
     // =========================
     // TEXT HANDLERS
     // =========================
@@ -222,12 +224,71 @@ const ChecklistItem = forwardRef(
     //   autoSave({ photoUrl: imageUrl });
     // };
 
-    const handleSingleFileUpload = async (file, forcedType = null) => {
+    const handleSingleFileUpload = (file) => {
       if (!file) return;
 
-      const fileUrl = await uploadFileAndGetUrl(file, forcedType);
-      setPhotoUrl(fileUrl);
-      autoSave({ photoUrl: fileUrl });
+      if (file.size > 200 * 1024 * 1024) {
+        addNotification("File too large (max 200MB)", "error");
+        return;
+      }
+
+      setUploading(true);
+      setUploadProgress(0);
+      setUploadStartTime(Date.now());
+      setElapsedSeconds(0);
+      addNotification("Uploading in background…", "info");
+
+      uploadQueue.add(
+        file,
+        (percent) => {
+          setUploadProgress(percent);
+        },
+        (url) => {
+          setUploading(false);
+          setUploadProgress(100);
+          setPhotoUrl(url);
+          autoSave({ photoUrl: url });
+          addNotification("Upload completed ✅", "success");
+        },
+        () => {
+          setUploading(false);
+          addNotification("Upload failed — retrying…", "error");
+        },
+      );
+    };
+
+    const handleQueuedMultiImageUpload = (file) => {
+      if (!file) return;
+
+      if (file.size > 200 * 1024 * 1024) {
+        addNotification("File too large (max 200MB)", "error");
+        return;
+      }
+
+      setUploading(true);
+      setUploadProgress(0);
+      setUploadStartTime(Date.now());
+      setElapsedSeconds(0);
+      addNotification("Uploading in background…", "info");
+
+      uploadQueue.add(
+        file,
+        (percent) => {
+          setUploadProgress(percent);
+        },
+        (url) => {
+          setUploading(false);
+          setUploadProgress(100);
+          const updated = [...photoUrls, url];
+          setPhotoUrls(updated);
+          autoSave({ photoUrls: updated });
+          addNotification("Upload completed ✅", "success");
+        },
+        () => {
+          setUploading(false);
+          addNotification("Upload failed — retrying…", "error");
+        },
+      );
     };
 
     const handlePhotoDelete = () => {
@@ -236,17 +297,14 @@ const ChecklistItem = forwardRef(
       autoSave({ photoUrl: null });
     };
 
-    const handleMultiPhotoUpload = async (files) => {
+    const handleMultiPhotoUpload = (files) => {
       if (!files?.length) return;
 
       const fileArray = Array.from(files);
-      const uploadedUrls = await Promise.all(
-        fileArray.map((file) => uploadFileAndGetUrl(file, "image")),
-      );
 
-      const updated = [...photoUrls, ...uploadedUrls];
-      setPhotoUrls(updated);
-      autoSave({ photoUrls: updated });
+      fileArray.forEach((file) => {
+        handleQueuedMultiImageUpload(file);
+      });
     };
 
     const handleMultiPhotoDelete = (index) => {
@@ -343,7 +401,7 @@ const ChecklistItem = forwardRef(
                     type="file"
                     accept="image/*"
                     onChange={(e) =>
-                      handleSingleFileUpload(e.target.files[0], "image")
+                      handleSingleFileUpload(e.target.files[0])
                     }
                     className={styles.fileInput}
                   />
@@ -354,7 +412,7 @@ const ChecklistItem = forwardRef(
                     accept="image/*"
                     capture="environment"
                     onChange={(e) =>
-                      handleSingleFileUpload(e.target.files[0], "image")
+                      handleSingleFileUpload(e.target.files[0])
                     }
                     className={styles.fileInput}
                   />
@@ -565,7 +623,7 @@ const ChecklistItem = forwardRef(
                       type="file"
                       accept=".pdf,image/*"
                       onChange={(e) =>
-                        handleSingleFileUpload(e.target.files[0], "document")
+                        handleSingleFileUpload(e.target.files[0])
                       }
                       className={styles.fileInput}
                     />
@@ -688,8 +746,6 @@ const ChecklistItem = forwardRef(
       return selectedOption !== "";
     };
 
-    const safeText = () => textValue ?? "";
-
     return (
       <>
         <div
@@ -710,7 +766,21 @@ const ChecklistItem = forwardRef(
             </span>
           </div>
 
-          <div className={styles.content}>{renderInput()}</div>
+          <div className={styles.content}>
+            {renderInput()}
+            {uploading && (
+              <div className={styles.uploadStatus}>
+                <div className={styles.progressBar}>
+                  <div style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+                <p>
+                  Uploading... {uploadProgress}% • {" "}
+                  {elapsedSeconds}
+                  s elapsed
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <ImagePreviewModal
