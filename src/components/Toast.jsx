@@ -30,8 +30,10 @@ const Toast = ({ message, onClose, duration = 12000 }) => {
         </svg>
       </div>
       <div className={styles.content}>
-        <p className={styles.title}>New Work Assigned</p>
-        <p className={styles.message}>{message}</p>
+        <p className={styles.title}>
+          {message?.title || "Notification"}
+        </p>
+        <p className={styles.message}>{message?.text || message}</p>
       </div>
       <button
         className={styles.closeButton}
