@@ -645,3 +645,22 @@
     border-radius: var(--radius-md);
   }
 }
+
+.uploadStatus {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar div {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.3s ease;
+}
