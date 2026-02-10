@@ -228,10 +228,7 @@ const ChecklistItem = forwardRef(
       if (!file) return;
 
       if (file.size > 200 * 1024 * 1024) {
-        addNotification(
-  { title: "Upload Error", text: "File too large (max 200MB)" },
-  "error"
-);
+        addNotification("File too large (max 200MB)", "error");
         return;
       }
 
@@ -239,10 +236,7 @@ const ChecklistItem = forwardRef(
       setUploadProgress(0);
       setUploadStartTime(Date.now());
       setElapsedSeconds(0);
-      addNotification(
-        { title: "Uploading", text: "Your file is uploading in background" },
-        "info"
-      );
+      addNotification("Uploading in background…", "info");
 
       uploadQueue.add(
         file,
@@ -254,17 +248,11 @@ const ChecklistItem = forwardRef(
           setUploadProgress(100);
           setPhotoUrl(url);
           autoSave({ photoUrl: url });
-          addNotification(
-            { title: "Upload Complete", text: "Your file was uploaded successfully" },
-            "success"
-          );
+          addNotification("Upload completed ✅", "success");
         },
         () => {
           setUploading(false);
-          addNotification(
-            { title: "Upload Failed", text: "Upload failed — retrying automatically" },
-            "error"
-          );
+          addNotification("Upload failed — retrying…", "error");
         },
       );
     };
@@ -273,10 +261,7 @@ const ChecklistItem = forwardRef(
       if (!file) return;
 
       if (file.size > 200 * 1024 * 1024) {
-        addNotification(
-  { title: "Upload Error", text: "File too large (max 200MB)" },
-  "error"
-);
+        addNotification("File too large (max 200MB)", "error");
         return;
       }
 
@@ -284,10 +269,7 @@ const ChecklistItem = forwardRef(
       setUploadProgress(0);
       setUploadStartTime(Date.now());
       setElapsedSeconds(0);
-      addNotification(
-        { title: "Uploading", text: "Your file is uploading in background" },
-        "info"
-      );
+      addNotification("Uploading in background…", "info");
 
       uploadQueue.add(
         file,
@@ -300,17 +282,11 @@ const ChecklistItem = forwardRef(
           const updated = [...photoUrls, url];
           setPhotoUrls(updated);
           autoSave({ photoUrls: updated });
-          addNotification(
-            { title: "Upload Complete", text: "Your file was uploaded successfully" },
-            "success"
-          );
+          addNotification("Upload completed ✅", "success");
         },
         () => {
           setUploading(false);
-          addNotification(
-            { title: "Upload Failed", text: "Upload failed — retrying automatically" },
-            "error"
-          );
+          addNotification("Upload failed — retrying…", "error");
         },
       );
     };

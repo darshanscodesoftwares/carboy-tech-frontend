@@ -36,17 +36,21 @@ class UploadQueue {
       for (let i = 0; i < task.chunks.length; i++) {
         const formData = new FormData();
         formData.append("fileId", task.fileId);
-        formData.append("fileName", task.file.name);
-        formData.append("fileType", task.file.type);
-        formData.append("chunkIndex", i);
-        formData.append("totalChunks", task.totalChunks);
-        formData.append("chunk", task.chunks[i]);
+formData.append("originalName", task.file.name);   // ✅ must match backend
+formData.append(
+  "fileType",
+  task.file.type.startsWith("video/") ? "video" : "image"
+); // ✅ normalize type
+formData.append("chunkIndex", i);
+formData.append("totalChunks", task.totalChunks);
+formData.append("chunk", task.chunks[i]);
+
 
         let res;
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
           try {
             res = await axios.post(
-              `${import.meta.env.VITE_TECH_API_BASE_URL}/uploads/chunk`,
+           `${import.meta.env.VITE_API_BASE_URL_LOCAL}/uploads/chunk`,
               formData,
               {
                 headers: {

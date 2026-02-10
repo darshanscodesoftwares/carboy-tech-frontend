@@ -699,10 +699,7 @@ const handleSaveRemark = async (remark) => {
       ) : (
         showNotification && (
           <Toast
-            message={{
-              title: "New Job Assigned",
-              text: "A new service job has been assigned. Please review it in your dashboard.",
-            }}
+            message="A new service job has been assigned to you. Please review the details in your dashboard."
             onClose={dismissNotification}
           />
         )
