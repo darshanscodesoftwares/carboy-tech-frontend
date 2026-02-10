@@ -13,6 +13,7 @@ import FloatingRemarksButton from "../components/FloatingRemarksButton";
 import RemarksModal from "../components/RemarksModal";
 import Toast from "../components/Toast";
 import Loading from "../components/Loading";
+import useNotificationStore from "../store/notification.store";
 import styles from "./JobFlow.module.css";
 
 const JobFlow = () => {
@@ -56,6 +57,8 @@ const JobFlow = () => {
   const { showNotification, dismissNotification } = useJobNotifications(
     isInspectionOrSummary
   );
+  const { notifications, removeNotification } = useNotificationStore();
+  const activeUploadNotification = notifications[0] || null;
 
   useEffect(() => {
     if (jobId) fetchJob(jobId);
@@ -686,12 +689,20 @@ const handleSaveRemark = async (remark) => {
         initialRemark={job?.technicianRemarks || ""}
       />
 
-      {/* Toast Notification for New Job Assignments */}
-      {showNotification && (
+      {/* Toast Notification for Upload / Job Assignments */}
+      {activeUploadNotification ? (
         <Toast
-          message="A new service job has been assigned to you. Please review the details in your dashboard."
-          onClose={dismissNotification}
+          message={activeUploadNotification.message}
+          onClose={() => removeNotification(activeUploadNotification.id)}
+          duration={5000}
         />
+      ) : (
+        showNotification && (
+          <Toast
+            message="A new service job has been assigned to you. Please review the details in your dashboard."
+            onClose={dismissNotification}
+          />
+        )
       )}
     </div>
   );
