@@ -168,19 +168,46 @@ const findMissingCheckpoints = () => {
 };
 
 
+  // const handleCheckpointSubmit = async (checkpoint) => {
+  //   setCheckpointLoading(true);
+  //   try {
+  //     await submitCheckpoint(jobId, checkpoint);
+  //     // Remove from missing keys if it was there
+  //     if (missingKeys.includes(checkpoint.checkpointKey)) {
+  //       setMissingKeys(prev => prev.filter(key => key !== checkpoint.checkpointKey));
+  //     }
+  //   // } catch {
+  //   } finally {
+  //     setCheckpointLoading(false);
+  //   }
+  // };
+
   const handleCheckpointSubmit = async (checkpoint) => {
-    setCheckpointLoading(true);
-    try {
-      await submitCheckpoint(jobId, checkpoint);
-      // Remove from missing keys if it was there
-      if (missingKeys.includes(checkpoint.checkpointKey)) {
-        setMissingKeys(prev => prev.filter(key => key !== checkpoint.checkpointKey));
-      }
-    // } catch {
-    } finally {
-      setCheckpointLoading(false);
+  setCheckpointLoading(true);
+  try {
+    // 🔥 FILTER OUT EXISTING IMAGES (CRITICAL FIX FOR DUPLICATION)
+    const sanitizedCheckpoint = {
+      ...checkpoint,
+      photoUrls: Array.isArray(checkpoint.photoUrls)
+        ? checkpoint.photoUrls
+            .filter(img => !img?.fromServer)   // ❗ only keep NEW uploads
+            .map(img => img.url || img)        // normalize to string URLs
+        : checkpoint.photoUrls,
+    };
+
+    await submitCheckpoint(jobId, sanitizedCheckpoint);
+
+    // Remove from missing keys if it was there
+    if (missingKeys.includes(checkpoint.checkpointKey)) {
+      setMissingKeys(prev =>
+        prev.filter(key => key !== checkpoint.checkpointKey)
+      );
     }
-  };
+  } finally {
+    setCheckpointLoading(false);
+  }
+};
+
 
 const handleSubmitReport = async () => {
   const missing = findMissingCheckpoints();
