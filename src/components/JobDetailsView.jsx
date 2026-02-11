@@ -50,10 +50,10 @@ const JobDetailsView = ({ job, onStartTravel }) => {
                 <span className={styles.label}>Year</span>
                 <span className={styles.value}>{job.vehicleSnapshot?.year || 'N/A'}</span>
               </div>
-              <div className={styles.detailRow}>
+              {/* <div className={styles.detailRow}>
                 <span className={styles.label}>Fuel Type</span>
                 <span className={styles.value}>{job.vehicleSnapshot?.fuelType || 'Petrol'}</span>
-              </div>
+              </div> */}
             </div>
           </div>
 
