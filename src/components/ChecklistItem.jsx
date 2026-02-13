@@ -46,7 +46,6 @@ const ChecklistItem = forwardRef(
     const [notes, setNotes] = useState(existingAnswer?.notes || "");
     const [photoUrl, setPhotoUrl] = useState(existingAnswer?.photoUrl || "");
     const [photoUrls, setPhotoUrls] = useState(existingAnswer?.photoUrls || []);
-    const [newPhotoUrls, setNewPhotoUrls] = useState([]);
     const [showPreview, setShowPreview] = useState(false);
     const [previewImage, setPreviewImage] = useState("");
     const [isTextDirty, setIsTextDirty] = useState(false);
@@ -90,7 +89,6 @@ const ChecklistItem = forwardRef(
     };
 
     const inputType = item.inputType || "radio";
-    const displayedMultiPhotoUrls = [...photoUrls, ...newPhotoUrls];
     // const uploadImageAndGetUrl = async (file) => {
     //   const formData = new FormData();
     //   formData.append("image", file);
@@ -116,23 +114,17 @@ const ChecklistItem = forwardRef(
           notes: updates.notes ?? notes ?? null,
           photoUrl: updates.photoUrl ?? photoUrl ?? null,
           photoUrls:
-            inputType === "multi-image"
-              ? updates.photoUrls ?? (newPhotoUrls.length ? newPhotoUrls : null)
-              : updates.photoUrls ?? (photoUrls.length ? photoUrls : null),
+            updates.photoUrls !== undefined
+              ? updates.photoUrls
+              : inputType === "multi-image"
+                ? photoUrls
+                : photoUrls.length
+                  ? photoUrls
+                  : null,
         };
         onSubmit(payload);
       },
-      [
-        item.key,
-        selectedOption,
-        textValue,
-        notes,
-        photoUrl,
-        photoUrls,
-        newPhotoUrls,
-        inputType,
-        onSubmit,
-      ],
+      [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, inputType, onSubmit],
     );
 
     useEffect(() => {
@@ -168,9 +160,6 @@ const ChecklistItem = forwardRef(
       setNotes(existingAnswer.notes || "");
       setPhotoUrl(existingAnswer.photoUrl || "");
       setPhotoUrls(existingAnswer.photoUrls || []);
-      if (inputType === "multi-image") {
-        setNewPhotoUrls([]);
-      }
     }, [existingAnswer, inputType]);
 
     // =========================
@@ -267,8 +256,7 @@ const ChecklistItem = forwardRef(
       );
     };
 
-    const handleQueuedMultiImageUpload = (file, options = {}) => {
-      const { onlyNewUploads = false } = options;
+    const handleQueuedMultiImageUpload = (file) => {
       if (!file) return;
 
       if (file.size > 200 * 1024 * 1024) {
@@ -291,17 +279,11 @@ const ChecklistItem = forwardRef(
           setUploading(false);
           setUploadProgress(100);
 
-          if (onlyNewUploads) {
-            setNewPhotoUrls((prev) => {
-              const updated = [...prev, url];
-              autoSave({ photoUrls: updated });
-              return updated;
-            });
-          } else {
-            const updated = [...photoUrls, url];
-            setPhotoUrls(updated);
+          setPhotoUrls((prev) => {
+            const updated = [...prev, url];
             autoSave({ photoUrls: updated });
-          }
+            return updated;
+          });
 
           addNotification("Upload completed ✅", "success");
         },
@@ -315,34 +297,29 @@ const ChecklistItem = forwardRef(
     const handlePhotoDelete = () => {
       imageDeletedRef.current = true;
       setPhotoUrl("");
-      autoSave({ photoUrl: null });
+      setPhotoUrls([]);
+      autoSave({
+        photoUrl: null,
+        photoUrls: [],
+      });
     };
 
-    const handleMultiPhotoUpload = (files, options = {}) => {
+    const handleMultiPhotoUpload = (files) => {
       if (!files?.length) return;
 
       const fileArray = Array.from(files);
 
       fileArray.forEach((file) => {
-        handleQueuedMultiImageUpload(file, options);
+        handleQueuedMultiImageUpload(file);
       });
     };
 
-    const handleMultiPhotoDelete = (index, isNewUpload = false) => {
+    const handleMultiPhotoDelete = (index) => {
       imageDeletedRef.current = true;
-
-      if (inputType === "multi-image") {
-        if (!isNewUpload) return;
-
-        const updated = newPhotoUrls.filter((_, i) => i !== index);
-        setNewPhotoUrls(updated);
-        autoSave({ photoUrls: updated.length ? updated : null });
-        return;
-      }
 
       const updated = photoUrls.filter((_, i) => i !== index);
       setPhotoUrls(updated);
-      autoSave({ photoUrls: updated.length ? updated : null });
+      autoSave({ photoUrls: updated });
     };
 
     // =========================
@@ -576,11 +553,7 @@ const ChecklistItem = forwardRef(
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) =>
-                    handleMultiPhotoUpload(e.target.files, {
-                      onlyNewUploads: true,
-                    })
-                  }
+                  onChange={(e) => handleMultiPhotoUpload(e.target.files)}
                   className={styles.fileInput}
                 />
                 <input
@@ -589,11 +562,7 @@ const ChecklistItem = forwardRef(
                   accept="image/*"
                   capture="environment"
                   multiple
-                  onChange={(e) =>
-                    handleMultiPhotoUpload(e.target.files, {
-                      onlyNewUploads: true,
-                    })
-                  }
+                  onChange={(e) => handleMultiPhotoUpload(e.target.files)}
                   className={styles.fileInput}
                 />
                 <button
@@ -610,13 +579,9 @@ const ChecklistItem = forwardRef(
                 </button>
               </div>
 
-              {displayedMultiPhotoUrls.length > 0 && (
+              {photoUrls.length > 0 && (
                 <div className={styles.multiImageGrid}>
-                  {displayedMultiPhotoUrls.map((url, index) => {
-                    const isNewUpload = index >= photoUrls.length;
-                    const newUploadIndex = index - photoUrls.length;
-
-                    return (
+                  {photoUrls.map((url, index) => (
                     <div key={index} className={styles.previewRow}>
                       <img
                         src={url}
@@ -628,22 +593,13 @@ const ChecklistItem = forwardRef(
                         }}
                       />
                       <button
-                        onClick={() =>
-                          handleMultiPhotoDelete(newUploadIndex, isNewUpload)
-                        }
+                        onClick={() => handleMultiPhotoDelete(index)}
                         className={styles.deleteIconButton}
-                        disabled={!isNewUpload}
-                        title={
-                          isNewUpload
-                            ? "Remove newly uploaded image"
-                            : "Saved images can be removed from backend only"
-                        }
                       >
                         <MdDelete />
                       </button>
                     </div>
-                    );
-                  })}
+                  ))}
                 </div>
               )}
             </div>
@@ -787,7 +743,7 @@ const ChecklistItem = forwardRef(
       }
 
       if (inputType === "multi-image") {
-        return displayedMultiPhotoUrls.length > 0;
+        return photoUrls.length > 0;
       }
 
       if (inputType === "text" || inputType === "textarea") {
