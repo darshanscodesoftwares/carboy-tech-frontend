@@ -122,6 +122,28 @@ const ChecklistItem = forwardRef(
                   ? photoUrls
                   : null,
         };
+
+        const hasPhotoUrlUpdate = Object.hasOwn(updates, "photoUrl");
+        const hasPhotoUrlsUpdate = Object.hasOwn(updates, "photoUrls");
+
+        if (hasPhotoUrlUpdate) {
+          payload.photoUrl = updates.photoUrl;
+        }
+
+        if (hasPhotoUrlsUpdate) {
+          payload.photoUrls = updates.photoUrls;
+        }
+
+        if (!hasPhotoUrlUpdate && !hasPhotoUrlsUpdate) {
+          if (["image", "audio", "video", "document"].includes(inputType)) {
+            payload.photoUrl = photoUrl || null;
+          }
+
+          if (inputType === "multi-image") {
+            payload.photoUrls = photoUrls;
+          }
+        }
+
         onSubmit(payload);
       },
       [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, inputType, onSubmit],
