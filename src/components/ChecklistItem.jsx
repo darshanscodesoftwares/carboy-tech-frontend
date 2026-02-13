@@ -112,6 +112,15 @@ const ChecklistItem = forwardRef(
           selectedOption: updates.selectedOption ?? selectedOption ?? null,
           value: updates.value ?? textValue ?? null,
           notes: updates.notes ?? notes ?? null,
+          photoUrl: updates.photoUrl ?? photoUrl ?? null,
+          photoUrls:
+            updates.photoUrls !== undefined
+              ? updates.photoUrls
+              : inputType === "multi-image"
+                ? photoUrls
+                : photoUrls.length
+                  ? photoUrls
+                  : null,
         };
 
         const hasPhotoUrlUpdate = Object.hasOwn(updates, "photoUrl");
@@ -310,8 +319,10 @@ const ChecklistItem = forwardRef(
     const handlePhotoDelete = () => {
       imageDeletedRef.current = true;
       setPhotoUrl("");
+      setPhotoUrls([]);
       autoSave({
         photoUrl: null,
+        photoUrls: [],
       });
     };
 
