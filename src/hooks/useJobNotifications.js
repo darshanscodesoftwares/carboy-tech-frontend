@@ -47,7 +47,7 @@ const useJobNotifications = (enabled = false) => {
     checkForNewJobs();
 
     // Poll every 30 seconds
-    const interval = setInterval(checkForNewJobs, 11000);
+    const interval = setInterval(checkForNewJobs, 33000);
 
     return () => {
       clearInterval(interval);
