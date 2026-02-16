@@ -319,15 +319,12 @@ const ChecklistItem = forwardRef(
       );
     };
 
-    const handlePhotoDelete = () => {
-      imageDeletedRef.current = true;
-      setPhotoUrl("");
-      setPhotoUrls([]);
-      autoSave({
-        photoUrl: null,
-        photoUrls: [],
-      });
-    };
+   const handlePhotoDelete = () => {
+  imageDeletedRef.current = true;
+  setPhotoUrl(null);
+  setPhotoUrls([]);
+  autoSave({ photoUrls: [] });
+};
 
     const handleMultiPhotoUpload = (files) => {
       if (!files?.length) return;
@@ -346,6 +343,11 @@ const ChecklistItem = forwardRef(
       setPhotoUrls(updated);
       autoSave({ photoUrls: updated });
     };
+
+    const singlePreviewUrl = photoUrls?.length
+  ? photoUrls[0]
+  : photoUrl || null;
+
 
     // =========================
     // RENDER INPUT
@@ -427,7 +429,7 @@ const ChecklistItem = forwardRef(
         case "image":
           return (
             <div className={styles.uploadSection}>
-              {!photoUrl ? (
+              {!singlePreviewUrl ? (
                 <div className={styles.uploadButtons}>
                   <input
                     ref={uploadInputRef}
@@ -467,9 +469,9 @@ const ChecklistItem = forwardRef(
               ) : (
                 <div className={styles.previewRow}>
                   <img
-                    src={photoUrl}
-                    alt="Preview"
-                    className={styles.previewThumb}
+                     src={photoUrls?.[0] || photoUrl || ""}
+  alt="Preview"
+  className={styles.previewThumb}
                     onClick={() => {
                       setPreviewImage(photoUrl);
                       setShowPreview(true);
@@ -692,8 +694,7 @@ const ChecklistItem = forwardRef(
                 <div className={styles.obdPreviewSection}>
                   <div className={styles.previewRow}>
                     {photoUrl.match(/\.(jpg|jpeg|png)$/i) ? (
-                      <img
-                        src={photoUrl}
+                      <img src={singlePreviewUrl}
                         className={styles.previewThumb}
                         onClick={() => {
                           setPreviewImage(photoUrl);
