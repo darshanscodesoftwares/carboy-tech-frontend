@@ -264,13 +264,16 @@ const ChecklistItem = forwardRef(
         (percent) => {
           setUploadProgress(percent);
         },
-        (url) => {
-          setUploading(false);
-          setUploadProgress(100);
-          setPhotoUrl(url);
-          autoSave({ photoUrl: url });
-          addNotification("Upload completed ✅", "success");
-        },
+(url) => {
+  setUploading(false);
+  setUploadProgress(100);
+
+  const updated = [url];
+  setPhotoUrls(updated);
+  autoSave({ photoUrls: updated });
+
+  addNotification("Upload completed ✅", "success");
+},
         () => {
           setUploading(false);
           addNotification("Upload failed — retrying…", "error");
