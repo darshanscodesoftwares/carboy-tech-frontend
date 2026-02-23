@@ -30,7 +30,7 @@ const Login = () => {
       }
 
       if (!technician) {
-        throw new Error('No technician data received from server');
+        throw new Error('No Inspection Expert data received from server');
       }
 
       // Store in Zustand
@@ -51,7 +51,7 @@ const Login = () => {
       <div className={styles.wrapper}>
         <div className={styles.header}>
           <div className={styles.logo}>
-            <span className={styles.logoText}>CB</span>
+            <span className={styles.logoText}>MCB</span>
           </div>
           <h1 className={styles.title}>MYCARBOY</h1>
           <p className={styles.subtitle}>Inspection Expert Portal</p>
