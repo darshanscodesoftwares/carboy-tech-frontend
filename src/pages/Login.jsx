@@ -54,7 +54,7 @@ const Login = () => {
             <span className={styles.logoText}>CB</span>
           </div>
           <h1 className={styles.title}>MYCARBOY</h1>
-          <p className={styles.subtitle}>Technician Portal</p>
+          <p className={styles.subtitle}>Inspection Expert Portal</p>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
           <h2 className={styles.formTitle}>Sign In</h2>
