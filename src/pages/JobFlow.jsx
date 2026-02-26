@@ -573,6 +573,11 @@ const handleSaveRemark = async (remark) => {
               {job?.status?.replace("_", " ")}
             </span>
           </div>
+          {job?.customerRequirements && (
+            <div className={styles.notesBanner}>
+              <strong>Customer Notes:</strong> {job.customerRequirements}
+            </div>
+          )}
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>Customer</h3>
             <p className={styles.sectionContent}>

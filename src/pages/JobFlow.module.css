@@ -48,6 +48,15 @@
   margin-bottom: var(--space-md);
 }
 
+.notesBanner {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
 .serviceType {
   padding: var(--space-xs) var(--space-md);
   border-radius: 999px;
