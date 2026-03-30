@@ -61,6 +61,7 @@ const ChecklistItem = forwardRef(
     const multiUploadInputRef = useRef(null);
     const multiCaptureInputRef = useRef(null);
     const imageDeletedRef = useRef(false);
+    const localSaveRef = useRef(false);
 
     const AUTO_FILL_FIELDS = {
       customer_name: (job) => job?.customerSnapshot?.name,
@@ -146,6 +147,7 @@ const ChecklistItem = forwardRef(
           }
         }
 
+        localSaveRef.current = true;
         onSubmit(payload);
       },
       [item.key, selectedOption, textValue, notes, photoUrl, photoUrls, inputType, onSubmit],
@@ -179,6 +181,10 @@ const ChecklistItem = forwardRef(
     useEffect(() => {
       if (!existingAnswer) return;
       if (imageDeletedRef.current) return;
+      if (localSaveRef.current) {
+        localSaveRef.current = false;
+        return;
+      }
       setSelectedOption(existingAnswer.selectedOption || "");
       setTextValue(existingAnswer.value || "");
       setNotes(existingAnswer.notes || "");
