@@ -89,7 +89,7 @@ const ChecklistItem = forwardRef(
       location: (job) => job?.location?.address,
     };
 
-    const EDITABLE_AUTO_FILL_KEYS = new Set(['car_make', 'car_model', 'make_model_year']);
+    const EDITABLE_AUTO_FILL_KEYS = new Set(['make_model_year']);
 
     const inputType = item.inputType || "radio";
     // const uploadImageAndGetUrl = async (file) => {
@@ -221,12 +221,25 @@ const ChecklistItem = forwardRef(
     // TEXT HANDLERS
     // =========================
     const handleTextChange = (e) => {
-      setTextValue(e.target.value ?? "");
+      let val = e.target.value ?? "";
+      // Year field: digits only, max 4
+      if (item.key === "make_model_year") {
+        val = val.replace(/\D/g, "").slice(0, 4);
+      }
+      setTextValue(val);
       setIsTextDirty(true);
       setIsTextSaved(false);
     };
 
     const handleTextSave = () => {
+      // Year validation
+      if (item.key === "make_model_year") {
+        const year = Number(textValue);
+        if (!textValue || isNaN(year) || year < 1900 || year > new Date().getFullYear() + 1) {
+          addNotification("Enter a valid year (1900–" + (new Date().getFullYear() + 1) + ")", "error");
+          return;
+        }
+      }
       autoSave({ value: textValue });
       setIsTextDirty(false);
       setIsTextSaved(true);
