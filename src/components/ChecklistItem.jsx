@@ -88,6 +88,8 @@ const ChecklistItem = forwardRef(
       location: (job) => job?.location?.address,
     };
 
+    const EDITABLE_AUTO_FILL_KEYS = new Set(['car_make', 'car_model', 'make_model_year']);
+
     const inputType = item.inputType || "radio";
     // const uploadImageAndGetUrl = async (file) => {
     //   const formData = new FormData();
@@ -364,7 +366,7 @@ const ChecklistItem = forwardRef(
                 <input
                   type="text"
                   value={safeText}
-                  readOnly={!!AUTO_FILL_FIELDS[item.key]}
+                  readOnly={!!AUTO_FILL_FIELDS[item.key] && !EDITABLE_AUTO_FILL_KEYS.has(item.key)}
                   onChange={handleTextChange}
                   className={styles.textInput}
                 />
