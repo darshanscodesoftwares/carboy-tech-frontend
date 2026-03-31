@@ -24,8 +24,8 @@ const Footer = () => {
         </div>
 
         <div className={styles.content}>
-          <p className={styles.companyName}>MYCARBOY</p>
-          <p className={styles.copyright}>© 2025 MYCARBOY</p>
+          <p className={styles.companyName}><span style={{ color: "#0d745e" }}>MY</span><span style={{ color: "#1a1a1a" }}>CARBOY</span></p>
+          <p className={styles.copyright}>© {new Date().getFullYear()} <span style={{ color: "#0d745e" }}>MY</span><span style={{ color: "#1a1a1a" }}>CARBOY</span></p>
           <div className={styles.links}>
             <a href="#" className={styles.link}>Privacy Policy</a>
             <span className={styles.separator}>•</span>

@@ -53,7 +53,7 @@ const Login = () => {
           <div className={styles.logo}>
             <span className={styles.logoText}>MCB</span>
           </div>
-          <h1 className={styles.title}>MYCARBOY</h1>
+          <h1 className={styles.title}><span style={{ color: "#0d745e" }}>MY</span><span style={{ color: "#1a1a1a" }}>CARBOY</span></h1>
           <p className={styles.subtitle}>Inspection Expert Portal</p>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>

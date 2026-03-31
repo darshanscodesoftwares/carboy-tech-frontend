@@ -22,7 +22,7 @@ const Navbar = () => {
     <nav className={styles.navbar}>
       <div className={styles.container}>
         <div className={styles.brand} onClick={() => navigate('/dashboard')}>
-          <span className={styles.brandName}>MYCARBOY</span>
+          <span className={styles.brandName}><span style={{ color: "#0d745e" }}>MY</span><span style={{ color: "#1a1a1a" }}>CARBOY</span></span>
         </div>
 
         <div className={styles.navLeft}>
