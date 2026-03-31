@@ -93,9 +93,7 @@ class UploadQueue {
           // ✅ FINAL CHUNK — real success
           task.onSuccess?.(res.data.url);
         } else {
-          // 🟡 INTERMEDIATE CHUNK — NOT AN ERROR
-            `🟡 Chunk ${i + 1}/${task.totalChunks} accepted, waiting for final merge...`
-          );
+          // intermediate chunk accepted, waiting for final merge
         }
       }
     } catch (err) {
