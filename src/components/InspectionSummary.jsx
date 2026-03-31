@@ -11,21 +11,15 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   if (!job) return null;
 
   const handleEditReport = async () => {
-    console.log("🔵 [InspectionSummary] Edit Report button clicked");
     try {
       setIsReopening(true);
 
       // ✅ 1. call parent logic (backend mutation)
-      console.log("🔵 [InspectionSummary] Calling onEditReport callback...");
       await onEditReport(job._id);
-      console.log("🔵 [InspectionSummary] onEditReport callback completed");
 
       // ✅ 2. navigate AFTER success
-      console.log("🔵 [InspectionSummary] Calling navigate...");
       navigate(`/flow/${job._id}?edit=true`);
-      console.log("🔵 [InspectionSummary] navigate called");
     } catch (error) {
-      console.error("❌ [InspectionSummary] Failed to reopen job:", error);
       alert("Failed to reopen inspection. Please try again.");
     } finally {
       setIsReopening(false);
@@ -33,12 +27,9 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
   };
 
   const handleSendReport = async () => {
-    console.log("🟢 [InspectionSummary] Send Report button clicked");
-    console.log("🟢 [InspectionSummary] isReportSent:", isReportSent);
 
     // If report already sent, just navigate to dashboard
     if (isReportSent) {
-      console.log("🟢 [InspectionSummary] Report already sent, navigating to dashboard...");
       navigate("/dashboard");
       return;
     }
@@ -47,16 +38,11 @@ const InspectionSummary = ({ job, onEditReport, onSendReport }) => {
       setIsSending(true);
 
       // ✅ 1. call parent logic (backend mutation)
-      console.log("🟢 [InspectionSummary] Calling onSendReport callback...");
       await onSendReport(job._id);
-      console.log("🟢 [InspectionSummary] onSendReport callback completed");
 
       // ✅ 2. navigate AFTER success
-      console.log("🟢 [InspectionSummary] Calling navigate...");
       navigate("/dashboard");
-      console.log("🟢 [InspectionSummary] navigate called");
     } catch (error) {
-      console.error("❌ [InspectionSummary] Failed to send report:", error);
       alert("Failed to send report. Please try again.");
     } finally {
       setIsSending(false);

@@ -11,7 +11,6 @@ const API_BASE_URL = isLocalhost
   ? import.meta.env.VITE_API_BASE_URL_LOCAL
   : import.meta.env.VITE_API_BASE_URL;
 
-console.log("✅ TECH API BASE URL:", API_BASE_URL);
 
 /* ========================================================
    AXIOS INSTANCE
@@ -31,7 +30,6 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
-    console.log("➡️ API Request:", {
       method: config.method?.toUpperCase(),
       url: config.url,
     });
@@ -51,7 +49,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("❌ API Error:", {
       url: error.config?.url,
       status: error.response?.status,
       message: error.message,

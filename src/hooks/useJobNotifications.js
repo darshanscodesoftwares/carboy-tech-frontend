@@ -30,7 +30,6 @@ const useJobNotifications = (enabled = false) => {
       lastJobCountRef.current = currentCount;
       isInitialMount.current = false;
     } catch (error) {
-      console.error('Failed to check for new jobs:', error);
     }
   }, [enabled, incrementNotification]);
 

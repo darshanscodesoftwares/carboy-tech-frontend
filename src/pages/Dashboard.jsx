@@ -27,15 +27,12 @@ const Dashboard = () => {
       clearNotification();
 
       try {
-        console.log("Fetching technician profile and jobs..."); // Debug log
 
         const [technicianData, jobsData] = await Promise.all([
           getTechnicianProfile(),
           getJobs(),
         ]);
 
-        console.log("Technician data received:", technicianData); // Debug log
-        console.log("Jobs data received:", jobsData); // Debug log
 
         // Update technician in store
         updateTechnician(technicianData);
@@ -45,7 +42,6 @@ const Dashboard = () => {
         );
         setJobs(filteredJobs);
       } catch (err) {
-        console.error("Dashboard fetch error:", err); // Debug log
         setError(
           err.response?.data?.error || err.message || "Failed to load data"
         );

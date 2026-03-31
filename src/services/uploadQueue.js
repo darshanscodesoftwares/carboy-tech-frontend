@@ -94,7 +94,6 @@ class UploadQueue {
           task.onSuccess?.(res.data.url);
         } else {
           // 🟡 INTERMEDIATE CHUNK — NOT AN ERROR
-          console.log(
             `🟡 Chunk ${i + 1}/${task.totalChunks} accepted, waiting for final merge...`
           );
         }

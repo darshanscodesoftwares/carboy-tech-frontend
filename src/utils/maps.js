@@ -4,7 +4,6 @@
  */
 export const openGoogleMaps = (location) => {
   if (!location) {
-    console.warn('No location provided for Google Maps');
     return;
   }
 
@@ -20,7 +19,6 @@ export const openGoogleMaps = (location) => {
     mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
   }
   else {
-    console.warn('Location missing both coordinates and address');
     return;
   }
 

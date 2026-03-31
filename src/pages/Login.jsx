@@ -20,7 +20,6 @@ const Login = () => {
 
     try {
       const response = await login(email, password);
-      console.log('Login response:', response); // Debug log
 
       // Extract token and technician from response
       const { token, technician } = response;
@@ -39,7 +38,6 @@ const Login = () => {
       // Navigate to dashboard
       navigate('/dashboard');
     } catch (err) {
-      console.error('Login error:', err); // Debug log
       setError(err.response?.data?.error || err.message || 'Login failed.');
     } finally {
       setLoading(false);

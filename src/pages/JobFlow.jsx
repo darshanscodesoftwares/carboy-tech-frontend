@@ -220,7 +220,6 @@ const handleSubmitReport = async () => {
 
   setActionLoading(true);
   try {
-    console.log("🟡 Technician FE sending remarks:", remarks);
 
     // ✅ STEP 1: COMPLETE INSPECTION (creates submittedAt)
     await completeJob(jobId, {
@@ -238,7 +237,6 @@ await fetchJob(jobId);
 
     navigate(`/flow/${jobId}`, { replace: true });
   } catch (e) {
-    console.error("❌ Submit report error:", e);
   } finally {
     setActionLoading(false);
   }
@@ -251,7 +249,6 @@ const handleSaveRemark = async (remark) => {
   try {
     await saveRemarks(jobId, trimmed); // 🔥 CORRECT CALL
   } catch (e) {
-    console.error("❌ Failed to save remark:", e);
     setError("Failed to save remark. Please try again.");
   }
 };
@@ -437,22 +434,13 @@ const handleSaveRemark = async (remark) => {
 
   const handleEditReportFromSummary = async (jobIdParam) => {
     const targetJobId = jobIdParam || jobId;
-    console.log("🔵 [JobFlow] handleEditReportFromSummary called with jobId:", targetJobId);
-    console.log("🔵 [JobFlow] Current job.status:", job?.status);
-    console.log("🔵 [JobFlow] Current summary:", summary ? "exists" : "null");
 
     // ✅ CRITICAL FIX: Clear summary IMMEDIATELY so navigation can proceed
     setSummary(null);
-    console.log("🔵 [JobFlow] Summary cleared to allow navigation");
 
     try {
-      console.log("🔵 [JobFlow] Calling reopenJob...");
       await reopenJob(targetJobId);
-      console.log("🔵 [JobFlow] reopenJob completed");
-      console.log("🔵 [JobFlow] Updated job.status:", job?.status);
-      console.log("🔵 [JobFlow] Updated summary:", summary ? "exists" : "null");
     } catch (error) {
-      console.error("❌ [JobFlow] Failed to reopen job:", error);
       setError("Failed to reopen inspection. Please try again.");
       throw error; // Re-throw so InspectionSummary knows it failed
     }
@@ -460,22 +448,13 @@ const handleSaveRemark = async (remark) => {
 
   const handleSendReportFromSummary = async (jobIdParam) => {
     const targetJobId = jobIdParam || jobId;
-    console.log("🟢 [JobFlow] handleSendReportFromSummary called with jobId:", targetJobId);
-    console.log("🟢 [JobFlow] Current job.status:", job?.status);
-    console.log("🟢 [JobFlow] Current summary:", summary ? "exists" : "null");
 
     // ✅ CRITICAL FIX: Clear summary IMMEDIATELY so navigation can proceed
     setSummary(null);
-    console.log("🟢 [JobFlow] Summary cleared to allow navigation");
 
     try {
-      console.log("🟢 [JobFlow] Calling sendReport...");
       await sendReport(targetJobId);
-      console.log("🟢 [JobFlow] sendReport completed");
-      console.log("🟢 [JobFlow] Updated job.status:", job?.status);
-      console.log("🟢 [JobFlow] Updated summary:", summary ? "exists" : "null");
     } catch (error) {
-      console.warn("❌ [JobFlow] Send report API error:", error);
       throw error; // Re-throw so InspectionSummary knows it failed
     }
   };
@@ -518,15 +497,9 @@ const handleSaveRemark = async (remark) => {
     );
 
   const renderContent = () => {
-    console.log("🔄 [JobFlow] renderContent called");
-    console.log("🔄 [JobFlow] - pathname:", location.pathname);
-    console.log("🔄 [JobFlow] - isEditMode:", isEditMode);
-    console.log("🔄 [JobFlow] - job.status:", job?.status);
-    console.log("🔄 [JobFlow] - summary:", summary ? "exists" : "null");
 
     // Flow 3: Travel Progress View (when traveling)
     if (job?.status === JOB_STATUSES.TRAVELING) {
-      console.log("🔄 [JobFlow] Rendering TravelProgressView");
       return (
         <TravelProgressView
           currentStep={1}
@@ -538,7 +511,6 @@ const handleSaveRemark = async (remark) => {
 
     // Flow 2: Job Details View (when accepted, not yet traveling)
     if (job?.status === JOB_STATUSES.ACCEPTED) {
-      console.log("🔄 [JobFlow] Rendering JobDetailsView");
       return (
         <JobDetailsView
           job={job}
@@ -549,9 +521,7 @@ const handleSaveRemark = async (remark) => {
 
     // Completed Summary View (skip in edit mode)
     const shouldShowSummary = !isEditMode && (job?.status === JOB_STATUSES.COMPLETED || summary);
-    console.log("🔄 [JobFlow] shouldShowSummary condition:", shouldShowSummary);
     if (shouldShowSummary) {
-      console.log("🔄 [JobFlow] Rendering InspectionSummary");
       return renderSummary();
     }
 
