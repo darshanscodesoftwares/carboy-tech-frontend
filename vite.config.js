@@ -9,7 +9,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'MYCARBOY EXPERTS',
+        name: 'Mycarboy-Experts',
         short_name: 'MYCARBOY EXPERTS',
         description: 'MyCarBoy Technician Inspection App',
         theme_color: '#2C7A7A',
