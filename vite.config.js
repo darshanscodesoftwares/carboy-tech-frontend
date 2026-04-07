@@ -10,7 +10,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico'],
       manifest: {
         name: 'Mycarboy-Experts',
-        short_name: 'MYCARBOY EXPERTS',
+        short_name: 'Mycarboy-Experts',
         description: 'MyCarBoy Technician Inspection App',
         theme_color: '#2C7A7A',
         background_color: '#ffffff',
