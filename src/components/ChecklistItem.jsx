@@ -560,7 +560,7 @@ const ChecklistItem = forwardRef(
         case "document":
           return (
             <div className={styles.uploadSection}>
-              {!photoUrl ? (
+              {!singlePreviewUrl ? (
                 <>
                   <input
                     ref={mediaUploadInputRef}
@@ -578,7 +578,7 @@ const ChecklistItem = forwardRef(
                 </>
               ) : (
                 <div className={styles.previewRow}>
-                  <a href={photoUrl} target="_blank" rel="noopener noreferrer">
+                  <a href={singlePreviewUrl} target="_blank" rel="noopener noreferrer">
                     View uploaded {inputType}
                   </a>
                   <button
@@ -778,7 +778,7 @@ const ChecklistItem = forwardRef(
 
     const isCompleted = () => {
       if (["image", "audio", "video", "document"].includes(inputType)) {
-        return !!photoUrl;
+        return !!singlePreviewUrl;
       }
 
       if (inputType === "link") {
