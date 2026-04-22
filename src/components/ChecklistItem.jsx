@@ -7,6 +7,22 @@ import { IoIosCamera } from "react-icons/io";
 import { uploadQueue } from "../services/uploadQueue";
 import useNotificationStore from "../store/notification.store";
 
+const saveToDevice = (file) => {
+  if (!file) return;
+  try {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `MYCARBOY_${Date.now()}.${file.name?.split(".").pop() || "jpg"}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch {
+    // best-effort, never block the upload
+  }
+};
+
 const MEDIA_CONFIG = {
   image: {
     endpoint: "/uploads/image",
@@ -467,9 +483,11 @@ const ChecklistItem = forwardRef(
                     type="file"
                     accept="image/*"
                     capture="environment"
-                    onChange={(e) =>
-                      handleSingleFileUpload(e.target.files[0])
-                    }
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      saveToDevice(file);
+                      handleSingleFileUpload(file);
+                    }}
                     className={styles.fileInput}
                   />
 
@@ -610,7 +628,10 @@ const ChecklistItem = forwardRef(
                   accept="image/*"
                   capture="environment"
                   multiple
-                  onChange={(e) => handleMultiPhotoUpload(e.target.files)}
+                  onChange={(e) => {
+                    Array.from(e.target.files).forEach(saveToDevice);
+                    handleMultiPhotoUpload(e.target.files);
+                  }}
                   className={styles.fileInput}
                 />
                 <button
