@@ -36,10 +36,15 @@ const Dashboard = () => {
 
         // Update technician in store
         updateTechnician(technicianData);
-        // Filter out completed jobs
-        const filteredJobs = jobsData.filter(
-          (job) => job.status !== "completed"
-        );
+        // Filter out completed jobs and any job that's been on the dashboard
+        // for more than 24h (createdAt-based) — keeps the active list short.
+        const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+        const filteredJobs = jobsData.filter((job) => {
+          if (job.status === "completed") return false;
+          const created = job.createdAt ? new Date(job.createdAt).getTime() : null;
+          if (created && created < cutoff) return false;
+          return true;
+        });
         setJobs(filteredJobs);
       } catch (err) {
         setError(
@@ -89,6 +94,18 @@ const Dashboard = () => {
   const handleViewDetails = (jobId, e) => {
     e.stopPropagation();
     navigate(`/flow/${jobId}`);
+  };
+
+  const formatScheduleDate = (raw) => {
+    if (!raw) return "—";
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: "Asia/Kolkata",
+    });
   };
 
   const getStatusInfo = (status) => {
@@ -215,7 +232,7 @@ const Dashboard = () => {
                           </td>
                           <td>
                             <div className={styles.schedule}>
-                              <div>{job.schedule?.date}</div>
+                              <div>{formatScheduleDate(job.schedule?.date)}</div>
                               <div className={styles.scheduleTime}>
                                 {job.schedule?.slot}
                               </div>
