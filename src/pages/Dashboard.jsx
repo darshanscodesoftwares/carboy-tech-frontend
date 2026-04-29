@@ -36,13 +36,14 @@ const Dashboard = () => {
 
         // Update technician in store
         updateTechnician(technicianData);
-        // Filter out completed jobs and any job that's been on the dashboard
-        // for more than 24h (createdAt-based) — keeps the active list short.
+        // Drop completed jobs and any whose scheduled inspection is more than
+        // 24h in the past. schedule.date moves with reschedules, so a job
+        // moved to a future slot stays visible automatically.
         const cutoff = Date.now() - 24 * 60 * 60 * 1000;
         const filteredJobs = jobsData.filter((job) => {
           if (job.status === "completed") return false;
-          const created = job.createdAt ? new Date(job.createdAt).getTime() : null;
-          if (created && created < cutoff) return false;
+          const sched = job.schedule?.date ? new Date(job.schedule.date).getTime() : null;
+          if (sched && sched < cutoff) return false;
           return true;
         });
         setJobs(filteredJobs);
