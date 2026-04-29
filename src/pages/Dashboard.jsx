@@ -36,14 +36,23 @@ const Dashboard = () => {
 
         // Update technician in store
         updateTechnician(technicianData);
-        // Drop completed jobs and any whose scheduled inspection is more than
-        // 24h in the past. schedule.date moves with reschedules, so a job
-        // moved to a future slot stays visible automatically.
-        const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+        // Show only jobs scheduled for today (with a 24h past grace for
+        // late-running inspections). Future-dated jobs are hidden until
+        // their day arrives. schedule.date moves with reschedules, so a
+        // future-dated job will appear on its day automatically.
+        const now = Date.now();
+        const pastCutoff = now - 24 * 60 * 60 * 1000;
+        // End of today in IST (24:00 IST = 18:30 UTC of same UTC day)
+        const istNow = new Date(now + 5.5 * 60 * 60 * 1000);
+        istNow.setUTCHours(24, 0, 0, 0);
+        const endOfTodayIST = istNow.getTime() - 5.5 * 60 * 60 * 1000;
+
         const filteredJobs = jobsData.filter((job) => {
           if (job.status === "completed") return false;
           const sched = job.schedule?.date ? new Date(job.schedule.date).getTime() : null;
-          if (sched && sched < cutoff) return false;
+          if (!sched) return true;
+          if (sched < pastCutoff) return false;
+          if (sched > endOfTodayIST) return false;
           return true;
         });
         setJobs(filteredJobs);
