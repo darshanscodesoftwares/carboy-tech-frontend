@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getJobs, acceptJob } from "../api/jobs";
 import { getTechnicianProfile } from "../api/auth";
+import { getTodayAttendance } from "../api/attendance";
 import useTechnicianStore from "../store/technician";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Loading from "../components/Loading";
+import AttendanceModal from "../components/AttendanceModal";
 import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
@@ -17,6 +19,16 @@ const Dashboard = () => {
   const [acceptingJobId, setAcceptingJobId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [attended, setAttended] = useState(false);
+  const [attendanceLoading, setAttendanceLoading] = useState(true);
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+
+  useEffect(() => {
+    getTodayAttendance()
+      .then((d) => setAttended(d?.attended || false))
+      .catch(() => {})
+      .finally(() => setAttendanceLoading(false));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -168,6 +180,19 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Attendance Banner */}
+        {!attendanceLoading && (
+          <div className={styles.attendanceBanner}>
+            {attended ? (
+              <span className={styles.attendedBadge}>✓ Attended</span>
+            ) : (
+              <button className={styles.attendanceBtn} onClick={() => setShowAttendanceModal(true)}>
+                📷 Mark Attendance
+              </button>
+            )}
+          </div>
+        )}
 
         <div className={styles.jobsSection}>
           <h2 className={styles.sectionTitle}>My Assigned Jobs</h2>
@@ -321,6 +346,15 @@ const Dashboard = () => {
         </div>
       </main>
       <Footer />
+      {showAttendanceModal && (
+        <AttendanceModal
+          onClose={() => setShowAttendanceModal(false)}
+          onSuccess={() => {
+            setAttended(true);
+            setShowAttendanceModal(false);
+          }}
+        />
+      )}
     </div>
   );
 };
