@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import api from "../api/index";
 import styles from "./AttendanceModal.module.css";
 
@@ -58,8 +59,14 @@ const InspectionSelfieCapture = ({ jobId, onSuccess }) => {
     try {
       const formData = new FormData();
       formData.append("selfie", capturedBlob, "selfie.jpg");
-      await api.post(`/jobs/${jobId}/selfie`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // Jobs route is at /api/jobs, not /api/technician/jobs — strip the technician prefix
+      const jobsBase = api.defaults.baseURL.replace(/\/technician$/, "");
+      const token = localStorage.getItem("token");
+      await axios.post(`${jobsBase}/jobs/${jobId}/selfie`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       onSuccess();
     } catch (err) {
