@@ -14,6 +14,7 @@ import RemarksModal from "../components/RemarksModal";
 import Toast from "../components/Toast";
 import Loading from "../components/Loading";
 import useNotificationStore from "../store/notification.store";
+import InspectionSelfieCapture from "../components/InspectionSelfieCapture";
 import styles from "./JobFlow.module.css";
 
 const JobFlow = () => {
@@ -44,6 +45,7 @@ const JobFlow = () => {
   } = useJobFlow();
   const [actionLoading, setActionLoading] = useState(false);
   const [checkpointLoading, setCheckpointLoading] = useState(false);
+  const [selfieDone, setSelfieDone] = useState(false);
   const [remarks, setRemarks] = useState("");
   const [showRemarksModal, setShowRemarksModal] = useState(false);
   const checkpointRefs = useRef({});
@@ -70,6 +72,11 @@ const JobFlow = () => {
       setRemarks(job.technicianRemarks);
     }
   }, [job?.technicianRemarks]);
+
+  // Restore selfieDone from persisted jobSelfie on job load
+  useEffect(() => {
+    if (job?.jobSelfie?.url) setSelfieDone(true);
+  }, [job?.jobSelfie?.url]);
 
   useEffect(() => {
     // Fetch checklist when in inspection mode OR when in edit mode (completed)
@@ -392,21 +399,35 @@ const handleSaveRemark = async (remark) => {
     const btn = config[job.status];
     if (!btn) return null;
 
+    const isReached = job.status === JOB_STATUSES.REACHED;
+
     return (
-      <button
-        onClick={() => handleAction(btn.action)}
-        disabled={actionLoading}
-        className={styles.primaryButton}
-      >
-        {actionLoading ? (
-          <>
-            <div className={styles.spinner} />
-            Processing...
-          </>
-        ) : (
-          btn.label
+      <>
+        {isReached && (
+          selfieDone ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, padding: "10px 14px", background: "#D1FAE5", borderRadius: 10, color: "#065F46", fontWeight: 600, fontSize: 14 }}>
+              ✓ Selfie captured
+            </div>
+          ) : (
+            <InspectionSelfieCapture jobId={jobId} onSuccess={() => setSelfieDone(true)} />
+          )
         )}
-      </button>
+        <button
+          onClick={() => handleAction(btn.action)}
+          disabled={actionLoading || (isReached && !selfieDone)}
+          className={styles.primaryButton}
+          style={isReached && !selfieDone ? { opacity: 0.4, cursor: "not-allowed" } : {}}
+        >
+          {actionLoading ? (
+            <>
+              <div className={styles.spinner} />
+              Processing...
+            </>
+          ) : (
+            btn.label
+          )}
+        </button>
+      </>
     );
   };
 
