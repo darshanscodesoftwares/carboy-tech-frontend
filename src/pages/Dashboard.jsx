@@ -158,18 +158,28 @@ const Dashboard = () => {
     return { label: status, className: styles.statusPending };
   };
 
+  const isCancelledJob = (job) => job?.status === 'cancelled';
+
   const handleDenySubmit = async () => {
     if (!denyReason) return;
     setDenySubmitting(true);
     setDenyError(null);
     try {
       const jobId = denyModal._id;
+      const isCancelled = isCancelledJob(denyModal);
+      const type = isCancelled ? 'acknowledgeCancel' : 'requestCancel';
       const jobsBase = api.defaults.baseURL.replace(/\/technician$/, '');
       const token = localStorage.getItem('token');
-      await axios.post(`${jobsBase}/jobs/${jobId}/ie-denial`, { reason: denyReason, note: denyNote }, {
+      const res = await axios.post(`${jobsBase}/jobs/${jobId}/ie-denial`, { reason: denyReason, note: denyNote, type }, {
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       });
-      setJobs((prev) => prev.filter((j) => j._id !== jobId));
+      // For acknowledged cancellations: remove from list (already cancelled, now recorded)
+      // For IE self-cancel requests: update job status locally to show pending, keep in list
+      if (isCancelled) {
+        setJobs((prev) => prev.filter((j) => j._id !== jobId));
+      } else {
+        setJobs((prev) => prev.map((j) => j._id === jobId ? { ...j, ieDenial: { acknowledgedAt: new Date(), reason: denyReason, note: denyNote }, _ieCancelPending: true } : j));
+      }
       setDenyModal(null);
       setDenyReason('');
       setDenyNote('');
@@ -318,9 +328,7 @@ const Dashboard = () => {
                                 disabled={acceptingJobId === job._id}
                                 className={styles.acceptButton}
                               >
-                                {acceptingJobId === job._id
-                                  ? "Accepting..."
-                                  : "Accept"}
+                                {acceptingJobId === job._id ? "Accepting..." : "Accept"}
                               </button>
                             ) : job.status === "cancelled" ? (
                               job.ieDenial?.acknowledgedAt ? (
@@ -333,25 +341,26 @@ const Dashboard = () => {
                                   Deny
                                 </button>
                               )
-                            ) : job.status === "accepted" ||
-                              job.status === "traveling" ||
-                              job.status === "reached" ||
-                              job.status === "in_inspection" ? (
-                              <button
-                                onClick={(e) => handleViewDetails(job._id, e)}
-                                className={styles.viewDetailsButton}
-                              >
-                                <div className={styles.viewButton}>View</div>
-                                <div className={styles.arrowButton}>→</div>
-                              </button>
                             ) : (
-                              <button
-                                onClick={(e) => handleViewDetails(job._id, e)}
-                                className={styles.viewDetailsButton}
-                              >
-                                <div className={styles.viewButton}>View</div>
-                                <div className={styles.arrowButton}>→</div>
-                              </button>
+                              <div className={styles.actionGroup}>
+                                <button
+                                  onClick={(e) => handleViewDetails(job._id, e)}
+                                  className={styles.viewDetailsButton}
+                                >
+                                  <div className={styles.viewButton}>View</div>
+                                  <div className={styles.arrowButton}>→</div>
+                                </button>
+                                {job._ieCancelPending ? (
+                                  <span className={styles.pendingCancelBadge}>Cancel Pending</span>
+                                ) : !job.ieDenial?.acknowledgedAt && (
+                                  <button
+                                    className={styles.denyButton}
+                                    onClick={(e) => { e.stopPropagation(); setDenyModal(job); setDenyReason(''); setDenyNote(''); setDenyError(null); }}
+                                  >
+                                    Deny
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -401,10 +410,17 @@ const Dashboard = () => {
       {denyModal && (
         <div className={styles.denyOverlay} onClick={() => !denySubmitting && setDenyModal(null)}>
           <div className={styles.denyCard} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.denyTitle}>Acknowledge Cancellation</h3>
+            <h3 className={styles.denyTitle}>
+              {isCancelledJob(denyModal) ? 'Acknowledge Cancellation' : 'Request Cancellation'}
+            </h3>
             <p className={styles.denySubtitle}>
               {denyModal.customerSnapshot?.name} — {denyModal.vehicleSnapshot?.brand} {denyModal.vehicleSnapshot?.model}
             </p>
+            {!isCancelledJob(denyModal) && (
+              <p className={styles.denyInfo}>
+                This will send a cancellation request to admin for approval. The job will be cancelled only after admin confirms.
+              </p>
+            )}
             <label className={styles.denyLabel}>Reason *</label>
             <select
               className={styles.denySelect}
@@ -416,6 +432,7 @@ const Dashboard = () => {
               <option value="Check-In-Deny">Check-In-Deny</option>
               <option value="Cancelled before start ride">Cancelled before start ride</option>
               <option value="Seller Issue">Seller Issue</option>
+              <option value="IE Self-Cancel">IE Self-Cancel</option>
               <option value="Others">Others</option>
             </select>
             <label className={styles.denyLabel}>Note (optional)</label>
@@ -431,7 +448,7 @@ const Dashboard = () => {
             <div className={styles.denyActions}>
               <button className={styles.denyCancelBtn} onClick={() => setDenyModal(null)} disabled={denySubmitting}>Cancel</button>
               <button className={styles.denySubmitBtn} onClick={handleDenySubmit} disabled={denySubmitting || !denyReason}>
-                {denySubmitting ? 'Submitting...' : 'Submit'}
+                {denySubmitting ? 'Submitting...' : isCancelledJob(denyModal) ? 'Acknowledge' : 'Send Request'}
               </button>
             </div>
           </div>

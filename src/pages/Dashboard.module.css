@@ -729,3 +729,29 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pendingCancelBadge {
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.denyInfo {
+  font-size: 12px;
+  color: #6B7280;
+  background: #FEF3C7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
