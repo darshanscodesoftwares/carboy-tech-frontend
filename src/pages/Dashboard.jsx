@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { getJobs, acceptJob } from "../api/jobs";
 import { getTechnicianProfile } from "../api/auth";
 import { getTodayAttendance } from "../api/attendance";
+import api from "../api/index";
 import useTechnicianStore from "../store/technician";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -22,6 +24,11 @@ const Dashboard = () => {
   const [attended, setAttended] = useState(false);
   const [attendanceLoading, setAttendanceLoading] = useState(true);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [denyModal, setDenyModal] = useState(null);
+  const [denyReason, setDenyReason] = useState('');
+  const [denyNote, setDenyNote] = useState('');
+  const [denySubmitting, setDenySubmitting] = useState(false);
+  const [denyError, setDenyError] = useState(null);
 
   useEffect(() => {
     getTodayAttendance()
@@ -146,7 +153,31 @@ const Dashboard = () => {
       };
     if (status === "completed")
       return { label: "Completed", className: styles.statusCompleted };
+    if (status === "cancelled")
+      return { label: "Cancelled", className: styles.statusCancelled };
     return { label: status, className: styles.statusPending };
+  };
+
+  const handleDenySubmit = async () => {
+    if (!denyReason) return;
+    setDenySubmitting(true);
+    setDenyError(null);
+    try {
+      const jobId = denyModal._id;
+      const jobsBase = api.defaults.baseURL.replace(/\/technician$/, '');
+      const token = localStorage.getItem('token');
+      await axios.post(`${jobsBase}/jobs/${jobId}/ie-denial`, { reason: denyReason, note: denyNote }, {
+        headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      setJobs((prev) => prev.filter((j) => j._id !== jobId));
+      setDenyModal(null);
+      setDenyReason('');
+      setDenyNote('');
+    } catch (err) {
+      setDenyError(err.response?.data?.message || 'Failed to submit. Please try again.');
+    } finally {
+      setDenySubmitting(false);
+    }
   };
 
   return (
@@ -291,6 +322,17 @@ const Dashboard = () => {
                                   ? "Accepting..."
                                   : "Accept"}
                               </button>
+                            ) : job.status === "cancelled" ? (
+                              job.ieDenial?.acknowledgedAt ? (
+                                <span className={styles.acknowledgedBadge}>Acknowledged</span>
+                              ) : (
+                                <button
+                                  className={styles.denyButton}
+                                  onClick={(e) => { e.stopPropagation(); setDenyModal(job); setDenyReason(''); setDenyNote(''); setDenyError(null); }}
+                                >
+                                  Deny
+                                </button>
+                              )
                             ) : job.status === "accepted" ||
                               job.status === "traveling" ||
                               job.status === "reached" ||
@@ -354,6 +396,46 @@ const Dashboard = () => {
             setShowAttendanceModal(false);
           }}
         />
+      )}
+
+      {denyModal && (
+        <div className={styles.denyOverlay} onClick={() => !denySubmitting && setDenyModal(null)}>
+          <div className={styles.denyCard} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.denyTitle}>Acknowledge Cancellation</h3>
+            <p className={styles.denySubtitle}>
+              {denyModal.customerSnapshot?.name} — {denyModal.vehicleSnapshot?.brand} {denyModal.vehicleSnapshot?.model}
+            </p>
+            <label className={styles.denyLabel}>Reason *</label>
+            <select
+              className={styles.denySelect}
+              value={denyReason}
+              onChange={(e) => setDenyReason(e.target.value)}
+              disabled={denySubmitting}
+            >
+              <option value="">Select a reason</option>
+              <option value="Check-In-Deny">Check-In-Deny</option>
+              <option value="Cancelled before start ride">Cancelled before start ride</option>
+              <option value="Seller Issue">Seller Issue</option>
+              <option value="Others">Others</option>
+            </select>
+            <label className={styles.denyLabel}>Note (optional)</label>
+            <textarea
+              className={styles.denyTextarea}
+              placeholder="Add any additional details..."
+              value={denyNote}
+              onChange={(e) => setDenyNote(e.target.value)}
+              disabled={denySubmitting}
+              rows={3}
+            />
+            {denyError && <p className={styles.denyError}>{denyError}</p>}
+            <div className={styles.denyActions}>
+              <button className={styles.denyCancelBtn} onClick={() => setDenyModal(null)} disabled={denySubmitting}>Cancel</button>
+              <button className={styles.denySubmitBtn} onClick={handleDenySubmit} disabled={denySubmitting || !denyReason}>
+                {denySubmitting ? 'Submitting...' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

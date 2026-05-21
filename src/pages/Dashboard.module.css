@@ -598,3 +598,134 @@
     padding: var(--space-xs) var(--space-sm);
   }
 }
+
+/* IE Denial */
+.statusCancelled {
+  background: #FEE2E2;
+  color: #991B1B;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.denyButton {
+  background: transparent;
+  border: 1.5px solid #DC2626;
+  color: #DC2626;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acknowledgedBadge {
+  background: #F3F4F6;
+  color: #6B7280;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.denyOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.denyCard {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.denyTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.denySubtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.denyLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.denySelect {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  background: #fff;
+}
+
+.denyTextarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+  resize: none;
+  font-family: inherit;
+}
+
+.denyError {
+  color: #DC2626;
+  font-size: 13px;
+  margin: 0;
+}
+
+.denyActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.denyCancelBtn {
+  background: transparent;
+  border: 1.5px solid #D1D5DB;
+  color: #6B7280;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.denySubmitBtn {
+  background: #DC2626;
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.denySubmitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
