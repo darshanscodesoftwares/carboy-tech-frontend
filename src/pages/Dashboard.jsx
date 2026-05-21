@@ -68,6 +68,8 @@ const Dashboard = () => {
 
         const filteredJobs = jobsData.filter((job) => {
           if (job.status === "completed") return false;
+          // Cancelled jobs that the IE has already acknowledged leave the table
+          if (job.status === "cancelled" && job.ieDenial?.acknowledgedAt) return false;
           const sched = job.schedule?.date ? new Date(job.schedule.date).getTime() : null;
           if (!sched) return true;
           if (sched < pastCutoff) return false;
@@ -350,7 +352,7 @@ const Dashboard = () => {
                                   <div className={styles.viewButton}>View</div>
                                   <div className={styles.arrowButton}>→</div>
                                 </button>
-                                {job._ieCancelPending ? (
+                                {(job._ieCancelPending || (job.ieDenial?.acknowledgedAt && job.status !== 'cancelled')) ? (
                                   <span className={styles.pendingCancelBadge}>Cancel Pending</span>
                                 ) : !job.ieDenial?.acknowledgedAt && (
                                   <button
