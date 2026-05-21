@@ -8,7 +8,8 @@ const getBaseUrl = () => {
   const local = import.meta.env.VITE_API_BASE_URL_LOCAL;
   const prod = import.meta.env.VITE_API_BASE_URL;
 
-  if (window.location.hostname === "localhost") {
+  const h = window.location.hostname;
+  if (h === "localhost" || h.startsWith("192.168.") || h.startsWith("10.") || h.startsWith("172.")) {
     return local;
   }
   return prod;
