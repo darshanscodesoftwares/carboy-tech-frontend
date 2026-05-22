@@ -68,9 +68,10 @@ export const reopenJob = async (jobId) => {
   return response.data.data;
 };
 
-export const sendReport = async (jobId, remarks) => {
+export const sendReport = async (jobId, remarks, disabledSections = []) => {
   const response = await api.post(`/jobs/${jobId}/send-report`, {
     remarks,
+    disabledSections,
   });
   return response.data.data;
 };

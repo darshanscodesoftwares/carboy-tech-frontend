@@ -50,6 +50,18 @@ const JobFlow = () => {
   const [showRemarksModal, setShowRemarksModal] = useState(false);
   const checkpointRefs = useRef({});
   const [missingKeys, setMissingKeys] = useState([]);
+  // Map of section name → { enabled: bool, remark: string }
+  // Only sections with toggleable support (currently "Test Drive") appear here
+  const TOGGLEABLE_SECTIONS = ["Test Drive"];
+  const [sectionToggles, setSectionToggles] = useState(() =>
+    Object.fromEntries(TOGGLEABLE_SECTIONS.map((s) => [s, { enabled: true, remark: "" }]))
+  );
+  const isSectionDisabled = (sectionName) =>
+    TOGGLEABLE_SECTIONS.includes(sectionName) && !sectionToggles[sectionName]?.enabled;
+  const getDisabledSectionsPayload = () =>
+    TOGGLEABLE_SECTIONS
+      .filter((s) => !sectionToggles[s]?.enabled)
+      .map((s) => ({ section: s, remark: sectionToggles[s]?.remark || "" }));
 
   // Enable job notifications only on inspection and summary pages
   const isInspectionOrSummary =
@@ -98,14 +110,14 @@ const JobFlow = () => {
       setActionLoading(false);
     }
   };
-  // Helper to get all checklist items (both formats)
+  // Helper to get all checklist items (both formats), excluding disabled sections
   const getAllChecklistItems = () => {
     if (!checklist) return [];
-    // PDI format with sections
     if (checklist.sections) {
-      return checklist.sections.flatMap((section) => section.items);
+      return checklist.sections
+        .filter((section) => !isSectionDisabled(section.section))
+        .flatMap((section) => section.items);
     }
-    // UCI format with flat items
     if (checklist.items) {
       return checklist.items;
     }
@@ -217,6 +229,15 @@ const findMissingCheckpoints = () => {
 
 
 const handleSubmitReport = async () => {
+  // Validate disabled sections have a remark
+  const missingRemarks = TOGGLEABLE_SECTIONS.filter(
+    (s) => !sectionToggles[s]?.enabled && !sectionToggles[s]?.remark?.trim()
+  );
+  if (missingRemarks.length > 0) {
+    setError(`Please provide a reason for skipping: ${missingRemarks.join(", ")}`);
+    return;
+  }
+
   const missing = findMissingCheckpoints();
   if (missing.length > 0) {
     setMissingKeys(missing);
@@ -234,7 +255,7 @@ const handleSubmitReport = async () => {
     });
 
     // ✅ STEP 2: SEND REPORT TO ADMIN
-    await sendReport(jobId, remarks.trim());
+    await sendReport(jobId, remarks.trim(), getDisabledSectionsPayload());
 
     // 🔥 CRITICAL: Refresh job so technicianRemarks is in state
 await fetchJob(jobId);
@@ -372,7 +393,9 @@ const handleSaveRemark = async (remark) => {
     });
 
   if (checklist.sections) {
-    const allItems = checklist.sections.flatMap((s) => s.items);
+    const allItems = checklist.sections
+      .filter((s) => !isSectionDisabled(s.section))
+      .flatMap((s) => s.items);
     return allItems.length > 0 && validateItems(allItems);
   }
 
@@ -605,26 +628,63 @@ const handleSaveRemark = async (remark) => {
               <>
                 {/* PDI format with sections */}
                 {checklist.sections &&
-                  checklist.sections.map((section) => (
-                    <div key={section.section} className={styles.sectionGroup}>
-                      <h4 className={styles.sectionHeader}>
-                        {section.section}
-                      </h4>
-                      {section.items.map((item) => (
-                        <ChecklistItem
-                          key={item.key}
-                          ref={(el) => (checkpointRefs.current[item.key] = el)}
-                          item={item}
-                          job={job}
-                          onSubmit={handleCheckpointSubmit}
-                          isSubmitting={checkpointLoading}
-                          existingAnswer={getExistingAnswer(item.key)}
-                          isEditMode={isEditMode}
-                          hasError={missingKeys.includes(item.key)}
-                        />
-                      ))}
-                    </div>
-                  ))}
+                  checklist.sections.map((section) => {
+                    const isToggleable = TOGGLEABLE_SECTIONS.includes(section.section);
+                    const disabled = isSectionDisabled(section.section);
+                    const toggle = sectionToggles[section.section];
+                    return (
+                      <div key={section.section} className={styles.sectionGroup}>
+                        <div className={styles.sectionHeaderRow}>
+                          <h4 className={styles.sectionHeader}>{section.section}</h4>
+                          {isToggleable && (
+                            <button
+                              type="button"
+                              className={`${styles.sectionToggle} ${disabled ? styles.sectionToggleOff : styles.sectionToggleOn}`}
+                              onClick={() =>
+                                setSectionToggles((prev) => ({
+                                  ...prev,
+                                  [section.section]: { ...prev[section.section], enabled: !prev[section.section].enabled },
+                                }))
+                              }
+                            >
+                              {disabled ? "OFF" : "ON"}
+                            </button>
+                          )}
+                        </div>
+                        {isToggleable && disabled ? (
+                          <div className={styles.sectionDisabledBlock}>
+                            <p className={styles.sectionDisabledNote}>Test Drive skipped — provide a reason:</p>
+                            <textarea
+                              className={`${styles.sectionDisabledRemark} ${!toggle?.remark?.trim() ? styles.sectionDisabledRemarkError : ""}`}
+                              placeholder="Reason for skipping (required)"
+                              value={toggle?.remark || ""}
+                              onChange={(e) =>
+                                setSectionToggles((prev) => ({
+                                  ...prev,
+                                  [section.section]: { ...prev[section.section], remark: e.target.value },
+                                }))
+                              }
+                              rows={3}
+                            />
+                          </div>
+                        ) : (
+                          section.items.map((item) => (
+                            <ChecklistItem
+                              key={item.key}
+                              ref={(el) => (checkpointRefs.current[item.key] = el)}
+                              item={item}
+                              job={job}
+                              onSubmit={handleCheckpointSubmit}
+                              isSubmitting={checkpointLoading}
+                              existingAnswer={getExistingAnswer(item.key)}
+                              isEditMode={isEditMode}
+                              hasError={missingKeys.includes(item.key)}
+                            />
+                          ))
+                        )}
+                      </div>
+                    );
+                  })}
 
                 {/* UCI format with flat items */}
                 {checklist.items &&

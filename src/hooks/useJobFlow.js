@@ -172,11 +172,11 @@ const useJobFlow = () => {
     }
   }, []);
 
-  const sendReport = useCallback(async (jobId, remarks) => {
+  const sendReport = useCallback(async (jobId, remarks, disabledSections = []) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await jobsApi.sendReport(jobId, remarks);
+      const data = await jobsApi.sendReport(jobId, remarks, disabledSections);
       setJob(data);
       setSummary(null);
       return data;

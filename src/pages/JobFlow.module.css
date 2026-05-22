@@ -141,6 +141,73 @@
   color: var(--color-muted);
 }
 
+.sectionHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.sectionHeaderRow .sectionHeader {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.sectionToggle {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+}
+
+.sectionToggleOn {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.sectionToggleOff {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.sectionDisabledBlock {
+  padding: 12px 14px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: 10px;
+  margin-bottom: var(--space-md);
+}
+
+.sectionDisabledNote {
+  font-size: 13px;
+  color: #92400E;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.sectionDisabledRemark {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+  background: #fff;
+}
+
+.sectionDisabledRemarkError {
+  border-color: #EF4444;
+}
+
 .completionMessage {
   display: flex;
   flex-direction: column;
