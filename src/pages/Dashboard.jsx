@@ -240,7 +240,15 @@ const Dashboard = () => {
         <div className={styles.jobsSection}>
           <h2 className={styles.sectionTitle}>My Assigned Jobs</h2>
 
-          {loading ? (
+          {!attendanceLoading && !attended ? (
+            <div className={styles.empty}>
+              <p className={styles.emptyTitle}>📷 Please mark attendance to view your jobs</p>
+              <p className={styles.emptyText}>
+                Tap the "Mark Attendance" button above to check in for today.
+                Your assigned jobs will appear here once attendance is marked.
+              </p>
+            </div>
+          ) : loading ? (
             <Loading message="Loading jobs..." />
           ) : error ? (
             <div className={styles.error}>
